@@ -2,12 +2,12 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:photoline/photoline.dart';
 
-import '../mixin/state/rebuild.dart';
-import '../photoline.dart';
+import 'package:photoline/src/mixin/state/rebuild.dart';
 
-class PhotolinePaginatorStar extends StatefulWidget {
-  const PhotolinePaginatorStar({
+class PhotolinePaginatorItem extends StatefulWidget {
+  const PhotolinePaginatorItem({
     super.key,
     required this.index,
     required this.photoline,
@@ -19,28 +19,26 @@ class PhotolinePaginatorStar extends StatefulWidget {
   final int indexOffset;
 
   @override
-  State<PhotolinePaginatorStar> createState() => _PhotolinePaginatorStarState();
+  State<PhotolinePaginatorItem> createState() => _PhotolinePaginatorItemState();
 }
 
-class _PhotolinePaginatorStarState extends State<PhotolinePaginatorStar> with SingleTickerProviderStateMixin, StateRebuildMixin {
+class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem> with SingleTickerProviderStateMixin, StateRebuildMixin {
   late AnimationController _animation;
 
   PhotolineState get _photoline => widget.photoline;
 
-  //PhotolineController get _controller => widget.photoline.widget.controller;
+  PhotolineController get _controller => widget.photoline.widget.controller;
 
   int get _indexOffset => widget.indexOffset;
 
-  //Color get _color => widget.index >= _controller.getCount() - _indexOffset ? const Color.fromRGBO(200, 200, 200, 1) : Color.lerp(const Color.fromRGBO(120, 120, 130, 1), const Color.fromRGBO(0, 0, 0, 1), _animation.value)!;
+  Color get _color => widget.index >= _controller.getPhotoCount() - _indexOffset ? const Color.fromRGBO(200, 200, 200, 1) : Color.lerp(const Color.fromRGBO(120, 120, 130, 1), const Color.fromRGBO(0, 0, 0, 1), _animation.value)!;
 
   void listener() {
     final double value = _photoline.pageActive.value == (widget.index + _indexOffset) ? 1 : 0;
 
     rebuild();
 
-    if (value == _animation.value && !_animation.isAnimating) {
-      return;
-    }
+    if (value == _animation.value && !_animation.isAnimating) return;
     if (value > 0) {
       _animation.forward(from: _animation.value);
     } else {
@@ -68,32 +66,28 @@ class _PhotolinePaginatorStarState extends State<PhotolinePaginatorStar> with Si
   }
 
   @override
-  Widget build(BuildContext context) => _StarTriangle(
-        height: lerpDouble(0, 10, _animation.value)!,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            //Assets.svg.avatar.user.svg(width: PhotolinePaginator.starHeight, colorFilter: ColorFilter.mode(_color, BlendMode.srcIn)),
-            Text(
-              '${widget.index + 1}',
-              style: const TextStyle(
-                //fontFamily: FontFamily.sansitaOne,
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => _photoline.toPage(widget.index + _indexOffset),
-            ),
-            const MouseRegion(
-              cursor: SystemMouseCursors.click,
-              opaque: false,
-              child: SizedBox(width: 40, height: 40),
-            )
-          ],
-        ),
-      );
+  Widget build(BuildContext context) {
+    const double sz = 40;
+    return _StarTriangle(
+      height: lerpDouble(0, 10, _animation.value)!,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          ..._controller.getPagerItem!(widget.index, _color),
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => _photoline.toPage(widget.index + _indexOffset),
+            child: const SizedBox.expand(),
+          ),
+          const MouseRegion(
+            cursor: SystemMouseCursors.click,
+            opaque: false,
+            child: SizedBox(width: sz, height: sz),
+          )
+        ],
+      ),
+    );
+  }
 }
 
 class _StarTriangle extends SingleChildRenderObjectWidget {

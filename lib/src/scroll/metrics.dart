@@ -27,15 +27,20 @@ class PhotolineScrollMetrics with ScrollMetrics {
     double? devicePixelRatio,
   }) =>
       PhotolineScrollMetrics(
-        minScrollExtent: minScrollExtent ?? (hasContentDimensions ? this.minScrollExtent : null),
-        maxScrollExtent: maxScrollExtent ?? (hasContentDimensions ? this.maxScrollExtent : null),
+        minScrollExtent: minScrollExtent ??
+            (hasContentDimensions ? this.minScrollExtent : null),
+        maxScrollExtent: maxScrollExtent ??
+            (hasContentDimensions ? this.maxScrollExtent : null),
         pixels: pixels ?? (hasPixels ? this.pixels : null),
-        viewportDimension: viewportDimension ?? (hasViewportDimension ? this.viewportDimension : null),
+        viewportDimension: viewportDimension ??
+            (hasViewportDimension ? this.viewportDimension : null),
         axisDirection: axisDirection ?? this.axisDirection,
         devicePixelRatio: devicePixelRatio ?? this.devicePixelRatio,
       );
 
-  double? get page => math.max(0.0, clampDouble(pixels, minScrollExtent, maxScrollExtent)) / math.max(1.0, viewportDimension);
+  double? get page =>
+      math.max(0.0, clampDouble(pixels, minScrollExtent, maxScrollExtent)) /
+      math.max(1.0, viewportDimension);
 
   // --- override
   @override
@@ -47,7 +52,8 @@ class PhotolineScrollMetrics with ScrollMetrics {
   final double? _maxScrollExtent;
 
   @override
-  bool get hasContentDimensions => _minScrollExtent != null && _maxScrollExtent != null;
+  bool get hasContentDimensions =>
+      _minScrollExtent != null && _maxScrollExtent != null;
 
   @override
   double get pixels => _pixels!;

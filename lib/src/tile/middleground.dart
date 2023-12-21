@@ -1,31 +1,16 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:photoline/photoline.dart';
 
-class PhotolineTileMiddleGround extends StatelessWidget {
-  const PhotolineTileMiddleGround({
-    super.key,
+class PhotolineTileMiddleGroundPaint extends CustomPainter {
+  PhotolineTileMiddleGroundPaint({
+    required this.photoline,
     required this.opacity,
   });
 
   final double opacity;
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned.fill(
-      child: CustomPaint(
-        painter: _Painter(
-          opacity: opacity,
-        ),
-      ),
-    );
-  }
-}
-
-class _Painter extends CustomPainter {
-  _Painter({required this.opacity});
-
-  final double opacity;
+  final PhotolineState photoline;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -40,17 +25,13 @@ class _Painter extends CustomPainter {
 
     final w = size.width, h = size.height;
 
-    canvas.drawRect(Rect.fromLTWH(0, 0, w, h), paint);
+    if (opacity > 0) canvas.drawRect(Rect.fromLTWH(0, 0, w, h), paint);
 
-    final sw = math.min(10.0, size.width);
+    final sw = math.min(photoline.widget.photoStripeWidth, size.width);
     paint.colorFilter = null;
-    if (sw > 0) canvas.drawRect(Rect.fromLTWH(0, 0, sw, size.height), paint..color = Colors.red);
-
-    //final sw = math.min(W.carouselStripe, size.width);
-    //paint.colorFilter = null;
-    //if (sw > 0) canvas.drawRect(Rect.fromLTWH(0, 0, sw, size.height), paint..color = C.carouselStripe);
+    if (sw > 0) canvas.drawRect(Rect.fromLTWH(0, 0, sw, size.height), paint..color = photoline.widget.photoStripeColor);
   }
 
   @override
-  bool shouldRepaint(_Painter o) => opacity != o.opacity;
+  bool shouldRepaint(PhotolineTileMiddleGroundPaint oldDelegate) => opacity != oldDelegate.opacity;
 }

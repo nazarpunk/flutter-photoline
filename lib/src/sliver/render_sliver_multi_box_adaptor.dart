@@ -1,8 +1,8 @@
 import 'package:flutter/rendering.dart';
 
-import '../photoline.dart';
-import '../scroll/controller.dart';
-import '../utils/action.dart';
+import 'package:photoline/src/photoline.dart';
+import 'package:photoline/src/controller.dart';
+import 'package:photoline/src/utils/action.dart';
 
 class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
   PhotolineRenderSliverMultiBoxAdaptor({
@@ -61,19 +61,23 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
   void _performWidth() {
     final constraints = this.constraints;
-    BoxConstraints bc(double width) => constraints.asBoxConstraints(minExtent: width, maxExtent: width);
+    BoxConstraints bc(double width) =>
+        constraints.asBoxConstraints(minExtent: width, maxExtent: width);
 
     childManager
       ..didStartLayout()
       ..setDidUnderflow(false);
 
-    final widthOpen = constraints.viewportMainAxisExtent * _photoline.widget.controller.openRatio;
-    final double scrollOffset = constraints.scrollOffset + constraints.cacheOrigin;
+    final widthOpen = constraints.viewportMainAxisExtent *
+        _photoline.widget.controller.openRatio;
+    final double scrollOffset =
+        constraints.scrollOffset + constraints.cacheOrigin;
 
     final p = photoline.positionOpen[0];
     if (firstChild == null) addInitialChild();
     firstChild!.layout(bc(p.width.current));
-    (firstChild!.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset = p.offset.current + scrollOffset;
+    (firstChild!.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset =
+        p.offset.current + scrollOffset;
 
     RenderBox curBox = firstChild!;
 
@@ -91,7 +95,8 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
       }
 
       curBox = child!;
-      (child.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset = p.offset.current + scrollOffset;
+      (child.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset =
+          p.offset.current + scrollOffset;
     }
 
     geometry = SliverGeometry(
@@ -110,15 +115,18 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
   void _performOpen() {
     final constraints = this.constraints;
-    BoxConstraints bc(double width) => constraints.asBoxConstraints(minExtent: width, maxExtent: width);
+    BoxConstraints bc(double width) =>
+        constraints.asBoxConstraints(minExtent: width, maxExtent: width);
     final count = _count;
 
     childManager
       ..didStartLayout()
       ..setDidUnderflow(false);
 
-    final widthOpen = constraints.viewportMainAxisExtent * _photoline.widget.controller.openRatio;
-    final double scrollOffset = constraints.scrollOffset + constraints.cacheOrigin;
+    final widthOpen = constraints.viewportMainAxisExtent *
+        _photoline.widget.controller.openRatio;
+    final double scrollOffset =
+        constraints.scrollOffset + constraints.cacheOrigin;
     final scrollExtent = widthOpen * count;
 
     if (firstChild == null) addInitialChild();
@@ -129,7 +137,8 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
       itemOffset += scrollOffset;
     }
     firstChild!.layout(bc(itemWidth));
-    (firstChild!.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset = itemOffset;
+    (firstChild!.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset =
+        itemOffset;
 
     RenderBox curBox = firstChild!;
     int indexOffset = 0;
@@ -149,7 +158,8 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
       }
 
       // right
-      final double rightDiff = (itemWidth + itemOffset) - (scrollOffset + constraints.viewportMainAxisExtent);
+      final double rightDiff = (itemWidth + itemOffset) -
+          (scrollOffset + constraints.viewportMainAxisExtent);
       if (rightDiff > 0 && itemWidth > rightDiff) {
         itemWidth -= rightDiff;
       }
@@ -160,7 +170,8 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
         child.layout(bc(itemWidth));
       }
       curBox = child!;
-      (child.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset = itemOffset;
+      (child.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset =
+          itemOffset;
     }
 
     geometry = SliverGeometry(
@@ -180,7 +191,8 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
   void _performDrag() {
     final constraints = this.constraints;
-    BoxConstraints bc(double width) => constraints.asBoxConstraints(minExtent: width, maxExtent: width);
+    BoxConstraints bc(double width) =>
+        constraints.asBoxConstraints(minExtent: width, maxExtent: width);
     final count = _count;
     final size = controller.size;
 
@@ -188,13 +200,16 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
       ..didStartLayout()
       ..setDidUnderflow(false);
 
-    final widthOpen = constraints.viewportMainAxisExtent * _photoline.widget.controller.openRatio;
-    final double scrollOffset = constraints.scrollOffset + constraints.cacheOrigin;
+    final widthOpen = constraints.viewportMainAxisExtent *
+        _photoline.widget.controller.openRatio;
+    final double scrollOffset =
+        constraints.scrollOffset + constraints.cacheOrigin;
 
     final fp = controller.positionDrag[0];
     if (firstChild == null) addInitialChild();
     firstChild!.layout(bc(size.close));
-    (firstChild!.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset = fp.offset + scrollOffset;
+    (firstChild!.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset =
+        fp.offset + scrollOffset;
 
     RenderBox curBox = firstChild!;
 
@@ -211,9 +226,12 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
       curBox = child!;
       double offset = p.offset;
-      if (i == controller.pageDragInitial) offset = offset.clamp(0, constraints.viewportMainAxisExtent - size.close);
+      if (i == controller.pageDragInitial)
+        offset =
+            offset.clamp(0, constraints.viewportMainAxisExtent - size.close);
 
-      (child.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset = offset + scrollOffset;
+      (child.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset =
+          offset + scrollOffset;
     }
 
     geometry = SliverGeometry(
@@ -232,13 +250,15 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
   void _performClose() {
     final constraints = this.constraints;
-    BoxConstraints bc(double width) => constraints.asBoxConstraints(minExtent: width, maxExtent: width);
+    BoxConstraints bc(double width) =>
+        constraints.asBoxConstraints(minExtent: width, maxExtent: width);
 
     childManager
       ..didStartLayout()
       ..setDidUnderflow(false);
 
-    final widthClose = constraints.viewportMainAxisExtent * _controller.closeRatio;
+    final widthClose =
+        constraints.viewportMainAxisExtent * _controller.closeRatio;
     final count = _count;
 
     final List<double> ws = [];
@@ -260,7 +280,8 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
     if (firstChild == null) addInitialChild();
     firstChild!.layout(bc(ws[0]));
-    (firstChild!.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset = os[0];
+    (firstChild!.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset =
+        os[0];
 
     RenderBox curBox = firstChild!;
     for (int i = 1; i < count; i++) {
@@ -272,7 +293,8 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
         child.layout(bc(ws[i]));
       }
       curBox = child!;
-      (child.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset = os[i];
+      (child.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset =
+          os[i];
     }
 
     final scrollExtent = os.last + ws.last;
@@ -298,7 +320,8 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
     final Offset mainAxisUnit, crossAxisUnit, originOffset;
     final bool addExtent;
-    switch (applyGrowthDirectionToAxisDirection(constraints.axisDirection, constraints.growthDirection)) {
+    switch (applyGrowthDirectionToAxisDirection(
+        constraints.axisDirection, constraints.growthDirection)) {
       case AxisDirection.up:
         mainAxisUnit = const Offset(0.0, -1.0);
         crossAxisUnit = const Offset(1.0, 0.0);
@@ -328,14 +351,20 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
       final double mainAxisDelta = childMainAxisPosition(child);
       final double crossAxisDelta = childCrossAxisPosition(child);
       Offset childOffset = Offset(
-        originOffset.dx + mainAxisUnit.dx * mainAxisDelta + crossAxisUnit.dx * crossAxisDelta,
-        originOffset.dy + mainAxisUnit.dy * mainAxisDelta + crossAxisUnit.dy * crossAxisDelta,
+        originOffset.dx +
+            mainAxisUnit.dx * mainAxisDelta +
+            crossAxisUnit.dx * crossAxisDelta,
+        originOffset.dy +
+            mainAxisUnit.dy * mainAxisDelta +
+            crossAxisUnit.dy * crossAxisDelta,
       );
       if (addExtent) childOffset += mainAxisUnit * paintExtentOf(child);
 
-      bool canPaint = mainAxisDelta < constraints.remainingPaintExtent && mainAxisDelta + paintExtentOf(child) > 0;
+      bool canPaint = mainAxisDelta < constraints.remainingPaintExtent &&
+          mainAxisDelta + paintExtentOf(child) > 0;
 
-      if (controller.action == PhotolineAction.drag && indexOf(child) == controller.pageDragInitial) {
+      if (controller.action == PhotolineAction.drag &&
+          indexOf(child) == controller.pageDragInitial) {
         canPaint = false;
         dragBox = child;
         dragOffset = childOffset;

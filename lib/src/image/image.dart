@@ -1,9 +1,9 @@
 import 'dart:math' as math;
 import 'dart:ui' as ui;
-import 'package:flutter/material.dart';
 
-import '../mixin/state/rebuild.dart';
-import 'loader.dart';
+import 'package:flutter/material.dart';
+import 'package:photoline/src/image/loader.dart';
+import 'package:photoline/src/mixin/state/rebuild.dart';
 
 part 'painter.dart';
 
@@ -23,7 +23,8 @@ class PhotolineImage extends StatefulWidget {
   State<PhotolineImage> createState() => _PhotolineImageState();
 }
 
-class _PhotolineImageState extends State<PhotolineImage> with SingleTickerProviderStateMixin, StateRebuildMixin {
+class _PhotolineImageState extends State<PhotolineImage>
+    with SingleTickerProviderStateMixin, StateRebuildMixin {
   Uri get _uri => widget.uri;
 
   late final AnimationController _animation;
@@ -45,6 +46,8 @@ class _PhotolineImageState extends State<PhotolineImage> with SingleTickerProvid
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
+
+
 
     if (loader.image == null) {
       _animation

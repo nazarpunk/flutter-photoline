@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../photoline.dart';
-import '../scroll/controller.dart';
-import 'render_sliver_multi_box_adaptor.dart';
+import 'package:photoline/src/photoline.dart';
+import 'package:photoline/src/controller.dart';
+import 'package:photoline/src/sliver/render_sliver_multi_box_adaptor.dart';
 
 class PhotolineSliverMultiBoxAdaptorWidget extends SliverMultiBoxAdaptorWidget {
   const PhotolineSliverMultiBoxAdaptorWidget({
@@ -17,7 +17,9 @@ class PhotolineSliverMultiBoxAdaptorWidget extends SliverMultiBoxAdaptorWidget {
   final bool updater;
 
   @override
-  PhotolineRenderSliverMultiBoxAdaptor createRenderObject(BuildContext context) => PhotolineRenderSliverMultiBoxAdaptor(
+  PhotolineRenderSliverMultiBoxAdaptor createRenderObject(
+          BuildContext context) =>
+      PhotolineRenderSliverMultiBoxAdaptor(
         childManager: context as SliverMultiBoxAdaptorElement,
         controller: controller,
         photoline: photoline,
@@ -25,7 +27,8 @@ class PhotolineSliverMultiBoxAdaptorWidget extends SliverMultiBoxAdaptorWidget {
       );
 
   @override
-  void updateRenderObject(BuildContext context, PhotolineRenderSliverMultiBoxAdaptor renderObject) {
+  void updateRenderObject(
+      BuildContext context, PhotolineRenderSliverMultiBoxAdaptor renderObject) {
     renderObject
       ..controller = controller
       ..photoline = photoline

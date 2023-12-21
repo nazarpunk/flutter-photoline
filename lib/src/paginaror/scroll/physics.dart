@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import 'view.dart';
+import 'package:photoline/src/paginaror/scroll/view.dart';
 
 class ScrollExtentPhysics extends ScrollPhysics {
   const ScrollExtentPhysics({super.parent});
@@ -22,12 +22,7 @@ class ScrollExtentPhysics extends ScrollPhysics {
     final max = maxScrollExtent(position);
 
     if (velocity == 0 && max < position.pixels) {
-      return ScrollSpringSimulation(
-        spring,
-        position.pixels,
-        max,
-        0
-      );
+      return ScrollSpringSimulation(spring, position.pixels, max, 0);
     }
 
     double target = p +
@@ -43,12 +38,7 @@ class ScrollExtentPhysics extends ScrollPhysics {
 
     return target == p
         ? null
-        : ScrollSpringSimulation(
-            spring,
-            p,
-            target,
-            velocity
-          );
+        : ScrollSpringSimulation(spring, p, target, velocity);
   }
 
   double _target({

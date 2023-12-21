@@ -6,16 +6,16 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/rendering.dart';
+import 'package:photoline/src/scroll/activity/ballistic.dart';
+import 'package:photoline/src/scroll/activity/drag.dart';
+import 'package:photoline/src/scroll/activity/idle.dart';
+import 'package:photoline/src/scroll/activity/mixin.dart';
+import 'package:photoline/src/controller.dart';
+import 'package:photoline/src/scroll/metrics.dart';
+import 'package:photoline/src/utils/action.dart';
 
-import '../utils/action.dart';
-import 'activity/ballistic.dart';
-import 'activity/drag.dart';
-import 'activity/idle.dart';
-import 'activity/mixin.dart';
-import 'controller.dart';
-import 'metrics.dart';
-
-class PhotolineScrollPosition extends ScrollPosition implements ScrollActivityDelegate, PhotolineScrollMetrics {
+class PhotolineScrollPosition extends ScrollPosition
+    implements ScrollActivityDelegate, PhotolineScrollMetrics {
   PhotolineScrollPosition({
     required this.controller,
     required super.physics,
@@ -39,7 +39,8 @@ class PhotolineScrollPosition extends ScrollPosition implements ScrollActivityDe
     double alignment = 0.0,
     Duration duration = Duration.zero,
     Curve curve = Curves.ease,
-    ScrollPositionAlignmentPolicy alignmentPolicy = ScrollPositionAlignmentPolicy.explicit,
+    ScrollPositionAlignmentPolicy alignmentPolicy =
+        ScrollPositionAlignmentPolicy.explicit,
     RenderObject? targetRenderObject,
   }) =>
       super.ensureVisible(
@@ -62,11 +63,15 @@ class PhotolineScrollPosition extends ScrollPosition implements ScrollActivityDe
   }
 
   double get pageLast {
-    final double ratio = controller.action == PhotolineAction.close ? controller.closeRatio : controller.openRatio;
-    return (maxScrollExtent + viewportDimension) / (viewportDimension * ratio) - 1;
+    final double ratio = controller.action == PhotolineAction.close
+        ? controller.closeRatio
+        : controller.openRatio;
+    return (maxScrollExtent + viewportDimension) / (viewportDimension * ratio) -
+        1;
   }
 
-  double pageAdd(double add) => ((page ?? 0) + add).clamp(0, pageLast).roundToDouble();
+  double pageAdd(double add) =>
+      ((page ?? 0) + add).clamp(0, pageLast).roundToDouble();
 
   double _getPageFromPixelsOpen(double pixels, [double? vd]) {
     vd ??= viewportDimension;
@@ -108,8 +113,14 @@ class PhotolineScrollPosition extends ScrollPosition implements ScrollActivityDe
 
   @override
   double? get page {
-    assert(!hasPixels || hasContentDimensions, 'Page value is only available after content dimensions are established.');
-    return !hasPixels || !hasContentDimensions ? null : cachedPage ?? getPageFromPixels(clampDouble(pixels, minScrollExtent, maxScrollExtent), viewportDimension);
+    assert(!hasPixels || hasContentDimensions,
+        'Page value is only available after content dimensions are established.');
+    return !hasPixels || !hasContentDimensions
+        ? null
+        : cachedPage ??
+            getPageFromPixels(
+                clampDouble(pixels, minScrollExtent, maxScrollExtent),
+                viewportDimension);
   }
 
   double get pageOpen {
@@ -118,13 +129,15 @@ class PhotolineScrollPosition extends ScrollPosition implements ScrollActivityDe
 
   @override
   void saveScrollOffset() {
-    PageStorage.maybeOf(context.storageContext)?.writeState(context.storageContext, cachedPage ?? getPageFromPixels(pixels));
+    PageStorage.maybeOf(context.storageContext)?.writeState(
+        context.storageContext, cachedPage ?? getPageFromPixels(pixels));
   }
 
   @override
   void restoreScrollOffset() {
     if (!hasPixels) {
-      final double? value = PageStorage.maybeOf(context.storageContext)?.readState(context.storageContext) as double?;
+      final double? value = PageStorage.maybeOf(context.storageContext)
+          ?.readState(context.storageContext) as double?;
       if (value != null) _pageToUseOnStartup = value;
     }
   }
@@ -145,7 +158,8 @@ class PhotolineScrollPosition extends ScrollPosition implements ScrollActivityDe
 
   @override
   bool applyViewportDimension(double viewportDimension) {
-    final double? oldViewportDimensions = hasViewportDimension ? this.viewportDimension : null;
+    final double? oldViewportDimensions =
+        hasViewportDimension ? this.viewportDimension : null;
     if (viewportDimension == oldViewportDimensions) {
       return true;
     }
@@ -182,7 +196,8 @@ class PhotolineScrollPosition extends ScrollPosition implements ScrollActivityDe
 
   @override
   bool applyContentDimensions(double minScrollExtent, double maxScrollExtent) {
-    return super.applyContentDimensions(minScrollExtent, math.max(minScrollExtent, maxScrollExtent));
+    return super.applyContentDimensions(
+        minScrollExtent, math.max(minScrollExtent, maxScrollExtent));
   }
 
   @override
@@ -196,10 +211,13 @@ class PhotolineScrollPosition extends ScrollPosition implements ScrollActivityDe
     double? devicePixelRatio,
   }) =>
       PhotolineScrollMetrics(
-        minScrollExtent: minScrollExtent ?? (hasContentDimensions ? this.minScrollExtent : null),
-        maxScrollExtent: maxScrollExtent ?? (hasContentDimensions ? this.maxScrollExtent : null),
+        minScrollExtent: minScrollExtent ??
+            (hasContentDimensions ? this.minScrollExtent : null),
+        maxScrollExtent: maxScrollExtent ??
+            (hasContentDimensions ? this.maxScrollExtent : null),
         pixels: pixels ?? (hasPixels ? this.pixels : null),
-        viewportDimension: viewportDimension ?? (hasViewportDimension ? this.viewportDimension : null),
+        viewportDimension: viewportDimension ??
+            (hasViewportDimension ? this.viewportDimension : null),
         axisDirection: axisDirection ?? this.axisDirection,
         devicePixelRatio: devicePixelRatio ?? this.devicePixelRatio,
       );
@@ -235,7 +253,8 @@ class PhotolineScrollPosition extends ScrollPosition implements ScrollActivityDe
 
   @override
   void applyUserOffset(double delta) {
-    updateUserScrollDirection(delta > 0.0 ? ScrollDirection.forward : ScrollDirection.reverse);
+    updateUserScrollDirection(
+        delta > 0.0 ? ScrollDirection.forward : ScrollDirection.reverse);
     setPixels(pixels - physics.applyPhysicsToUserOffset(this, delta));
   }
 
@@ -245,7 +264,8 @@ class PhotolineScrollPosition extends ScrollPosition implements ScrollActivityDe
   @override
   void goBallistic(double velocity) {
     assert(hasPixels);
-    final Simulation? simulation = physics.createBallisticSimulation(this, velocity);
+    final Simulation? simulation =
+        physics.createBallisticSimulation(this, velocity);
     if (simulation != null) {
       beginActivity(PhotolineBallisticScrollActivity(
         this,
@@ -348,10 +368,12 @@ class PhotolineScrollPosition extends ScrollPosition implements ScrollActivityDe
       return;
     }
 
-    final double targetPixels = math.min(math.max(pixels + delta, minScrollExtent), maxScrollExtent);
+    final double targetPixels =
+        math.min(math.max(pixels + delta, minScrollExtent), maxScrollExtent);
     if (targetPixels != pixels) {
       goIdle();
-      updateUserScrollDirection(-delta > 0.0 ? ScrollDirection.forward : ScrollDirection.reverse);
+      updateUserScrollDirection(
+          -delta > 0.0 ? ScrollDirection.forward : ScrollDirection.reverse);
       final double oldPixels = pixels;
       isScrollingNotifier.value = true;
       forcePixels(targetPixels);

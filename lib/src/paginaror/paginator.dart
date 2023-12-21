@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:photoline/src/paginaror/item.dart';
+import 'package:photoline/src/paginaror/scroll/view.dart';
+import 'package:photoline/src/photoline.dart';
 
-import '../photoline.dart';
-import 'scroll/view.dart';
-import 'star.dart';
-
-class PhotolinePaginator extends StatefulWidget {
-  const PhotolinePaginator({
+class PhotolinePager extends StatefulWidget {
+  const PhotolinePager({
     super.key,
     required this.photoline,
   });
@@ -15,16 +14,19 @@ class PhotolinePaginator extends StatefulWidget {
   final PhotolineState photoline;
 
   @override
-  State<PhotolinePaginator> createState() => PhotolinePaginatorState();
+  State<PhotolinePager> createState() => PhotolinePagerState();
 }
 
-class PhotolinePaginatorState extends State<PhotolinePaginator> {
+class PhotolinePagerState extends State<PhotolinePager> {
   final List<Widget> children = [];
 
   @override
   void initState() {
     for (int i = 0; i < 100; i++) {
-      children.add(PhotolinePaginatorStar(index: i, photoline: widget.photoline));
+      children.add(PhotolinePaginatorItem(
+        index: i,
+        photoline: widget.photoline,
+      ));
     }
     super.initState();
   }
@@ -34,10 +36,10 @@ class PhotolinePaginatorState extends State<PhotolinePaginator> {
         builder: (context, constraints) => Container(
           width: double.infinity,
           color: Colors.white,
-          height: PhotolinePaginator.height,
+          height: PhotolinePager.height,
           child: ScrollExtentView(
             axisDirection: AxisDirection.right,
-            itemExtent: constraints.maxWidth / (constraints.maxWidth ~/ PhotolinePaginator.height),
+            itemExtent: constraints.maxWidth / (constraints.maxWidth ~/ PhotolinePager.height),
             children: children,
           ),
         ),

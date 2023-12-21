@@ -53,5 +53,6 @@ class PhotolinePositionValue {
   }
 
   @override
-  String toString() => '${start.toStringAsFixed(2)}->${current.toStringAsFixed(2)}<-${end.toStringAsFixed(2)}';
+  String toString() =>
+      '${start.toStringAsFixed(2)}->${current.toStringAsFixed(2)}<-${end.toStringAsFixed(2)}';
 }

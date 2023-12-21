@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'mixin.dart';
+import 'package:photoline/src/scroll/activity/mixin.dart';
 
-class PhotolineIdleScrollActivity extends ScrollActivity with PhotolineActivityMixin {
+class PhotolineIdleScrollActivity extends ScrollActivity
+    with PhotolineActivityMixin {
   PhotolineIdleScrollActivity(super._delegate);
 
   @override

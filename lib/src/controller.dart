@@ -1,18 +1,19 @@
 import 'dart:math' as math;
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-
-import '../holder/controller/drag.dart';
-import '../photoline.dart';
-import '../tile/tile.dart';
-import '../utils/action.dart';
-import '../utils/drag.dart';
-import '../utils/mod.dart';
-import '../utils/size.dart';
-import 'position.dart';
+import 'package:photoline/src/holder/controller/drag.dart';
+import 'package:photoline/src/photoline.dart';
+import 'package:photoline/src/scroll/position.dart';
+import 'package:photoline/src/tile/tile.dart';
+import 'package:photoline/src/utils/action.dart';
+import 'package:photoline/src/utils/drag.dart';
+import 'package:photoline/src/utils/mod.dart';
+import 'package:photoline/src/utils/size.dart';
 
 int _getCloseCount() => 3;
 
+/// Photoline controller
 class PhotolineController extends ScrollController {
   PhotolineController({
     this.openRatio = .8,
@@ -20,11 +21,13 @@ class PhotolineController extends ScrollController {
     required this.getKey,
     required this.getBackground,
     required this.getWidget,
-    required this.getCount,
+    required this.getPhotoCount,
     this.getCloseCount = _getCloseCount,
     this.onAdd,
     this.onRemove,
     this.onReplace,
+    this.getPagerItem,
+    this.isTileOpenGray = true,
   });
 
   PhotolineHolderDragController? dragController;
@@ -33,11 +36,13 @@ class PhotolineController extends ScrollController {
   final Color Function(int) getBackground;
   final Widget Function(int) getWidget;
   final Key Function(int) getKey;
-  final ValueGetter<int> getCount;
+  final ValueGetter<int> getPhotoCount;
   final ValueGetter<int> getCloseCount;
   final void Function(int index)? onAdd;
   final void Function(int index)? onRemove;
   final void Function(int newIndex, int oldIndex)? onReplace;
+  final List<Widget> Function(int index, Color color)? getPagerItem;
+  final bool isTileOpenGray;
 
   final double openRatio;
 
@@ -57,7 +62,7 @@ class PhotolineController extends ScrollController {
 
   PhotolineSize get size => PhotolineSize(this);
 
-  int get count => math.max(getCount(), getCloseCount());
+  int get count => math.max(getPhotoCount(), getCloseCount());
 
   PhotolineState? photoline;
 
@@ -126,11 +131,6 @@ class PhotolineController extends ScrollController {
         context: context,
         oldPosition: oldPosition,
       );
-
-  /*
-  zivbm123
-Zb13579
-   */
 
   /// === [Drag]
   int pageDragInitial = -1;

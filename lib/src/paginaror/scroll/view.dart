@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'physics.dart';
+import 'package:photoline/src/paginaror/scroll/physics.dart';
 
 class ScrollExtentView extends StatefulWidget {
   const ScrollExtentView({

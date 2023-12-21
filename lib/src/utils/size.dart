@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
-import '../scroll/controller.dart';
+import 'package:photoline/src/controller.dart';
 
 @immutable
 class PhotolineSize {

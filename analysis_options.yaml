@@ -17,6 +17,9 @@ linter:
   # https://dart.dev/tools/analysis
 
   rules:
+    # need to pub points?
+    public_member_api_docs: false
+
     #
     prefer_mixin: false # https://dart-lang.github.io/linter/lints/prefer_mixin.html
     always_specify_types: false # https://dart-lang.github.io/linter/lints/always_specify_types.html

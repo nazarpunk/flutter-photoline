@@ -1,7 +1,8 @@
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
-import '../utils/action.dart';
-import 'position.dart';
+import 'package:photoline/src/scroll/position.dart';
+import 'package:photoline/src/utils/action.dart';
 
 class PhotolineScrollPhysics extends ScrollPhysics {
   const PhotolineScrollPhysics({super.parent});
@@ -30,20 +31,25 @@ class PhotolineScrollPhysics extends ScrollPhysics {
   }
 
   @override
-  Simulation? createBallisticSimulation(covariant PhotolineScrollPosition position, double velocity) {
-    if ((velocity <= 0.0 && position.pixels <= position.minScrollExtent) || (velocity >= 0.0 && position.pixels >= position.maxScrollExtent)) {
+  Simulation? createBallisticSimulation(
+      covariant PhotolineScrollPosition position, double velocity) {
+    if ((velocity <= 0.0 && position.pixels <= position.minScrollExtent) ||
+        (velocity >= 0.0 && position.pixels >= position.maxScrollExtent)) {
       return super.createBallisticSimulation(position, velocity);
     }
     final Tolerance tolerance = toleranceFor(position);
     final double pageCur = _getPage(position);
 
-    final v = 200 * math.exp(1.2 * math.log(.6 * velocity.abs() / 800)) * velocity.sign;
+    final v = 200 *
+        math.exp(1.2 * math.log(.6 * velocity.abs() / 800)) *
+        velocity.sign;
 
     double pageNew = 0;
 
     switch (position.controller.action) {
       case PhotolineAction.open:
-        pageNew = position.pageAdd(v / (position.viewportDimension * position.controller.openRatio));
+        pageNew = position.pageAdd(
+            v / (position.viewportDimension * position.controller.openRatio));
         if ((pageCur - pageNew).abs() < 1 && velocity.abs() > 1000) {
           if (velocity > 0) {
             pageNew += .5;
@@ -52,7 +58,8 @@ class PhotolineScrollPhysics extends ScrollPhysics {
           }
         }
       case PhotolineAction.close:
-        pageNew = position.pageAdd(v / (position.viewportDimension * position.controller.closeRatio));
+        pageNew = position.pageAdd(
+            v / (position.viewportDimension * position.controller.closeRatio));
       case PhotolineAction.opening:
       case PhotolineAction.closing:
       case PhotolineAction.drag:
@@ -62,10 +69,12 @@ class PhotolineScrollPhysics extends ScrollPhysics {
     if (target == position.pixels) return null;
 
     if (position.controller.action == PhotolineAction.open) {
-      position.controller.pageTargetOpen = position.getPageFromPixels(target).round();
+      position.controller.pageTargetOpen =
+          position.getPageFromPixels(target).round();
     }
 
-    return ScrollSpringSimulation(spring, position.pixels, target, velocity, tolerance: tolerance);
+    return ScrollSpringSimulation(spring, position.pixels, target, velocity,
+        tolerance: tolerance);
   }
 
   @override

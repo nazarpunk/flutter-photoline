@@ -1,5 +1,5 @@
 /// Photoline
 library photoline;
 
-export '../src/photoline.dart';
-export '../src/theme.dart';
+export 'src/controller.dart';
+export 'src/photoline.dart';

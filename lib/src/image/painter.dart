@@ -39,7 +39,10 @@ class _Painter extends CustomPainter {
     nw *= ar;
     nh *= ar;
 
-    final double cw = math.min(iw / (nw / w), iw), ch = math.min(ih / (nh / h), ih), cx = math.max((iw - cw) * offsetX, 0), cy = math.max((ih - ch) * offsetY, 0);
+    final double cw = math.min(iw / (nw / w), iw),
+        ch = math.min(ih / (nh / h), ih),
+        cx = math.max((iw - cw) * offsetX, 0),
+        cy = math.max((ih - ch) * offsetY, 0);
 
     canvas.drawImageRect(
       image,

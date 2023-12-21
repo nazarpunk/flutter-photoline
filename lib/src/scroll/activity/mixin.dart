@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../position.dart';
+import 'package:photoline/src/scroll/position.dart';
 
 mixin PhotolineActivityMixin on ScrollActivity {
   PhotolineScrollPosition get position => delegate as PhotolineScrollPosition;

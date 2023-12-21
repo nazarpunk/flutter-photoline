@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../scroll/controller.dart';
+import 'package:photoline/src/controller.dart';
 
-export 'package:flutter/rendering.dart' show SliverGridDelegate, SliverGridDelegateWithFixedCrossAxisCount, SliverGridDelegateWithMaxCrossAxisExtent;
+export 'package:flutter/rendering.dart'
+    show
+        SliverGridDelegate,
+        SliverGridDelegateWithFixedCrossAxisCount,
+        SliverGridDelegateWithMaxCrossAxisExtent;
 
 class _SaltedValueKey extends ValueKey<Key> {
   const _SaltedValueKey(super.value);
@@ -56,5 +60,7 @@ class PhotolineSliverChildBuilderDelegate extends SliverChildDelegate {
   int? get estimatedChildCount => controller.count;
 
   @override
-  bool shouldRebuild(covariant PhotolineSliverChildBuilderDelegate oldDelegate) => true;
+  bool shouldRebuild(
+          covariant PhotolineSliverChildBuilderDelegate oldDelegate) =>
+      true;
 }

@@ -1,9 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'mixin.dart';
+import 'package:photoline/src/scroll/activity/mixin.dart';
 
-class PhotolineBallisticScrollActivity extends ScrollActivity with PhotolineActivityMixin {
+class PhotolineBallisticScrollActivity extends ScrollActivity
+    with PhotolineActivityMixin {
   PhotolineBallisticScrollActivity(
     super._delegate,
     Simulation simulation,
@@ -13,7 +14,8 @@ class PhotolineBallisticScrollActivity extends ScrollActivity with PhotolineActi
     _controller = AnimationController.unbounded(vsync: vsync)
       ..addListener(_tick)
       // ignore: discarded_futures
-      ..animateWith(simulation).whenComplete(_end); // won't trigger if we dispose _controller before it completes.
+      ..animateWith(simulation).whenComplete(
+          _end); // won't trigger if we dispose _controller before it completes.
   }
 
   late AnimationController _controller;
@@ -46,7 +48,8 @@ class PhotolineBallisticScrollActivity extends ScrollActivity with PhotolineActi
   /// The default implementation calls [ScrollActivityDelegate.setPixels]
   /// and returns true if the overflow was zero.
   @protected
-  bool applyMoveTo(double value) => delegate.setPixels(value).abs() < precisionErrorTolerance;
+  bool applyMoveTo(double value) =>
+      delegate.setPixels(value).abs() < precisionErrorTolerance;
 
   void _end() {
     // Check if the activity was disposed before going ballistic because _end might be called
@@ -55,8 +58,14 @@ class PhotolineBallisticScrollActivity extends ScrollActivity with PhotolineActi
   }
 
   @override
-  void dispatchOverscrollNotification(ScrollMetrics metrics, BuildContext context, double overscroll) {
-    OverscrollNotification(metrics: metrics, context: context, overscroll: overscroll, velocity: velocity).dispatch(context);
+  void dispatchOverscrollNotification(
+      ScrollMetrics metrics, BuildContext context, double overscroll) {
+    OverscrollNotification(
+            metrics: metrics,
+            context: context,
+            overscroll: overscroll,
+            velocity: velocity)
+        .dispatch(context);
   }
 
   @override

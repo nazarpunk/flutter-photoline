@@ -1,9 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'mixin.dart';
+import 'package:photoline/src/scroll/activity/mixin.dart';
 
-class PhotolineDragScrollActivity extends ScrollActivity with PhotolineActivityMixin {
+class PhotolineDragScrollActivity extends ScrollActivity
+    with PhotolineActivityMixin {
   PhotolineDragScrollActivity(
     super._delegate,
     ScrollDragController controller,
@@ -12,28 +13,46 @@ class PhotolineDragScrollActivity extends ScrollActivity with PhotolineActivityM
   ScrollDragController? _controller;
 
   @override
-  void dispatchScrollStartNotification(ScrollMetrics metrics, BuildContext? context) {
+  void dispatchScrollStartNotification(
+      ScrollMetrics metrics, BuildContext? context) {
     final dynamic lastDetails = _controller!.lastDetails;
     assert(lastDetails is DragStartDetails);
-    ScrollStartNotification(metrics: metrics, context: context, dragDetails: lastDetails as DragStartDetails).dispatch(context);
+    ScrollStartNotification(
+            metrics: metrics,
+            context: context,
+            dragDetails: lastDetails as DragStartDetails)
+        .dispatch(context);
   }
 
   @override
-  void dispatchScrollUpdateNotification(ScrollMetrics metrics, BuildContext context, double scrollDelta) {
+  void dispatchScrollUpdateNotification(
+      ScrollMetrics metrics, BuildContext context, double scrollDelta) {
     final dynamic lastDetails = _controller!.lastDetails;
     assert(lastDetails is DragUpdateDetails);
-    ScrollUpdateNotification(metrics: metrics, context: context, scrollDelta: scrollDelta, dragDetails: lastDetails as DragUpdateDetails).dispatch(context);
+    ScrollUpdateNotification(
+            metrics: metrics,
+            context: context,
+            scrollDelta: scrollDelta,
+            dragDetails: lastDetails as DragUpdateDetails)
+        .dispatch(context);
   }
 
   @override
-  void dispatchOverscrollNotification(ScrollMetrics metrics, BuildContext context, double overscroll) {
+  void dispatchOverscrollNotification(
+      ScrollMetrics metrics, BuildContext context, double overscroll) {
     final dynamic lastDetails = _controller!.lastDetails;
     assert(lastDetails is DragUpdateDetails);
-    OverscrollNotification(metrics: metrics, context: context, overscroll: overscroll, dragDetails: lastDetails as DragUpdateDetails).dispatch(context);
+    OverscrollNotification(
+            metrics: metrics,
+            context: context,
+            overscroll: overscroll,
+            dragDetails: lastDetails as DragUpdateDetails)
+        .dispatch(context);
   }
 
   @override
-  void dispatchScrollEndNotification(ScrollMetrics metrics, BuildContext context) {
+  void dispatchScrollEndNotification(
+      ScrollMetrics metrics, BuildContext context) {
     // We might not have DragEndDetails yet if we're being called from beginActivity.
     final dynamic lastDetails = _controller!.lastDetails;
     ScrollEndNotification(

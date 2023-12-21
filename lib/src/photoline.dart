@@ -4,27 +4,31 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/rendering.dart';
-import 'holder/holder.dart';
-import 'mixin/state/rebuild.dart';
-import 'paginaror/paginator.dart';
-import 'scroll/controller.dart';
-import 'scroll/physics.dart';
-import 'scroll/position.dart';
-import 'sliver/sliver_child_delegate.dart';
-import 'sliver/sliver_multi_box_adaptor_widget.dart';
-import 'tile/tile.dart';
-import 'utils/action.dart';
-import 'utils/position.dart';
+import 'package:photoline/src/controller.dart';
+import 'package:photoline/src/holder/holder.dart';
+import 'package:photoline/src/mixin/state/rebuild.dart';
+import 'package:photoline/src/paginaror/paginator.dart';
+import 'package:photoline/src/scroll/physics.dart';
+import 'package:photoline/src/scroll/position.dart';
+import 'package:photoline/src/sliver/sliver_child_delegate.dart';
+import 'package:photoline/src/sliver/sliver_multi_box_adaptor_widget.dart';
+import 'package:photoline/src/tile/tile.dart';
+import 'package:photoline/src/utils/action.dart';
+import 'package:photoline/src/utils/position.dart';
 
 class Photoline extends StatefulWidget {
   const Photoline({
     required this.controller,
     this.aspectRatio = 2,
+    this.photoStripeWidth = 10,
+    this.photoStripeColor = const Color.fromRGBO(255, 255, 255, .1),
     super.key,
   });
 
   final PhotolineController controller;
   final double? aspectRatio;
+  final double photoStripeWidth;
+  final Color photoStripeColor;
 
   @override
   State<Photoline> createState() => PhotolineState();
@@ -38,7 +42,7 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
 
   PhotolineScrollPosition get _position => widget.controller.pos;
 
-  int get _count => math.max(controller.getCount(), controller.getCloseCount());
+  int get _count => math.max(controller.getPhotoCount(), controller.getCloseCount());
 
   int _lastReportedPage = 0;
 
@@ -503,7 +507,7 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
   @override
   Widget build(BuildContext context) {
     _updater = !_updater;
-    final count = controller.getCount();
+    final count = controller.getPhotoCount();
 
     Widget child = NotificationListener<ScrollNotification>(
       onNotification: _notification,
@@ -579,8 +583,8 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
             ),
           ),
         child,
-        if (kProfileMode)
-          PhotolinePaginator(
+        if (widget.aspectRatio == null && controller.getPagerItem != null)
+          PhotolinePager(
             photoline: this,
           ),
       ],

@@ -2,13 +2,12 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
-import '../image/image.dart';
-import '../mixin/state/rebuild.dart';
-import '../photoline.dart';
-import '../scroll/controller.dart';
-import '../utils/action.dart';
-import 'middleground.dart';
+import 'package:photoline/src/controller.dart';
+import 'package:photoline/src/image/image.dart';
+import 'package:photoline/src/mixin/state/rebuild.dart';
+import 'package:photoline/src/photoline.dart';
+import 'package:photoline/src/tile/middleground.dart';
+import 'package:photoline/src/utils/action.dart';
 
 class PhotolineTile extends StatefulWidget {
   const PhotolineTile({
@@ -105,7 +104,14 @@ class PhotolineTileState extends State<PhotolineTile> with StateRebuildMixin {
             foreground: const Color.fromRGBO(0, 0, 0, 0),
           ),
         ),
-        PhotolineTileMiddleGround(opacity: _opacityCurrent.clamp(0, 1)),
+        Positioned.fill(
+          child: CustomPaint(
+            painter: PhotolineTileMiddleGroundPaint(
+              photoline: _photoline,
+              opacity: _controller.isTileOpenGray ? _opacityCurrent.clamp(0, 1) : 0,
+            ),
+          ),
+        ),
         Positioned.fill(
           child: _photoline.pageActive.value == _index ? _controller.getWidget(_index) : const SizedBox(),
         ),
@@ -114,7 +120,7 @@ class PhotolineTileState extends State<PhotolineTile> with StateRebuildMixin {
               child: ColoredBox(
             color: Color.lerp(sortColor, const Color.fromRGBO(200, 0, 0, .4), 0)!,
           )),
-        if (kDebugMode) Positioned.fill(child: Center(child: Text(_index.toString())))
+        if (kDebugMode && kProfileMode) Positioned.fill(child: Center(child: Text(_index.toString())))
       ],
     );
 
