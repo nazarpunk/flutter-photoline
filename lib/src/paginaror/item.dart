@@ -11,12 +11,10 @@ class PhotolinePaginatorItem extends StatefulWidget {
     super.key,
     required this.index,
     required this.photoline,
-    this.indexOffset = 0,
   });
 
   final int index;
   final PhotolineState photoline;
-  final int indexOffset;
 
   @override
   State<PhotolinePaginatorItem> createState() => _PhotolinePaginatorItemState();
@@ -29,7 +27,7 @@ class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem> with Si
 
   PhotolineController get _controller => widget.photoline.widget.controller;
 
-  int get _indexOffset => widget.indexOffset;
+  int get _indexOffset => _controller.getPagerIndexOffset();
 
   Color get _color => widget.index >= _controller.getPhotoCount() - _indexOffset ? const Color.fromRGBO(200, 200, 200, 1) : Color.lerp(const Color.fromRGBO(120, 120, 130, 1), const Color.fromRGBO(0, 0, 0, 1), _animation.value)!;
 

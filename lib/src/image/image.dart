@@ -23,8 +23,7 @@ class PhotolineImage extends StatefulWidget {
   State<PhotolineImage> createState() => _PhotolineImageState();
 }
 
-class _PhotolineImageState extends State<PhotolineImage>
-    with SingleTickerProviderStateMixin, StateRebuildMixin {
+class _PhotolineImageState extends State<PhotolineImage> with SingleTickerProviderStateMixin, StateRebuildMixin {
   Uri get _uri => widget.uri;
 
   late final AnimationController _animation;
@@ -46,8 +45,6 @@ class _PhotolineImageState extends State<PhotolineImage>
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
-
-
 
     if (loader.image == null) {
       _animation
@@ -79,7 +76,6 @@ class _PhotolineImageState extends State<PhotolineImage>
         foreground: Colors.transparent,
         opacity: Curves.easeIn.transform(_animation.value).clamp(0, 1),
         grayscale: false,
-        gradient: false,
       ),
     );
   }

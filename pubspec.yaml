@@ -1,5 +1,5 @@
 name: photoline
-description: Plugin to update the app badge on the launcher iOS and macOS
+description: Photoline plugin.
 version: 1.0.2
 homepage: https://github.com/nazarpunk/flutter-photoline
 

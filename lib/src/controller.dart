@@ -13,6 +13,8 @@ import 'package:photoline/src/utils/size.dart';
 
 int _getCloseCount() => 3;
 
+int _getPagerIndexOffset() => 0;
+
 /// Photoline controller
 class PhotolineController extends ScrollController {
   PhotolineController({
@@ -27,6 +29,8 @@ class PhotolineController extends ScrollController {
     this.onRemove,
     this.onReplace,
     this.getPagerItem,
+    this.getPagerIndexOffset = _getPagerIndexOffset,
+    this.getPersistentWidgets,
     this.isTileOpenGray = true,
   });
 
@@ -40,8 +44,10 @@ class PhotolineController extends ScrollController {
   final ValueGetter<int> getCloseCount;
   final void Function(int index)? onAdd;
   final void Function(int index)? onRemove;
+  final List<Widget>? Function(int index)? getPersistentWidgets;
   final void Function(int newIndex, int oldIndex)? onReplace;
   final List<Widget> Function(int index, Color color)? getPagerItem;
+  final int Function() getPagerIndexOffset;
   final bool isTileOpenGray;
 
   final double openRatio;
@@ -160,7 +166,9 @@ class PhotolineController extends ScrollController {
     } else {
       for (int i = 0; i < positionDrag.length; i++) {
         final pi = positionDrag[i];
-        if ((isDragMain && pi.index == pageDragInitial) || pi.page >= 0) continue;
+        if ((isDragMain && pi.index == pageDragInitial) || pi.page >= 0) {
+          continue;
+        }
         for (int k = 0; k < positionDrag.length; k++) {
           positionDrag[k].page += 1;
         }

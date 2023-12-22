@@ -73,11 +73,6 @@ class PhotolineTileState extends State<PhotolineTile> with StateRebuildMixin {
   }
 
   @override
-  void didUpdateWidget(covariant PhotolineTile oldWidget) {
-    super.didUpdateWidget(oldWidget);
-  }
-
-  @override
   void initState() {
     _animation.addListener(_listener);
     super.initState();
@@ -94,6 +89,7 @@ class PhotolineTileState extends State<PhotolineTile> with StateRebuildMixin {
   @override
   Widget build(BuildContext context) {
     final Color sortColor = Color.lerp(Colors.transparent, const Color.fromRGBO(0, 0, 200, .4), _dragCurrent)!;
+    final List<Widget>? persistent = _controller.getPersistentWidgets?.call(_index);
 
     Widget child = Stack(
       children: [
@@ -115,6 +111,7 @@ class PhotolineTileState extends State<PhotolineTile> with StateRebuildMixin {
         Positioned.fill(
           child: _photoline.pageActive.value == _index ? _controller.getWidget(_index) : const SizedBox(),
         ),
+        if (persistent != null) ...persistent,
         if (_dragCurrent > 0)
           Positioned.fill(
               child: ColoredBox(

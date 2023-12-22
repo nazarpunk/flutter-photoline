@@ -6,11 +6,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/rendering.dart';
+import 'package:photoline/src/controller.dart';
 import 'package:photoline/src/scroll/activity/ballistic.dart';
 import 'package:photoline/src/scroll/activity/drag.dart';
 import 'package:photoline/src/scroll/activity/idle.dart';
 import 'package:photoline/src/scroll/activity/mixin.dart';
-import 'package:photoline/src/controller.dart';
 import 'package:photoline/src/scroll/metrics.dart';
 import 'package:photoline/src/utils/action.dart';
 

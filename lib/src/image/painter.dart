@@ -7,7 +7,6 @@ class _Painter extends CustomPainter {
     this.foreground,
     required this.opacity,
     required this.grayscale,
-    required this.gradient,
   });
 
   final ui.Image? image;
@@ -15,7 +14,6 @@ class _Painter extends CustomPainter {
   final Color? foreground;
   final double opacity;
   final bool grayscale;
-  final bool gradient;
 
   void _draw(Canvas canvas, Size size, Paint paint, ui.Image? image) {
     final w = size.width, h = size.height;
@@ -39,10 +37,7 @@ class _Painter extends CustomPainter {
     nw *= ar;
     nh *= ar;
 
-    final double cw = math.min(iw / (nw / w), iw),
-        ch = math.min(ih / (nh / h), ih),
-        cx = math.max((iw - cw) * offsetX, 0),
-        cy = math.max((ih - ch) * offsetY, 0);
+    final double cw = math.min(iw / (nw / w), iw), ch = math.min(ih / (nh / h), ih), cx = math.max((iw - cw) * offsetX, 0), cy = math.max((ih - ch) * offsetY, 0);
 
     canvas.drawImageRect(
       image,
@@ -87,20 +82,6 @@ class _Painter extends CustomPainter {
 
     _draw(canvas, size, paint..color = Color.fromRGBO(0, 0, 0, opacity), image);
 
-    /*
-    if (gradient) {
-      paint
-        ..color = C.app
-        ..shader = ui.Gradient.linear(
-          Offset(size.width * .5, 0),
-          Offset(size.width * .5, size.height),
-          C.top100add,
-        );
-
-      canvas.drawRect(r, paint);
-    }
-
-     */
   }
 
   @override

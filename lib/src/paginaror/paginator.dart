@@ -39,7 +39,8 @@ class PhotolinePagerState extends State<PhotolinePager> {
           height: PhotolinePager.height,
           child: ScrollExtentView(
             axisDirection: AxisDirection.right,
-            itemExtent: constraints.maxWidth / (constraints.maxWidth ~/ PhotolinePager.height),
+            itemExtent: constraints.maxWidth /
+                (constraints.maxWidth ~/ PhotolinePager.height),
             children: children,
           ),
         ),

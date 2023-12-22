@@ -34,7 +34,8 @@ class Photoline extends StatefulWidget {
   State<Photoline> createState() => PhotolineState();
 }
 
-class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProviderStateMixin {
+class PhotolineState extends State<Photoline>
+    with StateRebuildMixin, TickerProviderStateMixin {
   PhotolineController get controller => widget.controller;
   late final AnimationController animationPosition;
   late final AnimationController animationOpacity;
@@ -42,14 +43,16 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
 
   PhotolineScrollPosition get _position => widget.controller.pos;
 
-  int get _count => math.max(controller.getPhotoCount(), controller.getCloseCount());
+  int get _count =>
+      math.max(controller.getPhotoCount(), controller.getCloseCount());
 
   int _lastReportedPage = 0;
 
   var pageActive = ValueNotifier<int>(-1);
 
   int _pageTargetClose = -1;
-  final _physics = const PhotolineScrollPhysics(parent: AlwaysScrollableScrollPhysics());
+  final _physics =
+      const PhotolineScrollPhysics(parent: AlwaysScrollableScrollPhysics());
 
   final List<PhotolinePosition> positionOpen = [];
 
@@ -68,7 +71,8 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
       for (int i = controller.pageTargetOpen - 1; i >= 0; i--) {
         positionOpen[i]
           ..lerp(t)
-          ..offset.current = positionOpen[i + 1].offset.current - positionOpen[i].width.current;
+          ..offset.current = positionOpen[i + 1].offset.current -
+              positionOpen[i].width.current;
       }
     }
 
@@ -77,7 +81,8 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
       for (int i = controller.pageTargetOpen + 1; i < count; i++) {
         positionOpen[i]
           ..lerp(t)
-          ..offset.current = positionOpen[i - 1].offset.current + positionOpen[i - 1].width.current;
+          ..offset.current = positionOpen[i - 1].offset.current +
+              positionOpen[i - 1].width.current;
       }
     }
   }
@@ -91,7 +96,8 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
     // center
     final c = positionOpen[pto]..lerp(t);
 
-    if (nearEqual(c.offset.current, c.offset.end, .2) && nearEqual(c.width.current, c.width.end, .4)) {
+    if (nearEqual(c.offset.current, c.offset.end, .2) &&
+        nearEqual(c.width.current, c.width.end, .4)) {
       pageActive.value = pto;
     }
 
@@ -131,7 +137,9 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
         _openingListener();
       case PhotolineAction.closing:
         _closingListener();
-      case PhotolineAction.open || PhotolineAction.close || PhotolineAction.drag:
+      case PhotolineAction.open ||
+            PhotolineAction.close ||
+            PhotolineAction.drag:
     }
     rebuild();
   }
@@ -368,7 +376,9 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
 
     final big = positionOpen[controller.pageTargetOpen];
     final bigLeft = big.offset.current.clamp(0, size.viewport).toDouble();
-    final bigRight = (big.offset.current + big.width.current).clamp(0, size.viewport).toDouble();
+    final bigRight = (big.offset.current + big.width.current)
+        .clamp(0, size.viewport)
+        .toDouble();
     int t = 0;
     sz = 0;
     final closeCount = controller.getCloseCount();
@@ -382,7 +392,8 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
         sz = s;
       }
     }
-    t = controller.correctCloseTargetIndex(count, closeCount, controller.pageTargetOpen, t);
+    t = controller.correctCloseTargetIndex(
+        count, closeCount, controller.pageTargetOpen, t);
     _pageTargetClose = controller.pageTargetOpen - t;
 
     big.offset.end = t * size.close;
@@ -455,7 +466,8 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
       if (a == PhotolineAction.open) {
         final pto = controller.pageTargetOpen.toDouble();
         final po = controller.pos.pageOpen;
-        pageActive.value = nearEqual(pto, po, .02) ? controller.pageTargetOpen : -1;
+        pageActive.value =
+            nearEqual(pto, po, .02) ? controller.pageTargetOpen : -1;
       }
 
       if (currentPage != _lastReportedPage) {
@@ -482,8 +494,11 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
       ..addListener(_listener)
       ..addStatusListener(_listenerStatus);
 
-    animationOpacity = AnimationController(vsync: this, duration: const Duration(milliseconds: 50 * 1000))..repeat();
-    animationAdd = AnimationController(vsync: this, duration: const Duration(milliseconds: 20 * 1000))
+    animationOpacity = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 50 * 1000))
+      ..repeat();
+    animationAdd = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 20 * 1000))
       ..addListener(controller.onAnimationAdd)
       ..repeat();
 
