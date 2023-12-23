@@ -20,7 +20,7 @@ class PhotolineTile extends StatefulWidget {
   });
 
   final int index;
-  final Uri uri;
+  final Uri? uri;
   final Color background;
   final PhotolineController controller;
   final PhotolineState photoline;
@@ -95,7 +95,7 @@ class PhotolineTileState extends State<PhotolineTile> with StateRebuildMixin {
       children: [
         Positioned.fill(
           child: PhotolineImage(
-            widget.uri,
+            uri: widget.uri,
             background: widget.background,
             foreground: const Color.fromRGBO(0, 0, 0, 0),
           ),
@@ -117,7 +117,7 @@ class PhotolineTileState extends State<PhotolineTile> with StateRebuildMixin {
               child: ColoredBox(
             color: Color.lerp(sortColor, const Color.fromRGBO(200, 0, 0, .4), 0)!,
           )),
-        if (kDebugMode && kProfileMode) Positioned.fill(child: Center(child: Text(_index.toString())))
+        if (kDebugMode) Positioned.fill(child: Center(child: Text(_index.toString())))
       ],
     );
 

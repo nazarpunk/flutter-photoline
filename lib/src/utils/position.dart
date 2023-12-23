@@ -25,7 +25,7 @@ class PhotolinePosition {
   double? offsetR;
 
   @override
-  String toString() => '$width | $offset';
+  String toString() => '\n$width | $offset';
 }
 
 class PhotolinePositionValue {

@@ -36,7 +36,7 @@ class PhotolineController extends ScrollController {
 
   PhotolineHolderDragController? dragController;
 
-  final Uri Function(int) getUri;
+  final Uri? Function(int) getUri;
   final Color Function(int) getBackground;
   final Widget Function(int) getWidget;
   final Key Function(int) getKey;

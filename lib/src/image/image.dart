@@ -8,14 +8,14 @@ import 'package:photoline/src/mixin/state/rebuild.dart';
 part 'painter.dart';
 
 class PhotolineImage extends StatefulWidget {
-  const PhotolineImage(
-    this.uri, {
+  const PhotolineImage({
     super.key,
+    this.uri,
     required this.foreground,
     required this.background,
   });
 
-  final Uri uri;
+  final Uri? uri;
   final Color foreground;
   final Color background;
 
@@ -24,7 +24,7 @@ class PhotolineImage extends StatefulWidget {
 }
 
 class _PhotolineImageState extends State<PhotolineImage> with SingleTickerProviderStateMixin, StateRebuildMixin {
-  Uri get _uri => widget.uri;
+  Uri? get _uri => widget.uri;
 
   late final AnimationController _animation;
 
@@ -40,13 +40,14 @@ class _PhotolineImageState extends State<PhotolineImage> with SingleTickerProvid
 
   @override
   void initState() {
-    final loader = PhotolineImageLoader.add(_uri);
+    final loader = _uri == null ? null : PhotolineImageLoader.add(_uri!);
+
     _animation = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
 
-    if (loader.image == null) {
+    if (loader?.image == null) {
       _animation
         ..value = 0
         ..addListener(rebuild);
@@ -54,7 +55,7 @@ class _PhotolineImageState extends State<PhotolineImage> with SingleTickerProvid
       _notifier.addListener(_imageListener);
     } else {
       _animation.value = 1;
-      _image = _notifier.image(_uri);
+      if (_uri != null) _image = _notifier.image(_uri!);
     }
 
     super.initState();
