@@ -11,6 +11,7 @@ class PhotolinePosition {
   late final PhotolinePositionValue width;
   late final PhotolinePositionValue offset;
 
+
   void lerp(double t) {
     width.lerp(t);
     offset.lerp(t);

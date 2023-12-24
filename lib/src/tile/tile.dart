@@ -42,6 +42,15 @@ class PhotolineTileState extends State<PhotolineTile> with StateRebuildMixin {
 
   AnimationController get _animation => widget.photoline.animationOpacity;
 
+  @override
+  void didUpdateWidget(covariant PhotolineTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.index != oldWidget.index){
+
+    }
+
+  }
+
   void _listenerOpacity(double ax) {
     double no = _opacity;
     final pa = _photoline.pageActive.value;

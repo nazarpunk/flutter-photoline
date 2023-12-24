@@ -66,7 +66,6 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
       ..didStartLayout()
       ..setDidUnderflow(false);
 
-    final widthOpen = constraints.viewportMainAxisExtent * _controller.openRatio;
     final double scrollOffset = constraints.scrollOffset + constraints.cacheOrigin;
 
     final p = photoline.positionOpen[0];

@@ -1,7 +1,9 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/physics.dart';
 import 'package:photoline/src/holder/controller/drag.dart';
 import 'package:photoline/src/photoline.dart';
 import 'package:photoline/src/scroll/position.dart';
@@ -11,7 +13,7 @@ import 'package:photoline/src/utils/drag.dart';
 import 'package:photoline/src/utils/mod.dart';
 import 'package:photoline/src/utils/size.dart';
 
-int _getCloseCount() => 3;
+int _getCloseCount(double? width) => 3;
 
 int _getPagerIndexOffset() => 0;
 
@@ -32,6 +34,7 @@ class PhotolineController extends ScrollController {
     this.getPagerIndexOffset = _getPagerIndexOffset,
     this.getPersistentWidgets,
     this.isTileOpenGray = true,
+    this.onDebugAdd,
   });
 
   PhotolineHolderDragController? dragController;
@@ -41,18 +44,21 @@ class PhotolineController extends ScrollController {
   final Widget Function(int) getWidget;
   final Key Function(int) getKey;
   final ValueGetter<int> getPhotoCount;
-  final ValueGetter<int> getCloseCount;
-  final void Function(int index)? onAdd;
+  final int Function(double? width) getCloseCount;
+  final void Function(int index, Object data)? onAdd;
   final void Function(int index)? onRemove;
   final List<Widget>? Function(int index)? getPersistentWidgets;
   final void Function(int newIndex, int oldIndex)? onReplace;
   final List<Widget> Function(int index, Color color)? getPagerItem;
   final int Function() getPagerIndexOffset;
   final bool isTileOpenGray;
+  final ValueSetter<int>? onDebugAdd;
 
   final double openRatio;
 
-  double get closeRatio => 1 / getCloseCount();
+  double get closeRatio => 1 / getCloseCount(photolineWidth);
+
+  double? photolineWidth;
 
   PhotolineAction action = PhotolineAction.close;
   int pageTargetOpen = -1;
@@ -68,7 +74,7 @@ class PhotolineController extends ScrollController {
 
   PhotolineSize get size => PhotolineSize(this);
 
-  int get count => math.max(getPhotoCount(), getCloseCount());
+  int get count => math.max(getPhotoCount(), getCloseCount(null));
 
   PhotolineState? photoline;
 
@@ -76,7 +82,7 @@ class PhotolineController extends ScrollController {
 
   void onAnimationAdd() {
     if (photoline == null || mod.isEmpty) return;
-    final double dx = photoline!.animationAdd.velocity;
+    final double dx = photoline!.animationAdd.velocity * .7;
 
     for (int i = 0; i < mod.length; i++) {
       if (mod[i] == null) continue;
@@ -113,9 +119,9 @@ class PhotolineController extends ScrollController {
     }
   }
 
-  void addItem(int index) {
-    if (action != PhotolineAction.close) return;
-    onAdd?.call(index);
+  bool addItem(int index, Object data) {
+    if (action != PhotolineAction.close) return false;
+    onAdd?.call(index, data);
     //final size = PhotolineSize(this);
     //pos.forceExtent(size.close);
     while (index >= mod.length) {
@@ -123,6 +129,13 @@ class PhotolineController extends ScrollController {
     }
     mod.insert(index, PhotolineMod(0, 1));
     photoline?.rebuild();
+    return true;
+  }
+
+  bool get canStartAdd {
+    if (photoline == null) return false;
+    if (!nearZero(pos.pixels, precisionErrorTolerance)) return false;
+    return true;
   }
 
   @override

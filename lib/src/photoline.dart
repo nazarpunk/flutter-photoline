@@ -42,7 +42,7 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
 
   PhotolineScrollPosition get _position => widget.controller.pos;
 
-  int get _count => math.max(controller.getPhotoCount(), controller.getCloseCount());
+  int get _count => math.max(controller.getPhotoCount(), controller.getCloseCount(controller.photolineWidth));
 
   int _lastReportedPage = 0;
 
@@ -166,7 +166,6 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
     final count = _count;
 
     final List<int> visible = [];
-    final bool origin = positionOpen.isEmpty;
 
     assert(positionOpen.isNotEmpty);
 
@@ -203,7 +202,7 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
 
     controller.action = PhotolineAction.opening;
 
-    _animationStart(c, origin);
+    _animationStart(c);
   }
 
   void _toPageOpenFromClose() {
@@ -255,7 +254,7 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
 
     controller.action = PhotolineAction.opening;
 
-    _animationStart(c, false);
+    _animationStart(c);
   }
 
   void _toPageFromOpen() {
@@ -315,10 +314,10 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
     }
 
     controller.action = PhotolineAction.opening;
-    _animationStart(c, false);
+    _animationStart(c);
   }
 
-  void _animationStart(PhotolinePosition cur, bool opening) {
+  void _animationStart(PhotolinePosition cur) {
     final size = controller.size;
     final count = _count;
 
@@ -331,7 +330,7 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
 
     animationPosition
       ..stop()
-      ..duration = Duration(milliseconds: opening ? 600 : 800)
+      ..duration = const Duration(milliseconds: 600)
       ..forward(from: 0);
   }
 
@@ -366,7 +365,7 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
     final bigRight = (big.offset.current + big.width.current).clamp(0, size.viewport).toDouble();
     int t = 0;
     sz = 0;
-    final closeCount = controller.getCloseCount();
+    final closeCount = controller.getCloseCount(controller.photolineWidth);
 
     for (int i = 0; i < closeCount; i++) {
       final a = i * size.close;
@@ -384,7 +383,7 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
     big.width.end = size.close;
 
     controller.action = PhotolineAction.closing;
-    _animationStart(big, true);
+    _animationStart(big);
   }
 
   List<int> _positionOpenAddOpen() {
@@ -558,43 +557,46 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
       child = Expanded(child: child);
     }
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (kProfileMode)
-          SizedBox(
-            height: 50,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                for (int i = 0; i < math.max(1, count); i++)
-                  IconButton(
-                    onPressed: () => controller.addItem(i),
-                    icon: Text('$i'),
-                  ),
-              ],
+    return LayoutBuilder(builder: (context, constraints) {
+      controller.photolineWidth = constraints.maxWidth;
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (kDebugMode && controller.onDebugAdd != null)
+            SizedBox(
+              height: 50,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  for (int i = 0; i < math.max(1, count); i++)
+                    IconButton(
+                      onPressed: () => controller.onDebugAdd!(i),
+                      icon: Text('$i'),
+                    ),
+                ],
+              ),
             ),
-          ),
-        if (kProfileMode)
-          SizedBox(
-            height: 50,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                for (int i = 0; i < count; i++)
-                  IconButton(
-                    onPressed: () => controller.removeItem(i),
-                    icon: Text('$i'),
-                  ),
-              ],
+          if (kProfileMode)
+            SizedBox(
+              height: 50,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  for (int i = 0; i < count; i++)
+                    IconButton(
+                      onPressed: () => controller.removeItem(i),
+                      icon: Text('$i'),
+                    ),
+                ],
+              ),
             ),
-          ),
-        child,
-        if (widget.aspectRatio == null && controller.getPagerItem != null)
-          PhotolinePager(
-            photoline: this,
-          ),
-      ],
-    );
+          child,
+          if (widget.aspectRatio == null && controller.getPagerItem != null)
+            PhotolinePager(
+              photoline: this,
+            ),
+        ],
+      );
+    });
   }
 }
