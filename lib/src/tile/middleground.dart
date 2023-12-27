@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:photoline/photoline.dart';
 
@@ -26,10 +24,7 @@ class PhotolineTileMiddleGroundPaint extends CustomPainter {
     final w = size.width, h = size.height;
 
     if (opacity > 0) canvas.drawRect(Rect.fromLTWH(0, 0, w, h), paint);
-
-    final sw = math.min(photoline.widget.photoStripeWidth, size.width);
     paint.colorFilter = null;
-    if (sw > 0) canvas.drawRect(Rect.fromLTWH(0, 0, sw, size.height), paint..color = photoline.widget.photoStripeColor);
   }
 
   @override

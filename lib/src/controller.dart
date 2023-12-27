@@ -18,6 +18,7 @@ int _getCloseCount(double? width) => 3;
 int _getPagerIndexOffset() => 0;
 
 /// Photoline controller
+/// [ClipRect]
 class PhotolineController extends ScrollController {
   PhotolineController({
     this.openRatio = .8,
@@ -33,7 +34,7 @@ class PhotolineController extends ScrollController {
     this.getPagerItem,
     this.getPagerIndexOffset = _getPagerIndexOffset,
     this.getPersistentWidgets,
-    this.isTileOpenGray = true,
+    this.isTileOpenGray = false,
     this.onDebugAdd,
   });
 
@@ -48,7 +49,7 @@ class PhotolineController extends ScrollController {
   final void Function(int index, Object data)? onAdd;
   final void Function(int index)? onRemove;
   final List<Widget>? Function(int index)? getPersistentWidgets;
-  final void Function(int newIndex, int oldIndex)? onReplace;
+  final void Function(int oldIndex, int newIndex)? onReplace;
   final List<Widget> Function(int index, Color color)? getPagerItem;
   final int Function() getPagerIndexOffset;
   final bool isTileOpenGray;
@@ -152,6 +153,7 @@ class PhotolineController extends ScrollController {
       );
 
   /// === [Drag]
+  bool get canDrag => onRemove != null && onReplace != null;
   int pageDragInitial = -1;
   int pageDragTile = 0;
   final List<PhotolineDrag> positionDrag = [];
@@ -325,7 +327,7 @@ class PhotolineController extends ScrollController {
         if (pi.index == pageDragInitial || pageDragTile != page) continue;
         final item = positionDrag.removeAt(pageDragInitial);
         positionDrag.insert(pi.index, item);
-        onReplace?.call(pi.index, pageDragInitial);
+        onReplace?.call(pageDragInitial, pi.index);
         pageDragInitial = pi.index;
         break;
       }

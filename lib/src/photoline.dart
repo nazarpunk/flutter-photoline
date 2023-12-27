@@ -19,14 +19,14 @@ import 'package:photoline/src/utils/position.dart';
 class Photoline extends StatefulWidget {
   const Photoline({
     required this.controller,
-    this.aspectRatio = 2,
+    this.isAspectRatio = true,
     this.photoStripeWidth = 10,
     this.photoStripeColor = const Color.fromRGBO(255, 255, 255, .1),
     super.key,
   });
 
   final PhotolineController controller;
-  final double? aspectRatio;
+  final bool isAspectRatio;
   final double photoStripeWidth;
   final Color photoStripeColor;
 
@@ -54,6 +54,15 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
   final List<PhotolinePosition> positionOpen = [];
 
   late final PhotolineHolderState? holder;
+
+  double _aspectRatio = 1.6;
+
+  set aspectRatio(double value) {
+    final nv = (_aspectRatio + value).clamp(1.25, 1.6);
+    if (_aspectRatio == nv) return;
+    _aspectRatio = nv;
+    rebuild();
+  }
 
   void _closingListener() {
     //final t = animationPosition.value;
@@ -126,12 +135,16 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
   }
 
   void _listener() {
+    final dx = animationPosition.velocity * .01;
     switch (controller.action) {
       case PhotolineAction.opening:
+        aspectRatio = -dx;
         _openingListener();
       case PhotolineAction.closing:
+        aspectRatio = dx;
         _closingListener();
       case PhotolineAction.open || PhotolineAction.close || PhotolineAction.drag:
+        aspectRatio = -dx;
     }
     rebuild();
   }
@@ -548,9 +561,9 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
       ),
     );
 
-    if (widget.aspectRatio != null) {
+    if (widget.isAspectRatio) {
       child = AspectRatio(
-        aspectRatio: widget.aspectRatio!,
+        aspectRatio: _aspectRatio,
         child: child,
       );
     } else {
@@ -591,7 +604,7 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
               ),
             ),
           child,
-          if (widget.aspectRatio == null && controller.getPagerItem != null)
+          if (!widget.isAspectRatio && controller.getPagerItem != null)
             PhotolinePager(
               photoline: this,
             ),

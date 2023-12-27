@@ -1,7 +1,9 @@
+import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:photoline/src/controller.dart';
 import 'package:photoline/src/image/image.dart';
 import 'package:photoline/src/mixin/state/rebuild.dart';
@@ -41,15 +43,6 @@ class PhotolineTileState extends State<PhotolineTile> with StateRebuildMixin {
   PhotolineController get _controller => widget.controller;
 
   AnimationController get _animation => widget.photoline.animationOpacity;
-
-  @override
-  void didUpdateWidget(covariant PhotolineTile oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.index != oldWidget.index){
-
-    }
-
-  }
 
   void _listenerOpacity(double ax) {
     double no = _opacity;
@@ -130,7 +123,7 @@ class PhotolineTileState extends State<PhotolineTile> with StateRebuildMixin {
       ],
     );
 
-    if (_photoline.holder?.dragController != null) {
+    if (_controller.canDrag && _photoline.holder?.dragController != null) {
       child = Listener(
         onPointerDown: (event) => _controller.onPointerDown(this, event),
         child: child,
@@ -139,7 +132,43 @@ class PhotolineTileState extends State<PhotolineTile> with StateRebuildMixin {
 
     return GestureDetector(
       onTap: () => _photoline.toPage(_index),
-      child: child,
+      child: _SingleChildRenderObjectWidget(
+        photoline: _photoline,
+        child: child,
+      ),
     );
+  }
+}
+
+class _SingleChildRenderObjectWidget extends SingleChildRenderObjectWidget {
+  const _SingleChildRenderObjectWidget({
+    super.child,
+    required this.photoline,
+  });
+
+  final PhotolineState photoline;
+
+  @override
+  _RenderProxyBox createRenderObject(BuildContext context) => _RenderProxyBox(photoline: photoline);
+}
+
+class _RenderProxyBox extends RenderProxyBox {
+  _RenderProxyBox({
+    required this.photoline,
+  }) : super();
+
+  final PhotolineState photoline;
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    super.paint(context, offset);
+    if (size.width > 0) {
+      context.canvas.drawRect(
+        offset & Size(math.min(size.width, photoline.widget.photoStripeWidth), size.height),
+        Paint()
+          ..color = photoline.widget.photoStripeColor
+          ..style = PaintingStyle.fill,
+      );
+    }
   }
 }
