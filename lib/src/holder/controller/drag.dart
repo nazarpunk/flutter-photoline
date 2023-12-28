@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'dart:math' as math;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:photoline/src/controller.dart';
@@ -37,6 +38,8 @@ class PhotolineHolderDragController implements Drag {
     _currentController.onDirection(_scrollDirection);
   }
 
+  double removeDx = 0;
+
   late int _scrollDirection;
   late double _closeDx;
   late bool _isRemove;
@@ -58,7 +61,24 @@ class PhotolineHolderDragController implements Drag {
       for (final photoline in holder!.photolines) {
         final controller = photoline.controller;
         if (!controller.isDragStart) continue;
-        controller.onDragEndEnd(_initialController == _currentController);
+        if (_isRemove) {
+          controller.onDragEndRemove();
+        } else {
+          if (_initialController == _currentController) {
+            controller.onDragEndReorder();
+          } else {
+            if (controller == _initialController) {
+              controller.onTransfer?.call(
+                _initialController.getTransferState!(),
+                _initialController.pageDragInitial,
+                _currentController.getTransferState!(),
+                _currentController.pageDragTransferTarget,
+              );
+            }
+          }
+        }
+
+        controller.onDragEndEnd();
       }
 
       holder?.animationDrag.stop();
@@ -89,8 +109,9 @@ class PhotolineHolderDragController implements Drag {
     _isRemove = current == null;
 
     if (_isRemove) {
-      //_debugString += 'REMOVE\n';
+      removeDx = math.min(1, removeDx + dx);
     } else {
+      removeDx = math.max(0, removeDx - dx);
       current!.onDragStart(false);
       if (_currentController != current) {
         _scrollTimer?.cancel();
@@ -127,7 +148,7 @@ class PhotolineHolderDragController implements Drag {
       if (!controller.isDragStart) continue;
       controller.onAnimationDrag(
         dx: dx,
-        isCurrent: _currentController == controller,
+        isCurrent: _currentController == controller && !_isRemove,
         tileOffset: (_tileOffset.dx - controller.renderOffset.dx).clamp(0, controller.renderBox.size.width),
       );
     }
@@ -140,6 +161,7 @@ class PhotolineHolderDragController implements Drag {
     _scrollDirection = 0;
     _closeDx = 0;
     _isRemove = false;
+    removeDx = 0;
 
     //print('🍒start []: $offset');
 
@@ -158,19 +180,20 @@ class PhotolineHolderDragController implements Drag {
 
     _overlayState!.insert(
       _overlayEntry = OverlayEntry(
-        builder: (context) {
-          return Stack(
-            children: [
-              Positioned(
-                left: _tileOffsetVisible.dx,
-                top: _tileOffsetVisible.dy,
-                width: _tileSize.width,
-                height: _tileSize.height,
+        builder: (context) => Stack(
+          children: [
+            Positioned(
+              left: _tileOffsetVisible.dx,
+              top: _tileOffsetVisible.dy,
+              width: _tileSize.width,
+              height: _tileSize.height,
+              child: Transform.scale(
+                scale: _isRemove ? (1 - _closeDx).clamp(0, 1) : 1,
                 child: _initialTile.widget,
               ),
-            ],
-          );
-        },
+            ),
+          ],
+        ),
       ),
     );
 

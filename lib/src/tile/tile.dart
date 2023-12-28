@@ -93,6 +93,8 @@ class PhotolineTileState extends State<PhotolineTile> with StateRebuildMixin {
     final Color sortColor = Color.lerp(Colors.transparent, const Color.fromRGBO(0, 0, 200, .4), _dragCurrent)!;
     final List<Widget>? persistent = _controller.getPersistentWidgets?.call(_index);
 
+    final double rdx = _controller.photoline?.holder?.dragController?.removeDx ?? 0;
+
     Widget child = Stack(
       children: [
         Positioned.fill(
@@ -117,7 +119,7 @@ class PhotolineTileState extends State<PhotolineTile> with StateRebuildMixin {
         if (_dragCurrent > 0)
           Positioned.fill(
               child: ColoredBox(
-            color: Color.lerp(sortColor, const Color.fromRGBO(200, 0, 0, .4), 0)!,
+            color: Color.lerp(sortColor, const Color.fromRGBO(200, 0, 0, .4), rdx)!,
           )),
         if (kDebugMode) Positioned.fill(child: Center(child: Text(_index.toString())))
       ],

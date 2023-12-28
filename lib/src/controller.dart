@@ -30,10 +30,12 @@ class PhotolineController extends ScrollController {
     this.getCloseCount = _getCloseCount,
     this.onAdd,
     this.onRemove,
-    this.onReplace,
+    this.onReorder,
     this.getPagerItem,
     this.getPagerIndexOffset = _getPagerIndexOffset,
     this.getPersistentWidgets,
+    this.getTransferState,
+    this.onTransfer,
     this.isTileOpenGray = false,
     this.onDebugAdd,
   });
@@ -49,10 +51,12 @@ class PhotolineController extends ScrollController {
   final void Function(int index, Object data)? onAdd;
   final void Function(int index)? onRemove;
   final List<Widget>? Function(int index)? getPersistentWidgets;
-  final void Function(int oldIndex, int newIndex)? onReplace;
+  final void Function(int oldIndex, int newIndex)? onReorder;
   final List<Widget> Function(int index, Color color)? getPagerItem;
   final int Function() getPagerIndexOffset;
   final bool isTileOpenGray;
+  final State Function()? getTransferState;
+  final void Function(State from, int fi, State target, int ti)? onTransfer;
   final ValueSetter<int>? onDebugAdd;
 
   final double openRatio;
@@ -153,7 +157,7 @@ class PhotolineController extends ScrollController {
       );
 
   /// === [Drag]
-  bool get canDrag => onRemove != null && onReplace != null;
+  bool get canDrag => onRemove != null && onReorder != null;
   int pageDragInitial = -1;
   int pageDragTile = 0;
   final List<PhotolineDrag> positionDrag = [];
@@ -264,6 +268,8 @@ class PhotolineController extends ScrollController {
     return null;
   }
 
+  int pageDragTransferTarget = 0;
+
   void onAnimationDrag({
     required double dx,
     required bool isCurrent,
@@ -278,6 +284,8 @@ class PhotolineController extends ScrollController {
 
       int pos = pi.page;
       if (isCurrent && pos >= pageDragTile) pos += 1;
+
+      if (!isDragMain && pi.page == pageDragTile) pageDragTransferTarget = i;
 
       double move = dx * 100;
       final double dd = size.close * 3;
@@ -313,12 +321,13 @@ class PhotolineController extends ScrollController {
     if (!isReplace) return;
   }
 
-  void onDragEndEnd(bool isReplace) {
-    if (!isDragStart) return;
+  void onDragEndRemove() {
+    positionDrag.removeAt(pageDragInitial);
+    onRemove?.call(pageDragInitial);
+  }
 
-    action = PhotolineAction.close;
-
-    if (isReplace) {
+  void onDragEndReorder() {
+    if (pageDragInitial >= 0 && pageDragInitial < positionDrag.length) {
       for (int i = 0; i < positionDrag.length; i++) {
         final pi = positionDrag[i];
         if (pi.index == pageDragInitial) continue;
@@ -327,29 +336,32 @@ class PhotolineController extends ScrollController {
         if (pi.index == pageDragInitial || pageDragTile != page) continue;
         final item = positionDrag.removeAt(pageDragInitial);
         positionDrag.insert(pi.index, item);
-        onReplace?.call(pageDragInitial, pi.index);
+        onReorder?.call(pageDragInitial, pi.index);
         pageDragInitial = pi.index;
         break;
       }
-
-      int d = pageDragTile;
-      for (int i = pageDragInitial; i >= 0; i--) {
-        positionDrag[i].page = d--;
-      }
-      d = pageDragTile;
-      for (int i = pageDragInitial + 1; i < positionDrag.length; i++) {
-        positionDrag[i].page = ++d;
-      }
-
-      for (int i = 0; i < positionDrag.length; i++) {
-        final pi = positionDrag[i];
-        if (pi.page == 0) {
-          pos.jumpToPage(i);
-          break;
-        }
-      }
     }
 
+    int d = pageDragTile;
+    for (int i = pageDragInitial; i >= 0; i--) {
+      positionDrag[i].page = d--;
+    }
+    d = pageDragTile;
+    for (int i = pageDragInitial + 1; i < positionDrag.length; i++) {
+      positionDrag[i].page = ++d;
+    }
+
+    for (int i = 0; i < positionDrag.length; i++) {
+      final pi = positionDrag[i];
+      if (pi.page == 0) {
+        pos.jumpToPage(i);
+        break;
+      }
+    }
+  }
+
+  void onDragEndEnd() {
+    action = PhotolineAction.close;
     positionDrag.clear();
     pageDragInitial = -1;
     pageDragTile = 0;
@@ -364,14 +376,5 @@ class PhotolineController extends ScrollController {
     if (rtarget > rlimit) target += rtarget - rlimit;
     if (target > current) target += current - target;
     return target;
-  }
-
-  void replaceListItems(List<dynamic> list, int target, int anchor, bool isAfter) {
-    final item = list.removeAt(target);
-    if (isAfter) {
-      list.insert(anchor, item);
-    } else {
-      list.insert(anchor, item);
-    }
   }
 }
