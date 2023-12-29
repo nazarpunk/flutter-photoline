@@ -22,9 +22,9 @@ int _getPagerIndexOffset() => 0;
 class PhotolineController extends ScrollController {
   PhotolineController({
     this.openRatio = .8,
+    this.getBlur,
     required this.getUri,
     required this.getKey,
-    required this.getBackground,
     required this.getWidget,
     required this.getPhotoCount,
     this.getCloseCount = _getCloseCount,
@@ -42,15 +42,15 @@ class PhotolineController extends ScrollController {
 
   PhotolineHolderDragController? dragController;
 
+  final Uint8List Function(int index)? getBlur;
   final Uri? Function(int) getUri;
-  final Color Function(int) getBackground;
   final Widget Function(int) getWidget;
   final Key Function(int) getKey;
   final ValueGetter<int> getPhotoCount;
   final int Function(double? width) getCloseCount;
   final void Function(int index, Object data)? onAdd;
   final void Function(int index)? onRemove;
-  final List<Widget>? Function(int index)? getPersistentWidgets;
+  final List<Widget> Function(int index, double loading)? getPersistentWidgets;
   final void Function(int oldIndex, int newIndex)? onReorder;
   final List<Widget> Function(int index, Color color)? getPagerItem;
   final int Function() getPagerIndexOffset;
@@ -80,6 +80,7 @@ class PhotolineController extends ScrollController {
   PhotolineSize get size => PhotolineSize(this);
 
   int get count => math.max(getPhotoCount(), getCloseCount(null));
+  //int get count => getPhotoCount();
 
   PhotolineState? photoline;
 
@@ -350,7 +351,10 @@ class PhotolineController extends ScrollController {
     for (int i = pageDragInitial + 1; i < positionDrag.length; i++) {
       positionDrag[i].page = ++d;
     }
+  }
 
+  void onDragEndEnd() {
+    action = PhotolineAction.close;
     for (int i = 0; i < positionDrag.length; i++) {
       final pi = positionDrag[i];
       if (pi.page == 0) {
@@ -358,10 +362,6 @@ class PhotolineController extends ScrollController {
         break;
       }
     }
-  }
-
-  void onDragEndEnd() {
-    action = PhotolineAction.close;
     positionDrag.clear();
     pageDragInitial = -1;
     pageDragTile = 0;

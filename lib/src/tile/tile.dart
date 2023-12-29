@@ -1,14 +1,15 @@
 import 'dart:math' as math;
-import 'dart:ui';
+import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:photoline/src/controller.dart';
-import 'package:photoline/src/image/image.dart';
 import 'package:photoline/src/mixin/state/rebuild.dart';
 import 'package:photoline/src/photoline.dart';
-import 'package:photoline/src/tile/middleground.dart';
+import 'package:photoline/src/tile/loader.dart';
+import 'package:photoline/src/tile/painter/blur.dart';
+import 'package:photoline/src/tile/painter/image.dart';
 import 'package:photoline/src/utils/action.dart';
 
 class PhotolineTile extends StatefulWidget {
@@ -16,14 +17,12 @@ class PhotolineTile extends StatefulWidget {
     super.key,
     required this.index,
     required this.uri,
-    required this.background,
     required this.controller,
     required this.photoline,
   });
 
   final int index;
   final Uri? uri;
-  final Color background;
   final PhotolineController controller;
   final PhotolineState photoline;
 
@@ -31,7 +30,7 @@ class PhotolineTile extends StatefulWidget {
   State<PhotolineTile> createState() => PhotolineTileState();
 }
 
-class PhotolineTileState extends State<PhotolineTile> with StateRebuildMixin {
+class PhotolineTileState extends State<PhotolineTile> with StateRebuildMixin, TickerProviderStateMixin {
   double _opacity = 0;
   double _opacityCurrent = 0;
   double _dragCurrent = 0;
@@ -44,6 +43,8 @@ class PhotolineTileState extends State<PhotolineTile> with StateRebuildMixin {
 
   AnimationController get _animation => widget.photoline.animationOpacity;
 
+  ui.Image? _blur;
+
   void _listenerOpacity(double ax) {
     double no = _opacity;
     final pa = _photoline.pageActive.value;
@@ -54,7 +55,7 @@ class PhotolineTileState extends State<PhotolineTile> with StateRebuildMixin {
 
     if (no == _opacity) return;
     _opacity = no;
-    _opacityCurrent = lerpDouble(0, _index == pa ? .5 : .8, Curves.easeOutQuad.transform(_opacity))!;
+    _opacityCurrent = ui.lerpDouble(0, _index == pa ? .5 : .8, Curves.easeOutQuad.transform(_opacity))!;
     rebuild();
   }
 
@@ -74,16 +75,66 @@ class PhotolineTileState extends State<PhotolineTile> with StateRebuildMixin {
     _listenerDrag(ax);
   }
 
+  void _reblur() {
+    final blist = _controller.getBlur?.call(_index);
+    if (blist != null && blist.isNotEmpty) {
+      ui.decodeImageFromList(blist, (result) {
+        if (!mounted) return;
+        _blur = result;
+        rebuild();
+      });
+    }
+  }
+
+  void _reimage(PhotolineImageLoader? loader) {
+    if (loader?.image == null) {
+      _animationImage
+        ..value = 0
+        ..addListener(rebuild);
+
+      _notifier.addListener(_imageListener);
+    } else {
+      _animationImage.value = 1;
+      if (widget.uri != null) _image = _notifier.image(widget.uri!);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant PhotolineTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.uri != null && widget.uri != oldWidget.uri) {
+      _reimage(PhotolineImageLoader.add(widget.uri!));
+    }
+  }
+
   @override
   void initState() {
     _animation.addListener(_listener);
+    _animationImage = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _reimage(widget.uri == null ? null : PhotolineImageLoader.add(widget.uri!));
+    _reblur();
     super.initState();
   }
 
   @override
   void dispose() {
+    _notifier.removeListener(_imageListener);
+    _animationImage.dispose();
     _animation.removeListener(_listener);
     super.dispose();
+  }
+
+  ui.Image? _image;
+  late final AnimationController _animationImage;
+  final _notifier = PhotolineImageNotifier();
+
+  void _imageListener() {
+    if (_notifier.loader!.uri != widget.uri) return;
+    _image = _notifier.loader!.image;
+    _animationImage.forward(from: 0);
   }
 
   /// [LongPressEndDetails]
@@ -91,24 +142,26 @@ class PhotolineTileState extends State<PhotolineTile> with StateRebuildMixin {
   @override
   Widget build(BuildContext context) {
     final Color sortColor = Color.lerp(Colors.transparent, const Color.fromRGBO(0, 0, 200, .4), _dragCurrent)!;
-    final List<Widget>? persistent = _controller.getPersistentWidgets?.call(_index);
+    final List<Widget>? persistent = _controller.getPersistentWidgets?.call(_index, _animationImage.value);
 
     final double rdx = _controller.photoline?.holder?.dragController?.removeDx ?? 0;
 
     Widget child = Stack(
       children: [
         Positioned.fill(
-          child: PhotolineImage(
-            uri: widget.uri,
-            background: widget.background,
-            foreground: const Color.fromRGBO(0, 0, 0, 0),
+          child: CustomPaint(
+            painter: BlurPainter(
+              blur: _blur,
+              imageOpacity: _animationImage.value,
+            ),
           ),
         ),
         Positioned.fill(
           child: CustomPaint(
-            painter: PhotolineTileMiddleGroundPaint(
-              photoline: _photoline,
-              opacity: _controller.isTileOpenGray ? _opacityCurrent.clamp(0, 1) : 0,
+            painter: ImagePainter(
+              image: _image,
+              imageOpacity: Curves.easeIn.transform(_animationImage.value).clamp(0, 1),
+              grayOpacity: _controller.isTileOpenGray ? _opacityCurrent.clamp(0, 1) : 0,
             ),
           ),
         ),
@@ -125,7 +178,7 @@ class PhotolineTileState extends State<PhotolineTile> with StateRebuildMixin {
       ],
     );
 
-    if (_controller.canDrag && _photoline.holder?.dragController != null) {
+    if (_controller.canDrag && _photoline.holder?.dragController != null && _controller.getPhotoCount() > _index) {
       child = Listener(
         onPointerDown: (event) => _controller.onPointerDown(this, event),
         child: child,

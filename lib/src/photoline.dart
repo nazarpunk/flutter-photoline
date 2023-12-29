@@ -427,9 +427,7 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
 
   void toPage(int target) {
     if (controller.dragController?.isDrag ?? false) return;
-
-    final count = _count;
-    if (target >= count) return;
+    if (target >= controller.getPhotoCount()) return;
 
     final pto = controller.pageTargetOpen;
     controller.pageTargetOpen = target;
@@ -549,7 +547,6 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
                   key: controller.getKey(i),
                   index: i,
                   uri: controller.getUri(i),
-                  background: controller.getBackground(i),
                   controller: controller,
                 ),
                 controller: controller,

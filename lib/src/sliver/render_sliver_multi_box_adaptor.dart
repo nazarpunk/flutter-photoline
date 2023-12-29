@@ -188,7 +188,6 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
       ..didStartLayout()
       ..setDidUnderflow(false);
 
-    final widthOpen = constraints.viewportMainAxisExtent * _photoline.widget.controller.openRatio;
     final double scrollOffset = constraints.scrollOffset + constraints.cacheOrigin;
 
     final fp = controller.positionDrag[0];
@@ -219,7 +218,8 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
     }
 
     geometry = SliverGeometry(
-      scrollExtent: widthOpen * count,
+      //scrollExtent: widthOpen * count,
+      scrollExtent: double.infinity,
       paintExtent: calculatePaintOffset(
         constraints,
         from: 0,
