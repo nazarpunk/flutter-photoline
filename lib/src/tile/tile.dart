@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:photoline/src/controller.dart';
+import 'package:photoline/src/holder/controller/drag.dart';
 import 'package:photoline/src/mixin/state/rebuild.dart';
 import 'package:photoline/src/photoline.dart';
 import 'package:photoline/src/tile/loader.dart';
@@ -30,7 +31,8 @@ class PhotolineTile extends StatefulWidget {
   State<PhotolineTile> createState() => PhotolineTileState();
 }
 
-class PhotolineTileState extends State<PhotolineTile> with StateRebuildMixin, TickerProviderStateMixin {
+class PhotolineTileState extends State<PhotolineTile>
+    with StateRebuildMixin, TickerProviderStateMixin {
   double _opacity = 0;
   double _opacityCurrent = 0;
   double _dragCurrent = 0;
@@ -55,17 +57,22 @@ class PhotolineTileState extends State<PhotolineTile> with StateRebuildMixin, Ti
 
     if (no == _opacity) return;
     _opacity = no;
-    _opacityCurrent = ui.lerpDouble(0, _index == pa ? .5 : .8, Curves.easeOutQuad.transform(_opacity))!;
+    _opacityCurrent = ui.lerpDouble(
+        0, _index == pa ? .5 : .8, Curves.easeOutQuad.transform(_opacity))!;
     rebuild();
   }
 
   void _listenerDrag(double ax) {
-    final dc = _dragCurrent;
-    final dcx = _controller.pageDragInitial == _index && _controller.action == PhotolineAction.drag ? 1 : -1;
+    final bool cl = _drag?.isDragClose ?? true;
+    final dcx = cl ||
+            _controller.pageDragInitial != _index ||
+            _controller.action != PhotolineAction.drag
+        ? -1
+        : 1;
 
-    _dragCurrent = (_dragCurrent + ax * dcx).clamp(0, 1);
-
+    final double dc = (_dragCurrent + ax * dcx).clamp(0, 1);
     if (dc == _dragCurrent) return;
+    _dragCurrent = dc;
     rebuild();
   }
 
@@ -137,14 +144,19 @@ class PhotolineTileState extends State<PhotolineTile> with StateRebuildMixin, Ti
     _animationImage.forward(from: 0);
   }
 
+  PhotolineHolderDragController? get _drag =>
+      _controller.photoline?.holder?.dragController;
+
   /// [LongPressEndDetails]
   /// [ReorderableDelayedDragStartListener]
   @override
   Widget build(BuildContext context) {
-    final Color sortColor = Color.lerp(Colors.transparent, const Color.fromRGBO(0, 0, 200, .4), _dragCurrent)!;
-    final List<Widget>? persistent = _controller.getPersistentWidgets?.call(_index, _animationImage.value);
+    final sc = Color.fromRGBO(0, 0, 200, ui.lerpDouble(0, .4, _dragCurrent)!);
+    final rc = Color.fromRGBO(200, 0, 0, ui.lerpDouble(0, .4, _dragCurrent)!);
+    final cc = Color.lerp(sc, rc, _drag?.removeDx ?? 0)!;
 
-    final double rdx = _controller.photoline?.holder?.dragController?.removeDx ?? 0;
+    final List<Widget>? persistent =
+        _controller.getPersistentWidgets?.call(_index, _animationImage.value);
 
     Widget child = Stack(
       children: [
@@ -160,25 +172,28 @@ class PhotolineTileState extends State<PhotolineTile> with StateRebuildMixin, Ti
           child: CustomPaint(
             painter: ImagePainter(
               image: _image,
-              imageOpacity: Curves.easeIn.transform(_animationImage.value).clamp(0, 1),
-              grayOpacity: _controller.isTileOpenGray ? _opacityCurrent.clamp(0, 1) : 0,
+              imageOpacity:
+                  Curves.easeIn.transform(_animationImage.value).clamp(0, 1),
+              grayOpacity:
+                  _controller.isTileOpenGray ? _opacityCurrent.clamp(0, 1) : 0,
             ),
           ),
         ),
         Positioned.fill(
-          child: _photoline.pageActive.value == _index ? _controller.getWidget(_index) : const SizedBox(),
+          child: _photoline.pageActive.value == _index
+              ? _controller.getWidget(_index)
+              : const SizedBox(),
         ),
         if (persistent != null) ...persistent,
-        if (_dragCurrent > 0)
-          Positioned.fill(
-              child: ColoredBox(
-            color: Color.lerp(sortColor, const Color.fromRGBO(200, 0, 0, .4), rdx)!,
-          )),
-        if (kDebugMode) Positioned.fill(child: Center(child: Text(_index.toString())))
+        if (_dragCurrent > 0) Positioned.fill(child: ColoredBox(color: cc)),
+        if (kDebugMode)
+          Positioned.fill(child: Center(child: Text(_index.toString())))
       ],
     );
 
-    if (_controller.canDrag && _photoline.holder?.dragController != null && _controller.getPhotoCount() > _index) {
+    if (_controller.canDrag &&
+        _photoline.holder?.dragController != null &&
+        _controller.getPhotoCount() > _index) {
       child = Listener(
         onPointerDown: (event) => _controller.onPointerDown(this, event),
         child: child,
@@ -204,7 +219,8 @@ class _SingleChildRenderObjectWidget extends SingleChildRenderObjectWidget {
   final PhotolineState photoline;
 
   @override
-  _RenderProxyBox createRenderObject(BuildContext context) => _RenderProxyBox(photoline: photoline);
+  _RenderProxyBox createRenderObject(BuildContext context) =>
+      _RenderProxyBox(photoline: photoline);
 }
 
 class _RenderProxyBox extends RenderProxyBox {
@@ -219,7 +235,9 @@ class _RenderProxyBox extends RenderProxyBox {
     super.paint(context, offset);
     if (size.width > 0) {
       context.canvas.drawRect(
-        offset & Size(math.min(size.width, photoline.widget.photoStripeWidth), size.height),
+        offset &
+            Size(math.min(size.width, photoline.widget.photoStripeWidth),
+                size.height),
         Paint()
           ..color = photoline.widget.photoStripeColor
           ..style = PaintingStyle.fill,

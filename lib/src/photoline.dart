@@ -42,8 +42,6 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
 
   PhotolineScrollPosition get _position => widget.controller.pos;
 
-  int get _count => math.max(controller.getPhotoCount(), controller.getCloseCount(controller.photolineWidth));
-
   int _lastReportedPage = 0;
 
   var pageActive = ValueNotifier<int>(-1);
@@ -67,7 +65,7 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
   void _closingListener() {
     //final t = animationPosition.value;
     final t = Curves.easeInOut.transform(animationPosition.value);
-    final count = _count;
+    final count = controller.count;
 
     // center
     positionOpen[controller.pageTargetOpen].lerp(t);
@@ -93,7 +91,7 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
 
   void _openingListener() {
     final t = Curves.easeInOut.transform(animationPosition.value);
-    final count = _count;
+    final count = controller.count;
 
     final pto = controller.pageTargetOpen;
 
@@ -176,7 +174,7 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
   void _toPageOpening() {
     pageActive.value = -1;
     final size = controller.size;
-    final count = _count;
+    final count = controller.count;
 
     final List<int> visible = [];
 
@@ -221,7 +219,7 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
   void _toPageOpenFromClose() {
     pageActive.value = -1;
     final size = controller.size;
-    final count = _count;
+    final count = controller.count;
 
     final List<int> visible = [];
     final List<double> ws = [];
@@ -273,7 +271,7 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
   void _toPageFromOpen() {
     pageActive.value = -1;
     final List<int> visible = _positionOpenAddOpen();
-    final count = _count;
+    final count = controller.count;
     final pto = controller.pageTargetOpen;
     final c = positionOpen[pto];
     final size = controller.size;
@@ -332,7 +330,7 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
 
   void _animationStart(PhotolinePosition cur) {
     final size = controller.size;
-    final count = _count;
+    final count = controller.count;
 
     for (int i = 0; i < count; i++) {
       final c = positionOpen[i];
@@ -356,7 +354,7 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
 
   void _closeStart() {
     final size = controller.size;
-    final count = _count;
+    final count = controller.count;
 
     double sz = 0;
     for (int i = 0; i < count; i++) {
@@ -401,7 +399,7 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
 
   List<int> _positionOpenAddOpen() {
     final size = controller.size;
-    final count = _count;
+    final count = controller.count;
     final List<int> visible = [];
 
     final bool toAdd = positionOpen.isEmpty;

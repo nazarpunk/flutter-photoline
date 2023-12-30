@@ -41,7 +41,7 @@ class PhotolineHolderDragController implements Drag {
   double removeDx = 0;
 
   late int _scrollDirection;
-  late double _closeDx;
+  late double closeDx;
   late bool _isRemove;
 
   void onAnimationDrag() {
@@ -49,15 +49,16 @@ class PhotolineHolderDragController implements Drag {
     final dx = holder!.animationDrag.velocity;
 
     if (isDragClose) {
-      _closeDx = (_closeDx + dx * .5).clamp(0, 1);
+      closeDx = (closeDx + dx * .5).clamp(0, 1);
 
       if (_isRemove) {
       } else {
-        _tileOffsetVisible = Offset.lerp(_closeOffsetStart, _closeOffsetEnd, _closeDx)!;
+        _tileOffsetVisible =
+            Offset.lerp(_closeOffsetStart, _closeOffsetEnd, closeDx)!;
       }
       _animateControllers(dx);
       _overlayEntry?.markNeedsBuild();
-      if (_closeDx < 1) return;
+      if (closeDx < 1) return;
       for (final photoline in holder!.photolines) {
         final controller = photoline.controller;
         if (!controller.isDragStart) continue;
@@ -91,18 +92,23 @@ class PhotolineHolderDragController implements Drag {
     }
 
     const curDh = .55;
-    final RenderBox overlayBox = _overlayState!.context.findRenderObject()! as RenderBox;
+    final RenderBox overlayBox =
+        _overlayState!.context.findRenderObject()! as RenderBox;
 
     PhotolineController? current;
     for (final photoline in holder!.photolines) {
       final controller = photoline.controller;
-      if (controller.action != PhotolineAction.drag && controller.action != PhotolineAction.close) continue;
+      if (controller.action != PhotolineAction.drag &&
+          controller.action != PhotolineAction.close) continue;
 
       controller
         ..renderBox = photoline.context.findRenderObject()! as RenderBox
-        ..renderOffset = controller.renderBox.localToGlobal(Offset.zero, ancestor: overlayBox);
+        ..renderOffset = controller.renderBox
+            .localToGlobal(Offset.zero, ancestor: overlayBox);
 
-      final dh = photolineTileIntersection(_tileOffset.dy, _tileSize.height, controller.renderOffset.dy, controller.renderBox.size.height) / _tileSize.height;
+      final dh = photolineTileIntersection(_tileOffset.dy, _tileSize.height,
+              controller.renderOffset.dy, controller.renderBox.size.height) /
+          _tileSize.height;
       if (dh >= curDh) current = controller;
     }
 
@@ -134,7 +140,8 @@ class PhotolineHolderDragController implements Drag {
       _scrollDirection = direction;
       _scrollTimer?.cancel();
       if (direction != 0) {
-        _scrollTimer = Timer.periodic(const Duration(milliseconds: 300), _onScrollTimerEnd);
+        _scrollTimer = Timer.periodic(
+            const Duration(milliseconds: 300), _onScrollTimerEnd);
         _onScrollTimerEnd(_scrollTimer!);
       }
     }
@@ -149,21 +156,31 @@ class PhotolineHolderDragController implements Drag {
       controller.onAnimationDrag(
         dx: dx,
         isCurrent: _currentController == controller && !_isRemove,
-        tileOffset: (_tileOffset.dx - controller.renderOffset.dx).clamp(0, controller.renderBox.size.width),
+        tileOffset: (_tileOffsetVisible.dx - controller.renderOffset.dx)
+            .clamp(0, controller.renderBox.size.width),
       );
     }
   }
 
   Drag? _onDragStart(Offset offset) {
     if (_initialController.action != PhotolineAction.close) return null;
+    if (!_initialTile.context.mounted) return null;
+
+    for (final photoline in holder!.photolines) {
+      final controller = photoline.controller;
+      if (controller.action == PhotolineAction.drag) return null;
+    }
+
+    for (final photoline in holder!.photolines) {
+      photoline.close();
+    }
+
     if (isDrag || isDragClose) return null;
     isDrag = true;
     _scrollDirection = 0;
-    _closeDx = 0;
+    closeDx = 0;
     _isRemove = false;
     removeDx = 0;
-
-    //print('🍒start []: $offset');
 
     _initialController.onDragStart(true);
 
@@ -171,8 +188,10 @@ class PhotolineHolderDragController implements Drag {
 
     _overlayState = Overlay.of(holder!.context);
 
-    final RenderBox tileBox = _initialTile.context.findRenderObject()! as RenderBox;
-    final RenderBox overlayBox = _overlayState!.context.findRenderObject()! as RenderBox;
+    final RenderBox tileBox =
+        _initialTile.context.findRenderObject()! as RenderBox;
+    final RenderBox overlayBox =
+        _overlayState!.context.findRenderObject()! as RenderBox;
 
     _tileSize = tileBox.size;
     _tileOffset = tileBox.localToGlobal(Offset.zero, ancestor: overlayBox);
@@ -188,7 +207,7 @@ class PhotolineHolderDragController implements Drag {
               width: _tileSize.width,
               height: _tileSize.height,
               child: Transform.scale(
-                scale: _isRemove ? (1 - _closeDx).clamp(0, 1) : 1,
+                scale: _isRemove ? (1 - closeDx).clamp(0, 1) : 1,
                 child: _initialTile.widget,
               ),
             ),
@@ -204,17 +223,15 @@ class PhotolineHolderDragController implements Drag {
     isDrag = false;
     isDragClose = true;
     _scrollTimer?.cancel();
-    final size = _initialController.size;
-
     if (_isRemove) {
     } else {
       _closeOffsetStart = _tileOffsetVisible;
-      _closeOffsetEnd = Offset(_currentController.renderOffset.dx + _currentController.pageDragTile * size.close, _currentController.renderOffset.dy);
-      _initialController.onDragEndStart(_initialController == _currentController);
+      _closeOffsetEnd = _currentController.closeOffsetEnd;
     }
   }
 
-  void onPointerDown(PhotolineController controller, PhotolineTileState tile, PointerDownEvent event) {
+  void onPointerDown(PhotolineController controller, PhotolineTileState tile,
+      PointerDownEvent event) {
     if (controller.action != PhotolineAction.close) return;
     if (isDrag) {
       _recogniserAbsorb.addPointer(event);
@@ -243,7 +260,8 @@ class PhotolineHolderDragController implements Drag {
     double dx = _tileOffset.dx;
     double dy = _tileOffset.dy;
 
-    final RenderBox overlayBox = _overlayState!.context.findRenderObject()! as RenderBox;
+    final RenderBox overlayBox =
+        _overlayState!.context.findRenderObject()! as RenderBox;
 
     if (dx < 0) dx = 0;
     if (dx + _tileSize.width > overlayBox.size.width) {

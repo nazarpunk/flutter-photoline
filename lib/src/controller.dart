@@ -69,9 +69,12 @@ class PhotolineController extends ScrollController {
   int pageTargetOpen = -1;
 
   double? get page {
-    assert(positions.isNotEmpty, 'PageController.page cannot be accessed before a PageView is built with it.');
-    assert(positions.length == 1, 'The page property cannot be read when multiple PageViews are attached to the same PageController.');
-    final PhotolineScrollPosition position = this.position as PhotolineScrollPosition;
+    assert(positions.isNotEmpty,
+        'PageController.page cannot be accessed before a PageView is built with it.');
+    assert(positions.length == 1,
+        'The page property cannot be read when multiple PageViews are attached to the same PageController.');
+    final PhotolineScrollPosition position =
+        this.position as PhotolineScrollPosition;
     return position.page;
   }
 
@@ -79,8 +82,11 @@ class PhotolineController extends ScrollController {
 
   PhotolineSize get size => PhotolineSize(this);
 
-  int get count => math.max(getPhotoCount(), getCloseCount(null));
-  //int get count => getPhotoCount();
+  //int get count => math.max(getPhotoCount(), getCloseCount(null));
+  //controller.photolineWidth
+  int get count => getPhotoCount();
+
+  int get countClose => getCloseCount(photolineWidth);
 
   PhotolineState? photoline;
 
@@ -168,16 +174,19 @@ class PhotolineController extends ScrollController {
   bool isDragStart = false;
   bool isDragMain = false;
 
-  void onPointerDown(PhotolineTileState tile, PointerDownEvent event) => dragController?.onPointerDown(this, tile, event);
+  void onPointerDown(PhotolineTileState tile, PointerDownEvent event) =>
+      dragController?.onPointerDown(this, tile, event);
 
   void onDirection(int direction) {
     if (direction == 0) return;
     final size = this.size;
+    //if (kDebugMode) return;
 
     if (direction > 0) {
       for (int i = positionDrag.length - 1; i >= 0; i--) {
         final pi = positionDrag[i];
-        if ((isDragMain && pi.index == pageDragInitial) || pi.page < size.viewCount - 1) continue;
+        if ((isDragMain && pi.index == pageDragInitial) ||
+            pi.page < size.viewCount - 1) continue;
         for (int k = positionDrag.length - 1; k >= 0; k--) {
           positionDrag[k].page -= 1;
         }
@@ -198,8 +207,9 @@ class PhotolineController extends ScrollController {
   }
 
   void onChangeCurrent(bool isCurrent) {
+    //if (kDebugMode) return;
     final size = this.size;
-    if (!isCurrent) {
+    if (!isCurrent && count - 1 >= countClose) {
       for (int i = positionDrag.length - 1; i >= 0; i--) {
         final pi = positionDrag[i];
         if (isDragMain && pi.index == pageDragInitial) continue;
@@ -290,7 +300,10 @@ class PhotolineController extends ScrollController {
 
       double move = dx * 100;
       final double dd = size.close * 3;
-      move *= Curves.easeOutCubic.transform((dd - math.min(dd, (pageDragTile * size.close - pi.offset).abs())) / dd) + 1;
+      move *= Curves.easeOutCubic.transform((dd -
+                  math.min(dd, (pageDragTile * size.close - pi.offset).abs())) /
+              dd) +
+          1;
 
       final double end = pos * size.close;
       final dist = (pi.offset - end).abs();
@@ -307,23 +320,28 @@ class PhotolineController extends ScrollController {
         final prv = _prv(pi);
         if (prv != null) {
           final r = prv.offset + size.close;
-          if (pi.offset < r) {
-            move = 0;
-          } else {
-            move = math.min(pi.offset - r, move);
-          }
+          move = r > pi.offset ? 0 : math.min(pi.offset - r, move);
         }
         pi.offset -= move;
       }
     }
-  }
 
-  void onDragEndStart(bool isReplace) {
-    if (!isReplace) return;
+    final count = this.count;
+
+    if (isDragMain) {
+      if (pageDragTile >= count) pageDragTile = count - 1;
+    } else {
+      if (pageDragTile >= count) pageDragTransferTarget = count;
+      if (positionDrag.isNotEmpty) {
+        if (pageDragTile > positionDrag.last.page) pageDragTransferTarget++;
+      }
+    }
   }
 
   void onDragEndRemove() {
-    positionDrag.removeAt(pageDragInitial);
+    if (positionDrag.length <= pageDragInitial) {
+      positionDrag.removeAt(pageDragInitial);
+    }
     onRemove?.call(pageDragInitial);
   }
 
@@ -367,6 +385,13 @@ class PhotolineController extends ScrollController {
     pageDragTile = 0;
     isDragMain = false;
     isDragStart = false;
+  }
+
+  Offset get closeOffsetEnd {
+    int pdt = pageDragTile;
+    final count = this.count;
+    if (pdt > count) pdt = count;
+    return Offset(renderOffset.dx + pdt * size.close, renderOffset.dy);
   }
 
   int correctCloseTargetIndex(int all, int visible, int current, int target) {
