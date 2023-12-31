@@ -97,7 +97,7 @@ class _PhotolineBacksideState extends State<PhotolineBackside>
         );
       }
 
-      if (child.isEmpty) return SizedBox();
+      if (child.isEmpty) return const SizedBox();
 
       return Stack(
         fit: StackFit.expand,

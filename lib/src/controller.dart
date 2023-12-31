@@ -71,7 +71,7 @@ class PhotolineController extends ScrollController {
   PhotolineAction action = PhotolineAction.close;
 
   final pageActive = ValueNotifier<int>(-1);
-  var pageTargetOpen = -1;
+  final pageTargetOpen = ValueNotifier<int>(-1);
 
   double? get page {
     assert(positions.isNotEmpty,

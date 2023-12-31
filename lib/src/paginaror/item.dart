@@ -5,6 +5,7 @@ import 'package:flutter/rendering.dart';
 import 'package:photoline/photoline.dart';
 
 import 'package:photoline/src/mixin/state/rebuild.dart';
+import 'package:photoline/src/utils/action.dart';
 
 class PhotolinePaginatorItem extends StatefulWidget {
   const PhotolinePaginatorItem({
@@ -22,7 +23,8 @@ class PhotolinePaginatorItem extends StatefulWidget {
 
 class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem>
     with TickerProviderStateMixin, StateRebuildMixin {
-  late AnimationController _animation;
+  late final AnimationController _starAnim;
+  late final AnimationController _triAnim;
 
   PhotolineState get _photoline => widget.photoline;
 
@@ -33,38 +35,73 @@ class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem>
   Color get _color => widget.index >= _controller.getPhotoCount() - _indexOffset
       ? const Color.fromRGBO(200, 200, 200, 1)
       : Color.lerp(const Color.fromRGBO(120, 120, 130, 1),
-          const Color.fromRGBO(0, 0, 0, 1), _animation.value)!;
+          const Color.fromRGBO(0, 0, 0, 1), _starAnim.value)!;
 
-  void listener() {
+  void _starLis() {
     final double value =
         _controller.pageActive.value == (widget.index + _indexOffset) ? 1 : 0;
 
     rebuild();
 
-    if (value == _animation.value && !_animation.isAnimating) return;
+    if (value == _starAnim.value && !_starAnim.isAnimating) return;
     if (value > 0) {
-      _animation.forward(from: _animation.value);
+      _starAnim.forward(from: _starAnim.value);
     } else {
-      _animation.reverse(from: _animation.value);
+      _starAnim.reverse(from: _starAnim.value);
+    }
+  }
+
+  void _triLis() {
+    final pto = _controller.pageTargetOpen.value;
+    double value = pto == (widget.index + _indexOffset) ? 1 : 0;
+    switch (_controller.action) {
+      case PhotolineAction.close:
+      case PhotolineAction.closing:
+        //value = 0;
+      case PhotolineAction.open:
+      case PhotolineAction.opening:
+      case PhotolineAction.drag:
+        break;
+    }
+
+    rebuild();
+
+    if (value == _triAnim.value && !_triAnim.isAnimating) return;
+    if (value > 0) {
+      _triAnim.forward(from: _starAnim.value);
+    } else {
+      _triAnim.reverse(from: _starAnim.value);
     }
   }
 
   @override
   void initState() {
-    _animation = AnimationController(
+    final double v = _controller.pageActive.value == widget.index ? 1 : 0;
+
+    _starAnim = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 250),
     )
-      ..value = _controller.pageActive.value == widget.index ? 1 : 0
+      ..value = v
       ..addListener(rebuild);
-    _controller.pageActive.addListener(listener);
+    _controller.pageActive.addListener(_starLis);
+
+    _triAnim = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 250),
+    )
+      ..value = v
+      ..addListener(rebuild);
+    _controller.pageTargetOpen.addListener(_triLis);
+
     super.initState();
   }
 
   @override
   void dispose() {
-    _controller.pageActive.removeListener(listener);
-    _animation.dispose();
+    _controller.pageActive.removeListener(_starLis);
+    _controller.pageActive.removeListener(_triLis);
+    _starAnim.dispose();
     super.dispose();
   }
 
@@ -72,7 +109,7 @@ class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem>
   Widget build(BuildContext context) {
     const double sz = 40;
     return _StarTriangle(
-      height: lerpDouble(0, 10, _animation.value)!,
+      height: lerpDouble(0, 10, _triAnim.value)!,
       child: Stack(
         alignment: Alignment.center,
         children: [

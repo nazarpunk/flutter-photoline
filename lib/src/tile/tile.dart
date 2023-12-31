@@ -207,7 +207,8 @@ class PhotolineTileState extends State<PhotolineTile>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text('$_index'),
-                      Text('${_controller.pageTargetOpen}'),
+                      Text('${_controller.pageTargetOpen.value}'),
+                      Text('${_controller.action}'),
                     ],
                   ),
                 ),
