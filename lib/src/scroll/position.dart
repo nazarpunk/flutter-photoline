@@ -63,7 +63,7 @@ class PhotolineScrollPosition extends ScrollPosition
   }
 
   double get pageLast {
-    final double ratio = controller.action == PhotolineAction.close
+    final double ratio = controller.action.value == PhotolineAction.close
         ? controller.closeRatio
         : controller.openRatio;
     return (maxScrollExtent + viewportDimension) / (viewportDimension * ratio) -
@@ -89,7 +89,7 @@ class PhotolineScrollPosition extends ScrollPosition
 
   double getPageFromPixels(double pixels, [double? vd]) {
     vd ??= viewportDimension;
-    if (controller.action == PhotolineAction.close) {
+    if (controller.action.value == PhotolineAction.close) {
       final base = vd * controller.closeRatio;
       return pixels / base;
     }
@@ -99,7 +99,7 @@ class PhotolineScrollPosition extends ScrollPosition
   double getPixelsFromPage(double page) {
     final vd = viewportDimension;
 
-    if (controller.action == PhotolineAction.close) {
+    if (controller.action.value == PhotolineAction.close) {
       final base = vd * controller.closeRatio;
       return base * page;
     }

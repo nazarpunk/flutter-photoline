@@ -46,7 +46,7 @@ class PhotolineScrollPhysics extends ScrollPhysics {
 
     double pageNew = 0;
 
-    switch (position.controller.action) {
+    switch (position.controller.action.value) {
       case PhotolineAction.open:
         pageNew = position.pageAdd(
             v / (position.viewportDimension * position.controller.openRatio));
@@ -68,7 +68,7 @@ class PhotolineScrollPhysics extends ScrollPhysics {
     final double target = _getPixels(position, pageNew.roundToDouble());
     if (target == position.pixels) return null;
 
-    if (position.controller.action == PhotolineAction.open) {
+    if (position.controller.action.value == PhotolineAction.open) {
       position.controller.pageTargetOpen.value =
           position.getPageFromPixels(target).round();
     }

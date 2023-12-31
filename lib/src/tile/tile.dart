@@ -66,7 +66,7 @@ class PhotolineTileState extends State<PhotolineTile>
     final bool cl = _drag?.isDragClose ?? true;
     final dcx = cl ||
             _controller.pageDragInitial != _index ||
-            _controller.action != PhotolineAction.drag
+            _controller.action.value != PhotolineAction.drag
         ? -1
         : 1;
 
@@ -207,8 +207,6 @@ class PhotolineTileState extends State<PhotolineTile>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text('$_index'),
-                      Text('${_controller.pageTargetOpen.value}'),
-                      Text('${_controller.action}'),
                     ],
                   ),
                 ),

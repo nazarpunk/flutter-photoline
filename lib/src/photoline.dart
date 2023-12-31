@@ -136,7 +136,7 @@ class PhotolineState extends State<Photoline>
 
   void _listener() {
     final dx = animationPosition.velocity * .01;
-    switch (controller.action) {
+    switch (controller.action.value) {
       case PhotolineAction.opening:
         aspectRatio = -dx;
         _openingListener();
@@ -153,19 +153,19 @@ class PhotolineState extends State<Photoline>
 
   void _listenerStatus(AnimationStatus status) {
     if (status == AnimationStatus.completed) {
-      switch (controller.action) {
+      switch (controller.action.value) {
         case PhotolineAction.open:
         case PhotolineAction.close:
         case PhotolineAction.drag:
           return;
         case PhotolineAction.opening:
           //if (kDebugMode) return;
-          controller.action = PhotolineAction.open;
+          controller.action.value = PhotolineAction.open;
           _position.jumpToPage(controller.pageTargetOpen.value);
           positionOpen.clear();
           controller.pageActive.value = controller.pageTargetOpen.value;
         case PhotolineAction.closing:
-          controller.action = PhotolineAction.close;
+          controller.action.value = PhotolineAction.close;
           _position.jumpToPage(_pageTargetClose);
           controller.pageTargetOpen.value = -1;
           positionOpen.clear();
@@ -214,7 +214,7 @@ class PhotolineState extends State<Photoline>
       p.width.end = 0;
     }
 
-    controller.action = PhotolineAction.opening;
+    controller.action.value = PhotolineAction.opening;
 
     _animationStart(c);
   }
@@ -266,7 +266,7 @@ class PhotolineState extends State<Photoline>
       p.width.end = 0;
     }
 
-    controller.action = PhotolineAction.opening;
+    controller.action.value = PhotolineAction.opening;
 
     _animationStart(c);
   }
@@ -327,7 +327,7 @@ class PhotolineState extends State<Photoline>
       c.offset.begin = vl.offset.current + vl.width.current;
     }
 
-    controller.action = PhotolineAction.opening;
+    controller.action.value = PhotolineAction.opening;
     _animationStart(c);
   }
 
@@ -350,7 +350,7 @@ class PhotolineState extends State<Photoline>
 
   void _toPageClose() {
     controller.pageActive.value = -1;
-    controller.action = PhotolineAction.closing;
+    controller.action.value = PhotolineAction.closing;
     _positionOpenAddOpen();
     _closeStart();
   }
@@ -399,7 +399,7 @@ class PhotolineState extends State<Photoline>
     big.offset.end = t * size.close;
     big.width.end = size.close;
 
-    controller.action = PhotolineAction.closing;
+    controller.action.value = PhotolineAction.closing;
     _animationStart(big);
   }
 
@@ -436,7 +436,7 @@ class PhotolineState extends State<Photoline>
     final pto = controller.pageTargetOpen.value;
     controller.pageTargetOpen.value = target;
 
-    switch (controller.action) {
+    switch (controller.action.value) {
       case PhotolineAction.close:
         return _toPageOpenFromClose();
       case PhotolineAction.open:
@@ -451,7 +451,7 @@ class PhotolineState extends State<Photoline>
 
   void close() {
     if (controller.dragController?.isDrag ?? false) return;
-    switch (controller.action) {
+    switch (controller.action.value) {
       case PhotolineAction.open:
       case PhotolineAction.opening:
         _toPageClose();
@@ -463,7 +463,7 @@ class PhotolineState extends State<Photoline>
 
   bool _notification(ScrollNotification notification) {
     if (notification.depth != 0) return false;
-    final a = controller.action;
+    final a = controller.action.value;
 
     final curPageRaw = controller.pos.pageOpen;
     final currentPage = curPageRaw.round();

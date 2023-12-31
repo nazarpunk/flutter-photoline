@@ -51,7 +51,7 @@ class _PhotolineBacksideState extends State<PhotolineBackside>
         o.add(0);
       }
 
-      switch (_controller.action) {
+      switch (_controller.action.value) {
         case PhotolineAction.close:
           for (int i = 0; i < viewCount; i++) {
             if (i < count) continue;

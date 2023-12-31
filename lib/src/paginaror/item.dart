@@ -37,27 +37,27 @@ class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem>
       : Color.lerp(const Color.fromRGBO(120, 120, 130, 1),
           const Color.fromRGBO(0, 0, 0, 1), _starAnim.value)!;
 
-  void _starLis() {
+  void _triLis() {
     final double value =
         _controller.pageActive.value == (widget.index + _indexOffset) ? 1 : 0;
 
     rebuild();
 
-    if (value == _starAnim.value && !_starAnim.isAnimating) return;
+    if (value == _triAnim.value && !_triAnim.isAnimating) return;
     if (value > 0) {
-      _starAnim.forward(from: _starAnim.value);
+      _triAnim.forward(from: _triAnim.value);
     } else {
-      _starAnim.reverse(from: _starAnim.value);
+      _triAnim.reverse(from: _triAnim.value);
     }
   }
 
-  void _triLis() {
+  void _starLis() {
     final pto = _controller.pageTargetOpen.value;
     double value = pto == (widget.index + _indexOffset) ? 1 : 0;
-    switch (_controller.action) {
+    switch (_controller.action.value) {
       case PhotolineAction.close:
       case PhotolineAction.closing:
-        //value = 0;
+        value = 0;
       case PhotolineAction.open:
       case PhotolineAction.opening:
       case PhotolineAction.drag:
@@ -66,11 +66,11 @@ class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem>
 
     rebuild();
 
-    if (value == _triAnim.value && !_triAnim.isAnimating) return;
+    if (value == _starAnim.value && !_starAnim.isAnimating) return;
     if (value > 0) {
-      _triAnim.forward(from: _starAnim.value);
+      _starAnim.forward(from: _starAnim.value);
     } else {
-      _triAnim.reverse(from: _starAnim.value);
+      _starAnim.reverse(from: _starAnim.value);
     }
   }
 
@@ -84,7 +84,8 @@ class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem>
     )
       ..value = v
       ..addListener(rebuild);
-    _controller.pageActive.addListener(_starLis);
+    _controller.pageTargetOpen.addListener(_starLis);
+    _controller.action.addListener(_starLis);
 
     _triAnim = AnimationController(
       vsync: this,
@@ -92,15 +93,16 @@ class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem>
     )
       ..value = v
       ..addListener(rebuild);
-    _controller.pageTargetOpen.addListener(_triLis);
+    _controller.pageActive.addListener(_triLis);
 
     super.initState();
   }
 
   @override
   void dispose() {
-    _controller.pageActive.removeListener(_starLis);
     _controller.pageActive.removeListener(_triLis);
+    _controller.pageActive.removeListener(_starLis);
+    _controller.action.removeListener(_starLis);
     _starAnim.dispose();
     super.dispose();
   }

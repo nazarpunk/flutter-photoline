@@ -51,7 +51,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
   @override
   void performLayout() {
     if (photoline.positionOpen.isNotEmpty) return _performWidth();
-    return switch (controller.action) {
+    return switch (controller.action.value) {
       PhotolineAction.open => _performOpen(),
       PhotolineAction.opening || PhotolineAction.closing => _performWidth(),
       PhotolineAction.close => _performClose(),
@@ -376,7 +376,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
       bool canPaint = mainAxisDelta < constraints.remainingPaintExtent &&
           mainAxisDelta + paintExtentOf(child) > 0;
 
-      if (controller.action == PhotolineAction.drag &&
+      if (controller.action.value == PhotolineAction.drag &&
           indexOf(child) == controller.pageDragInitial) {
         canPaint = false;
         dragBox = child;

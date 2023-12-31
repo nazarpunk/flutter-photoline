@@ -68,8 +68,7 @@ class PhotolineController extends ScrollController {
 
   double? photolineWidth;
 
-  PhotolineAction action = PhotolineAction.close;
-
+  final action = ValueNotifier<PhotolineAction>(PhotolineAction.close);
   final pageActive = ValueNotifier<int>(-1);
   final pageTargetOpen = ValueNotifier<int>(-1);
 
@@ -124,7 +123,7 @@ class PhotolineController extends ScrollController {
   }
 
   void removeItem(int index) {
-    if (action != PhotolineAction.close) return;
+    if (action.value != PhotolineAction.close) return;
     while (index >= mod.length) {
       mod.add(null);
     }
@@ -137,7 +136,7 @@ class PhotolineController extends ScrollController {
   }
 
   bool addItem(int index, Object data) {
-    if (action != PhotolineAction.close) return false;
+    if (action.value != PhotolineAction.close) return false;
     onAdd?.call(index, data);
     //final size = PhotolineSize(this);
     //pos.forceExtent(size.close);
@@ -263,7 +262,7 @@ class PhotolineController extends ScrollController {
       );
     }
 
-    action = PhotolineAction.drag;
+    action.value = PhotolineAction.drag;
   }
 
   PhotolineDrag? _nxt(PhotolineDrag pi) {
@@ -377,7 +376,7 @@ class PhotolineController extends ScrollController {
   }
 
   void onDragEndEnd() {
-    action = PhotolineAction.close;
+    action.value = PhotolineAction.close;
     for (int i = 0; i < positionDrag.length; i++) {
       final pi = positionDrag[i];
       if (pi.page == 0) {

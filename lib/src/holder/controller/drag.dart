@@ -98,8 +98,8 @@ class PhotolineHolderDragController implements Drag {
     PhotolineController? current;
     for (final photoline in holder!.photolines) {
       final controller = photoline.controller;
-      if (controller.action != PhotolineAction.drag &&
-          controller.action != PhotolineAction.close) continue;
+      if (controller.action.value != PhotolineAction.drag &&
+          controller.action.value != PhotolineAction.close) continue;
 
       controller
         ..renderBox = photoline.context.findRenderObject()! as RenderBox
@@ -163,12 +163,12 @@ class PhotolineHolderDragController implements Drag {
   }
 
   Drag? _onDragStart(Offset offset) {
-    if (_initialController.action != PhotolineAction.close) return null;
+    if (_initialController.action.value != PhotolineAction.close) return null;
     if (!_initialTile.context.mounted) return null;
 
     for (final photoline in holder!.photolines) {
       final controller = photoline.controller;
-      if (controller.action == PhotolineAction.drag) return null;
+      if (controller.action.value == PhotolineAction.drag) return null;
     }
 
     for (final photoline in holder!.photolines) {
@@ -232,7 +232,7 @@ class PhotolineHolderDragController implements Drag {
 
   void onPointerDown(PhotolineController controller, PhotolineTileState tile,
       PointerDownEvent event) {
-    if (controller.action != PhotolineAction.close) return;
+    if (controller.action.value != PhotolineAction.close) return;
     if (isDrag) {
       _recogniserAbsorb.addPointer(event);
     } else {
