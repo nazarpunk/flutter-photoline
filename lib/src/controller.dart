@@ -7,6 +7,7 @@ import 'package:flutter/physics.dart';
 import 'package:photoline/src/holder/controller/drag.dart';
 import 'package:photoline/src/photoline.dart';
 import 'package:photoline/src/scroll/position.dart';
+import 'package:photoline/src/tile/data.dart';
 import 'package:photoline/src/tile/tile.dart';
 import 'package:photoline/src/utils/action.dart';
 import 'package:photoline/src/utils/drag.dart';
@@ -26,6 +27,7 @@ class PhotolineController extends ScrollController {
     required this.getUri,
     required this.getKey,
     required this.getWidget,
+    this.getBackside,
     required this.getPhotoCount,
     this.getCloseCount = _getCloseCount,
     this.onAdd,
@@ -45,12 +47,13 @@ class PhotolineController extends ScrollController {
   final Uint8List Function(int index)? getBlur;
   final Uri? Function(int) getUri;
   final Widget Function(int) getWidget;
+  final Widget Function(int index)? getBackside;
   final Key Function(int) getKey;
   final ValueGetter<int> getPhotoCount;
   final int Function(double? width) getCloseCount;
   final void Function(int index, Object data)? onAdd;
   final void Function(int index)? onRemove;
-  final List<Widget> Function(int index, double loading)? getPersistentWidgets;
+  final List<Widget> Function(PhotolineTileData data)? getPersistentWidgets;
   final void Function(int oldIndex, int newIndex)? onReorder;
   final List<Widget> Function(int index, Color color)? getPagerItem;
   final int Function() getPagerIndexOffset;
@@ -66,7 +69,9 @@ class PhotolineController extends ScrollController {
   double? photolineWidth;
 
   PhotolineAction action = PhotolineAction.close;
-  int pageTargetOpen = -1;
+
+  final pageActive = ValueNotifier<int>(-1);
+  var pageTargetOpen = -1;
 
   double? get page {
     assert(positions.isNotEmpty,

@@ -20,7 +20,8 @@ class PhotolinePaginatorItem extends StatefulWidget {
   State<PhotolinePaginatorItem> createState() => _PhotolinePaginatorItemState();
 }
 
-class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem> with SingleTickerProviderStateMixin, StateRebuildMixin {
+class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem>
+    with TickerProviderStateMixin, StateRebuildMixin {
   late AnimationController _animation;
 
   PhotolineState get _photoline => widget.photoline;
@@ -29,10 +30,14 @@ class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem> with Si
 
   int get _indexOffset => _controller.getPagerIndexOffset();
 
-  Color get _color => widget.index >= _controller.getPhotoCount() - _indexOffset ? const Color.fromRGBO(200, 200, 200, 1) : Color.lerp(const Color.fromRGBO(120, 120, 130, 1), const Color.fromRGBO(0, 0, 0, 1), _animation.value)!;
+  Color get _color => widget.index >= _controller.getPhotoCount() - _indexOffset
+      ? const Color.fromRGBO(200, 200, 200, 1)
+      : Color.lerp(const Color.fromRGBO(120, 120, 130, 1),
+          const Color.fromRGBO(0, 0, 0, 1), _animation.value)!;
 
   void listener() {
-    final double value = _photoline.pageActive.value == (widget.index + _indexOffset) ? 1 : 0;
+    final double value =
+        _controller.pageActive.value == (widget.index + _indexOffset) ? 1 : 0;
 
     rebuild();
 
@@ -50,15 +55,15 @@ class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem> with Si
       vsync: this,
       duration: const Duration(milliseconds: 250),
     )
-      ..value = _photoline.pageActive.value == widget.index ? 1 : 0
+      ..value = _controller.pageActive.value == widget.index ? 1 : 0
       ..addListener(rebuild);
-    _photoline.pageActive.addListener(listener);
+    _controller.pageActive.addListener(listener);
     super.initState();
   }
 
   @override
   void dispose() {
-    _photoline.pageActive.removeListener(listener);
+    _controller.pageActive.removeListener(listener);
     _animation.dispose();
     super.dispose();
   }

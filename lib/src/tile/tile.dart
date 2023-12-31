@@ -1,17 +1,17 @@
-import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:photoline/src/controller.dart';
 import 'package:photoline/src/holder/controller/drag.dart';
 import 'package:photoline/src/mixin/state/rebuild.dart';
 import 'package:photoline/src/photoline.dart';
+import 'package:photoline/src/tile/data.dart';
 import 'package:photoline/src/tile/loader.dart';
 import 'package:photoline/src/tile/painter/blur.dart';
 import 'package:photoline/src/tile/painter/image.dart';
 import 'package:photoline/src/utils/action.dart';
+import 'package:photoline/src/utils/stripe.dart';
 
 class PhotolineTile extends StatefulWidget {
   const PhotolineTile({
@@ -49,7 +49,7 @@ class PhotolineTileState extends State<PhotolineTile>
 
   void _listenerOpacity(double ax) {
     double no = _opacity;
-    final pa = _photoline.pageActive.value;
+    final pa = _controller.pageActive.value;
 
     no = pa < 0 ? 0 : (no + ax).clamp(0, 1);
 
@@ -151,97 +151,86 @@ class PhotolineTileState extends State<PhotolineTile>
   /// [ReorderableDelayedDragStartListener]
   @override
   Widget build(BuildContext context) {
-    final sc = Color.fromRGBO(0, 0, 200, ui.lerpDouble(0, .4, _dragCurrent)!);
-    final rc = Color.fromRGBO(200, 0, 0, ui.lerpDouble(0, .4, _dragCurrent)!);
-    final cc = Color.lerp(sc, rc, _drag?.removeDx ?? 0)!;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final sc =
+            Color.fromRGBO(0, 0, 200, ui.lerpDouble(0, .4, _dragCurrent)!);
+        final rc =
+            Color.fromRGBO(200, 0, 0, ui.lerpDouble(0, .4, _dragCurrent)!);
+        final cc = Color.lerp(sc, rc, _drag?.removeDx ?? 0)!;
 
-    final List<Widget>? persistent =
-        _controller.getPersistentWidgets?.call(_index, _animationImage.value);
+        final size = _controller.size;
 
-    Widget child = Stack(
-      children: [
-        Positioned.fill(
-          child: CustomPaint(
-            painter: BlurPainter(
-              blur: _blur,
-              imageOpacity: _animationImage.value,
+        final List<Widget>? persistent =
+            _controller.getPersistentWidgets?.call(PhotolineTileData(
+          index: _index,
+          loading: _animationImage.value,
+          closeDw: (constraints.maxWidth.clamp(size.side2, size.close) -
+                  size.side2) /
+              (size.close - size.side2),
+        ));
+
+        Widget child = Stack(
+          children: [
+            Positioned.fill(
+              child: CustomPaint(
+                painter: BlurPainter(
+                  blur: _blur,
+                  imageOpacity: _animationImage.value,
+                ),
+              ),
             ),
-          ),
-        ),
-        Positioned.fill(
-          child: CustomPaint(
-            painter: ImagePainter(
-              image: _image,
-              imageOpacity:
-                  Curves.easeIn.transform(_animationImage.value).clamp(0, 1),
-              grayOpacity:
-                  _controller.isTileOpenGray ? _opacityCurrent.clamp(0, 1) : 0,
+            Positioned.fill(
+              child: CustomPaint(
+                painter: ImagePainter(
+                  image: _image,
+                  imageOpacity: Curves.easeIn
+                      .transform(_animationImage.value)
+                      .clamp(0, 1),
+                  grayOpacity: _controller.isTileOpenGray
+                      ? _opacityCurrent.clamp(0, 1)
+                      : 0,
+                ),
+              ),
             ),
+            Positioned.fill(
+              child: _controller.pageActive.value == _index
+                  ? _controller.getWidget(_index)
+                  : const SizedBox(),
+            ),
+            if (persistent != null) ...persistent,
+            if (_dragCurrent > 0) Positioned.fill(child: ColoredBox(color: cc)),
+            if (kDebugMode)
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('$_index'),
+                      Text('${_controller.pageTargetOpen}'),
+                    ],
+                  ),
+                ),
+              )
+          ],
+        );
+
+        if (_controller.canDrag &&
+            _photoline.holder?.dragController != null &&
+            _controller.getPhotoCount() > _index) {
+          child = Listener(
+            onPointerDown: (event) => _controller.onPointerDown(this, event),
+            child: child,
+          );
+        }
+
+        return GestureDetector(
+          onTap: () => _photoline.toPage(_index),
+          child: PhotolineStripe(
+            child: child,
           ),
-        ),
-        Positioned.fill(
-          child: _photoline.pageActive.value == _index
-              ? _controller.getWidget(_index)
-              : const SizedBox(),
-        ),
-        if (persistent != null) ...persistent,
-        if (_dragCurrent > 0) Positioned.fill(child: ColoredBox(color: cc)),
-        if (kDebugMode)
-          Positioned.fill(child: Center(child: Text(_index.toString())))
-      ],
+        );
+      },
     );
-
-    if (_controller.canDrag &&
-        _photoline.holder?.dragController != null &&
-        _controller.getPhotoCount() > _index) {
-      child = Listener(
-        onPointerDown: (event) => _controller.onPointerDown(this, event),
-        child: child,
-      );
-    }
-
-    return GestureDetector(
-      onTap: () => _photoline.toPage(_index),
-      child: _SingleChildRenderObjectWidget(
-        photoline: _photoline,
-        child: child,
-      ),
-    );
-  }
-}
-
-class _SingleChildRenderObjectWidget extends SingleChildRenderObjectWidget {
-  const _SingleChildRenderObjectWidget({
-    super.child,
-    required this.photoline,
-  });
-
-  final PhotolineState photoline;
-
-  @override
-  _RenderProxyBox createRenderObject(BuildContext context) =>
-      _RenderProxyBox(photoline: photoline);
-}
-
-class _RenderProxyBox extends RenderProxyBox {
-  _RenderProxyBox({
-    required this.photoline,
-  }) : super();
-
-  final PhotolineState photoline;
-
-  @override
-  void paint(PaintingContext context, Offset offset) {
-    super.paint(context, offset);
-    if (size.width > 0) {
-      context.canvas.drawRect(
-        offset &
-            Size(math.min(size.width, photoline.widget.photoStripeWidth),
-                size.height),
-        Paint()
-          ..color = photoline.widget.photoStripeColor
-          ..style = PaintingStyle.fill,
-      );
-    }
   }
 }
