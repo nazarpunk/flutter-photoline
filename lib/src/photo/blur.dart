@@ -13,11 +13,15 @@ class PhotolineBlurPhoto extends StatefulWidget {
     required this.uri,
     required this.blur,
     this.preload,
+    required this.width,
+    required this.height,
   });
 
   final Uri? uri;
   final Uint8List? blur;
   final Widget? preload;
+  final int width;
+  final int height;
 
   @override
   State<PhotolineBlurPhoto> createState() => PhotolineBlurPhotoState();
@@ -44,7 +48,9 @@ class PhotolineBlurPhotoState extends State<PhotolineBlurPhoto>
         ..value = 0
         ..addListener(rebuild);
 
-      _notifier.addListener(_imageListener);
+      _notifier
+        ..removeListener(_imageListener)
+        ..addListener(_imageListener);
     } else {
       _animationImage.value = 1;
       if (widget.uri != null) _image = _notifier.image(widget.uri!);
@@ -89,34 +95,38 @@ class PhotolineBlurPhotoState extends State<PhotolineBlurPhoto>
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: CustomPaint(
-            painter: BlurPainter(
-              blur: _blur,
-              imageOpacity: _animationImage.value,
-            ),
-          ),
-        ),
-        Positioned.fill(
-          child: CustomPaint(
-            painter: ImagePainter(
-              image: _image,
-              imageOpacity:
-                  Curves.easeIn.transform(_animationImage.value).clamp(0, 1),
-              grayOpacity: 0,
-            ),
-          ),
-        ),
-        if (widget.preload != null && _animationImage.value < 1)
+    return AspectRatio(
+      aspectRatio: widget.width / widget.height,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
           Positioned.fill(
-            child: Opacity(
-              opacity: (1 - _animationImage.value).clamp(0, 1),
-              child: widget.preload,
+            child: CustomPaint(
+              painter: BlurPainter(
+                blur: _blur,
+                imageOpacity: _animationImage.value,
+              ),
             ),
-          )
-      ],
+          ),
+          Positioned.fill(
+            child: CustomPaint(
+              painter: ImagePainter(
+                image: _image,
+                imageOpacity:
+                    Curves.easeIn.transform(_animationImage.value).clamp(0, 1),
+                grayOpacity: 0,
+              ),
+            ),
+          ),
+          if (widget.preload != null && _animationImage.value < 1)
+            Positioned.fill(
+              child: Opacity(
+                opacity: (1 - _animationImage.value).clamp(0, 1),
+                child: widget.preload,
+              ),
+            )
+        ],
+      ),
     );
   }
 }
