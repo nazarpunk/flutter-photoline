@@ -79,10 +79,16 @@ class PhotolineScrollPosition extends ScrollPosition
     final side = (vd - open) * .5;
 
     double page = pixels / (open - side);
-    if (pixels < open - side) return _preciesse(page);
-    page = (pixels + side) / open;
 
-    if (page > pageLast - 1) return _preciesse((pixels + side * 2) / open);
+    if (pixels >= open - side) {
+      page = (pixels + side) / open;
+      if (page > pageLast - 1) page = (pixels + side * 2) / open;
+    }
+
+    if (controller.getPagerIndexOffset() > 0 &&
+        (pixels - open) < (open - side)) {
+      page = pixels / open;
+    }
 
     return _preciesse(page);
   }

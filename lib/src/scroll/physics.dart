@@ -69,8 +69,14 @@ class PhotolineScrollPhysics extends ScrollPhysics {
     if (target == position.pixels) return null;
 
     if (position.controller.action.value == PhotolineAction.open) {
-      position.controller.pageTargetOpen.value =
-          position.getPageFromPixels(target).round();
+      int pg = position
+          .getPageFromPixels(target)
+          .round()
+          .clamp(0, position.controller.getPhotoCount() - 1);
+      if (position.controller.getPagerIndexOffset() > 0) {
+        pg = math.max(pg, 1);
+      }
+      position.controller.pageTargetOpen.value = pg;
     }
 
     return ScrollSpringSimulation(spring, position.pixels, target, velocity,

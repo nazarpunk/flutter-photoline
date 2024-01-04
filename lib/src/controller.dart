@@ -29,7 +29,7 @@ class PhotolineController extends ScrollController {
     required this.getWidget,
     this.getBackside,
     required this.getPhotoCount,
-    this.getCloseCount = _getCloseCount,
+    this.getViewCount = _getCloseCount,
     this.onAdd,
     this.onRemove,
     this.onReorder,
@@ -50,7 +50,7 @@ class PhotolineController extends ScrollController {
   final Widget Function(int index)? getBackside;
   final Key Function(int) getKey;
   final ValueGetter<int> getPhotoCount;
-  final int Function(double? width) getCloseCount;
+  final int Function(double? width) getViewCount;
   final void Function(int index, Object data)? onAdd;
   final void Function(int index)? onRemove;
   final List<Widget> Function(PhotolineTileData data)? getPersistentWidgets;
@@ -64,7 +64,7 @@ class PhotolineController extends ScrollController {
 
   final double openRatio;
 
-  double get closeRatio => 1 / getCloseCount(photolineWidth);
+  double get closeRatio => 1 / getViewCount(photolineWidth);
 
   double? photolineWidth;
 
@@ -92,7 +92,7 @@ class PhotolineController extends ScrollController {
   //controller.photolineWidth
   int get count => getPhotoCount();
 
-  int get countClose => getCloseCount(photolineWidth);
+  int get countClose => getViewCount(photolineWidth);
 
   PhotolineState? photoline;
 

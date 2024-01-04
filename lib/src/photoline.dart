@@ -392,7 +392,7 @@ class PhotolineState extends State<Photoline>
         .toDouble();
     int t = 0;
     sz = 0;
-    final closeCount = controller.getCloseCount(controller.photolineWidth);
+    final closeCount = controller.getViewCount(controller.photolineWidth);
 
     for (int i = 0; i < closeCount; i++) {
       final a = i * size.close;
@@ -481,12 +481,9 @@ class PhotolineState extends State<Photoline>
     if (notification.depth != 0) return false;
     final a = controller.action.value;
 
-    final curPageRaw = controller.pos.pageOpen;
-    final currentPage = curPageRaw.round();
-
     if (notification is ScrollEndNotification) {
       if (a == PhotolineAction.open) {
-        controller.pageActivePaginator.value = currentPage;
+        controller.pageActivePaginator.value = controller.pos.pageOpen.round();
       }
     }
 
@@ -498,12 +495,11 @@ class PhotolineState extends State<Photoline>
         controller.pageActivePaginator.value =
             nearEqual(pto, po, .02) ? controller.pageTargetOpen.value : -1;
 
-        //print(' ${controller.pageScrollOpen.value} | $pg | ${controller.pos.getPageFromPixels(controller.pos.pixels)}');
-      }
-
-      if (currentPage != _lastReportedPage) {
-        _lastReportedPage = currentPage;
-        //widget.onPageChanged!(currentPage);
+        final currentPage = controller.pos.pageOpen.round();
+        if (currentPage != _lastReportedPage) {
+          _lastReportedPage = currentPage;
+          //widget.onPageChanged!(currentPage);
+        }
       }
     }
 

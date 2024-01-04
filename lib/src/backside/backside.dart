@@ -40,7 +40,7 @@ class _PhotolineBacksideState extends State<PhotolineBackside>
     return LayoutBuilder(builder: (context, contstraints) {
       final List<Widget> child = [];
       final count = _controller.count;
-      final viewCount = _controller.getCloseCount(contstraints.maxWidth);
+      final viewCount = _controller.getViewCount(contstraints.maxWidth);
       final close = contstraints.maxWidth * _controller.closeRatio;
 
       final List<double> w = [];

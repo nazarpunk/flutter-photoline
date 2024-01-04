@@ -7,7 +7,7 @@ class PhotolineSize {
   PhotolineSize(PhotolineController controller) {
     final p = controller.position;
 
-    viewCount = controller.getCloseCount(controller.photolineWidth);
+    viewCount = controller.getViewCount(controller.photolineWidth);
     viewport = p.viewportDimension;
     close = viewport * controller.closeRatio;
     open = viewport * controller.openRatio;
