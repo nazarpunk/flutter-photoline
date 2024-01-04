@@ -48,7 +48,8 @@ class ImagePainter extends CustomPainter {
       final double cx = math.max((iw - cw) * offsetX, 0);
       final double cy = math.max((ih - ch) * offsetY, 0);
 
-      canvas.drawImageRect(image!, Rect.fromLTWH(cx, cy, cw, ch), Rect.fromLTWH(0, 0, w, h), paint);
+      canvas.drawImageRect(image!, Rect.fromLTWH(cx, cy, cw, ch),
+          Rect.fromLTWH(0, 0, w, h), paint);
     }
 
     if (grayOpacity > 0) {

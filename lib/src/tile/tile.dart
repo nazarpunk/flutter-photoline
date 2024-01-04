@@ -49,7 +49,7 @@ class PhotolineTileState extends State<PhotolineTile>
 
   void _listenerOpacity(double ax) {
     double no = _opacity;
-    final pa = _controller.pageActive.value;
+    final pa = _controller.pageActivePaginator.value;
 
     no = pa < 0 ? 0 : (no + ax).clamp(0, 1);
 
@@ -194,7 +194,7 @@ class PhotolineTileState extends State<PhotolineTile>
               ),
             ),
             Positioned.fill(
-              child: _controller.pageActive.value == _index
+              child: _controller.pageActivePaginator.value == _index
                   ? _controller.getWidget(_index)
                   : const SizedBox(),
             ),

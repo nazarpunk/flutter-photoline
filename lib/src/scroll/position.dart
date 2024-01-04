@@ -105,6 +105,10 @@ class PhotolineScrollPosition extends ScrollPosition
     }
 
     final open = vd * controller.openRatio;
+
+    final skipFirst = controller.getPagerIndexOffset() > 0 && page == 1;
+    if (skipFirst) return page * open;
+
     final side = (vd - open) * .5;
     if (page < 1) return page * (open - side);
     if (page == pageLast) return page * open - side * 2;
@@ -196,6 +200,18 @@ class PhotolineScrollPosition extends ScrollPosition
 
   @override
   bool applyContentDimensions(double minScrollExtent, double maxScrollExtent) {
+    switch (controller.action.value) {
+      case PhotolineAction.open:
+        if (controller.pageOpenInitial != 0 &&
+            controller.getPagerIndexOffset() > 0) {
+          minScrollExtent = viewportDimension * controller.openRatio;
+        }
+      case PhotolineAction.opening:
+      case PhotolineAction.close:
+      case PhotolineAction.closing:
+      case PhotolineAction.drag:
+    }
+
     return super.applyContentDimensions(
         minScrollExtent, math.max(minScrollExtent, maxScrollExtent));
   }

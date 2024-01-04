@@ -62,7 +62,6 @@ class PhotolineState extends State<Photoline>
   }
 
   void _closingListener() {
-    //final t = animationPosition.value;
     final t = Curves.easeInOut.transform(animationPosition.value);
     final count = controller.count;
 
@@ -101,7 +100,7 @@ class PhotolineState extends State<Photoline>
 
     if (nearEqual(c.offset.current, c.offset.end, .2) &&
         nearEqual(c.width.current, c.width.end, .4)) {
-      controller.pageActive.value = pto;
+      controller.pageActivePaginator.value = pto;
     }
 
     // left
@@ -159,11 +158,13 @@ class PhotolineState extends State<Photoline>
         case PhotolineAction.drag:
           return;
         case PhotolineAction.opening:
-          //if (kDebugMode) return;
           controller.action.value = PhotolineAction.open;
           _position.jumpToPage(controller.pageTargetOpen.value);
           positionOpen.clear();
-          controller.pageActive.value = controller.pageTargetOpen.value;
+          controller
+            ..pageActiveOpen.value = controller.pageTargetOpen.value
+            ..pageActivePaginator.value = controller.pageTargetOpen.value;
+
         case PhotolineAction.closing:
           controller.action.value = PhotolineAction.close;
           _position.jumpToPage(_pageTargetClose);
@@ -175,7 +176,7 @@ class PhotolineState extends State<Photoline>
   }
 
   void _toPageOpening() {
-    controller.pageActive.value = -1;
+    controller.pageActivePaginator.value = -1;
     final size = controller.size;
     final count = controller.count;
 
@@ -195,8 +196,11 @@ class PhotolineState extends State<Photoline>
 
     final pto = controller.pageTargetOpen.value;
 
+    final isFirst =
+        pto == 0 || (pto == 1 && controller.getPagerIndexOffset() > 0);
+
     final lend = pto == count - 1 ? size.side2 : size.side;
-    final rend = pto == 0 ? size.side2 : size.side;
+    final rend = isFirst ? size.side2 : size.side;
 
     final li = pto - 1;
     final ri = pto + 1;
@@ -205,7 +209,7 @@ class PhotolineState extends State<Photoline>
     if (pto < count - 1) positionOpen[ri].width.end = rend;
 
     // <->
-    final c = positionOpen[pto]..end(size.open, pto == 0 ? 0 : lend);
+    final c = positionOpen[pto]..end(size.open, isFirst ? 0 : lend);
 
     for (int i = 0; i < count; i++) {
       if ((i - pto).abs() <= 1) continue;
@@ -220,7 +224,7 @@ class PhotolineState extends State<Photoline>
   }
 
   void _toPageOpenFromClose() {
-    controller.pageActive.value = -1;
+    controller.pageActivePaginator.value = -1;
     final size = controller.size;
     final count = controller.count;
 
@@ -248,8 +252,11 @@ class PhotolineState extends State<Photoline>
 
     final pto = controller.pageTargetOpen.value;
 
+    final isFirst =
+        pto == 0 || (pto == 1 && controller.getPagerIndexOffset() > 0);
+
     final lend = pto == count - 1 ? size.side2 : size.side;
-    final rend = pto == 0 ? size.side2 : size.side;
+    final rend = isFirst ? size.side2 : size.side;
 
     final li = pto - 1;
     final ri = pto + 1;
@@ -258,7 +265,7 @@ class PhotolineState extends State<Photoline>
     if (pto < count - 1) positionOpen[ri].width.end = rend;
 
     // <->
-    final c = positionOpen[pto]..end(size.open, pto == 0 ? 0 : lend);
+    final c = positionOpen[pto]..end(size.open, isFirst ? 0 : lend);
     for (int i = 0; i < count; i++) {
       if ((i - pto).abs() <= 1) continue;
       final p = positionOpen[i];
@@ -272,7 +279,7 @@ class PhotolineState extends State<Photoline>
   }
 
   void _toPageFromOpen() {
-    controller.pageActive.value = -1;
+    controller.pageActivePaginator.value = -1;
     final List<int> visible = _positionOpenAddOpen();
     final count = controller.count;
     final pto = controller.pageTargetOpen.value;
@@ -282,8 +289,11 @@ class PhotolineState extends State<Photoline>
     final vf = positionOpen[visible.first];
     final vl = positionOpen[visible.last];
 
+    final isFirst =
+        pto == 0 || (pto == 1 && controller.getPagerIndexOffset() > 0);
+
     final lend = pto == count - 1 ? size.side2 : size.side;
-    final rend = pto == 0 ? size.side2 : size.side;
+    final rend = isFirst ? size.side2 : size.side;
 
     c.width
       ..start = c.width.current
@@ -307,7 +317,7 @@ class PhotolineState extends State<Photoline>
         ..end = lend;
     }
 
-    if (pto == 0) {
+    if (isFirst) {
       c.offset.end = 0;
       positionOpen[pto + 1].width.end = size.side2;
     }
@@ -349,7 +359,8 @@ class PhotolineState extends State<Photoline>
   }
 
   void _toPageClose() {
-    controller.pageActive.value = -1;
+    controller.pageActiveOpen.value = -1;
+    controller.pageActivePaginator.value = -1;
     controller.action.value = PhotolineAction.closing;
     _positionOpenAddOpen();
     _closeStart();
@@ -392,6 +403,10 @@ class PhotolineState extends State<Photoline>
         sz = s;
       }
     }
+
+    if (controller.pageTargetOpen.value == 1 &&
+        controller.getPagerIndexOffset() > 0) t = 1;
+
     t = controller.correctCloseTargetIndex(
         count, closeCount, controller.pageTargetOpen.value, t);
     _pageTargetClose = controller.pageTargetOpen.value - t;
@@ -438,6 +453,7 @@ class PhotolineState extends State<Photoline>
 
     switch (controller.action.value) {
       case PhotolineAction.close:
+        controller.pageOpenInitial = target;
         return _toPageOpenFromClose();
       case PhotolineAction.open:
         return pto == target ? _toPageClose() : _toPageFromOpen();
@@ -469,15 +485,20 @@ class PhotolineState extends State<Photoline>
     final currentPage = curPageRaw.round();
 
     if (notification is ScrollEndNotification) {
-      if (a == PhotolineAction.open) controller.pageActive.value = currentPage;
+      if (a == PhotolineAction.open) {
+        controller.pageActivePaginator.value = currentPage;
+      }
     }
 
     if (notification is ScrollUpdateNotification) {
       if (a == PhotolineAction.open) {
         final pto = controller.pageTargetOpen.value.toDouble();
         final po = controller.pos.pageOpen;
-        controller.pageActive.value =
+
+        controller.pageActivePaginator.value =
             nearEqual(pto, po, .02) ? controller.pageTargetOpen.value : -1;
+
+        //print(' ${controller.pageScrollOpen.value} | $pg | ${controller.pos.getPageFromPixels(controller.pos.pixels)}');
       }
 
       if (currentPage != _lastReportedPage) {

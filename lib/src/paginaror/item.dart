@@ -32,14 +32,15 @@ class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem>
 
   int get _indexOffset => _controller.getPagerIndexOffset();
 
-  Color get _color => widget.index >= _controller.getPhotoCount() - _indexOffset
-      ? const Color.fromRGBO(200, 200, 200, 1)
-      : Color.lerp(const Color.fromRGBO(120, 120, 130, 1),
+  Color get _color =>
+      widget.index >= _controller.getPhotoCount() - _indexOffset
+          ? const Color.fromRGBO(200, 200, 200, 1)
+          : Color.lerp(const Color.fromRGBO(120, 120, 130, 1),
           const Color.fromRGBO(0, 0, 0, 1), _starAnim.value)!;
 
   void _triLis() {
     final double value =
-        _controller.pageActive.value == (widget.index + _indexOffset) ? 1 : 0;
+    _controller.pageActivePaginator.value == (widget.index + _indexOffset) ? 1 : 0;
 
     rebuild();
 
@@ -53,6 +54,7 @@ class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem>
 
   void _starLis() {
     final pto = _controller.pageTargetOpen.value;
+
     double value = pto == (widget.index + _indexOffset) ? 1 : 0;
     switch (_controller.action.value) {
       case PhotolineAction.close:
@@ -64,19 +66,19 @@ class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem>
         break;
     }
 
-    rebuild();
-
     if (value == _starAnim.value && !_starAnim.isAnimating) return;
-    if (value > 0) {
-      _starAnim.forward(from: _starAnim.value);
-    } else {
-      _starAnim.reverse(from: _starAnim.value);
-    }
+    WidgetsBinding.instance.addPostFrameCallback((timestamp) {
+      if (value > 0) {
+        _starAnim.forward(from: _starAnim.value);
+      } else {
+        _starAnim.reverse(from: _starAnim.value);
+      }
+    });
   }
 
   @override
   void initState() {
-    final double v = _controller.pageActive.value == widget.index ? 1 : 0;
+    final double v = _controller.pageActivePaginator.value == widget.index ? 1 : 0;
 
     _starAnim = AnimationController(
       vsync: this,
@@ -93,15 +95,15 @@ class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem>
     )
       ..value = v
       ..addListener(rebuild);
-    _controller.pageActive.addListener(_triLis);
+    _controller.pageActivePaginator.addListener(_triLis);
 
     super.initState();
   }
 
   @override
   void dispose() {
-    _controller.pageActive.removeListener(_triLis);
-    _controller.pageActive.removeListener(_starLis);
+    _controller.pageActivePaginator.removeListener(_triLis);
+    _controller.pageActivePaginator.removeListener(_starLis);
     _controller.action.removeListener(_starLis);
     _starAnim.dispose();
     super.dispose();
@@ -146,7 +148,8 @@ class _StarTriangle extends SingleChildRenderObjectWidget {
   }
 
   @override
-  _RenderProxyBox createRenderObject(BuildContext context) => _RenderProxyBox(
+  _RenderProxyBox createRenderObject(BuildContext context) =>
+      _RenderProxyBox(
         height: height,
       );
 }
@@ -155,7 +158,8 @@ class _RenderProxyBox extends RenderProxyBox {
   _RenderProxyBox({
     RenderBox? child,
     required double height,
-  })  : _height = height,
+  })
+      : _height = height,
         super(child);
 
   double _height;
@@ -177,8 +181,7 @@ class _RenderProxyBox extends RenderProxyBox {
       context.canvas.drawPath(
         Path()
           ..moveTo(size.width * .5, size.height - _height)
-          ..lineTo(size.width - p, size.height)
-          ..lineTo(p, size.height)
+          ..lineTo(size.width - p, size.height)..lineTo(p, size.height)
           ..close(),
         Paint()
           ..color = const Color.fromRGBO(0, 0, 0, 1)

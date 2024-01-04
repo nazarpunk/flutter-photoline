@@ -15,7 +15,7 @@ class BlurPainter extends CustomPainter {
   /// [Image], [LinearGradient]
   @override
   void paint(Canvas canvas, Size size) {
-    if (size.isEmpty || imageOpacity >= 10 || blur == null || blur!.width == 0 || blur!.height == 0) return;
+    if (size.isEmpty || imageOpacity >= 1.0 || blur == null || blur!.width == 0 || blur!.height == 0) return;
     final w = size.width, h = size.height;
 
     const offsetX = .5;
