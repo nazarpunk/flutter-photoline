@@ -40,6 +40,7 @@ class PhotolineController extends ScrollController {
     this.onTransfer,
     this.isTileOpenGray = false,
     this.onDebugAdd,
+    this.useOpenSimulation = false,
   });
 
   PhotolineHolderDragController? dragController;
@@ -62,6 +63,8 @@ class PhotolineController extends ScrollController {
   final void Function(State from, int fi, State target, int ti)? onTransfer;
   final ValueSetter<int>? onDebugAdd;
 
+  final bool useOpenSimulation;
+
   final double openRatio;
 
   double get closeRatio => 1 / getViewCount(photolineWidth);
@@ -73,6 +76,8 @@ class PhotolineController extends ScrollController {
   final pageActiveOpen = ValueNotifier<int>(-1);
   final pageTargetOpen = ValueNotifier<int>(-1);
   int pageOpenInitial = -1;
+
+  final aspectRatio = ValueNotifier<double>(0);
 
   double? get page {
     assert(positions.isNotEmpty,

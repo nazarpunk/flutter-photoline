@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:photoline/src/scroll/position.dart';
+import 'package:photoline/src/scroll/simulation/open.dart';
 import 'package:photoline/src/utils/action.dart';
 
 class PhotolineScrollPhysics extends ScrollPhysics {
@@ -48,13 +49,37 @@ class PhotolineScrollPhysics extends ScrollPhysics {
 
     switch (position.controller.action.value) {
       case PhotolineAction.open:
-        pageNew = position.pageAdd(
-            v / (position.viewportDimension * position.controller.openRatio));
-        if ((pageCur - pageNew).abs() < 1 && velocity.abs() > 1000) {
-          if (velocity > 0) {
-            pageNew += .5;
-          } else {
-            pageNew -= .5;
+        if (position.controller.useOpenSimulation) {
+          if (velocity.abs() < tolerance.velocity) {
+            final double page = position.getPageFromPixels(position.pixels);
+            final double target =
+                position.getPixelsFromPage(page.roundToDouble());
+            if (position.pixels == target) return null;
+
+            return ScrollSpringSimulation(
+              spring,
+              position.pixels,
+              target,
+              math.min(0.0, velocity),
+              tolerance: tolerance,
+            );
+          }
+
+          return PhotolineOpenSimulation(
+            controller: position.controller,
+            position: position,
+            velocity: velocity,
+            tolerance: tolerance,
+          );
+        } else {
+          pageNew = position.pageAdd(
+              v / (position.viewportDimension * position.controller.openRatio));
+          if ((pageCur - pageNew).abs() < 1 && velocity.abs() > 1000) {
+            if (velocity > 0) {
+              pageNew += .5;
+            } else {
+              pageNew -= .5;
+            }
           }
         }
       case PhotolineAction.close:
@@ -68,15 +93,17 @@ class PhotolineScrollPhysics extends ScrollPhysics {
     final double target = _getPixels(position, pageNew.roundToDouble());
     if (target == position.pixels) return null;
 
-    if (position.controller.action.value == PhotolineAction.open) {
-      int pg = position
-          .getPageFromPixels(target)
-          .round()
-          .clamp(0, position.controller.getPhotoCount() - 1);
-      if (position.controller.getPagerIndexOffset() > 0) {
-        pg = math.max(pg, 1);
+    if (!position.controller.useOpenSimulation) {
+      if (position.controller.action.value == PhotolineAction.open) {
+        int pg = position
+            .getPageFromPixels(target)
+            .round()
+            .clamp(0, position.controller.getPhotoCount() - 1);
+        if (position.controller.getPagerIndexOffset() > 0) {
+          pg = math.max(pg, 1);
+        }
+        position.controller.pageTargetOpen.value = pg;
       }
-      position.controller.pageTargetOpen.value = pg;
     }
 
     return ScrollSpringSimulation(spring, position.pixels, target, velocity,

@@ -20,13 +20,11 @@ import 'package:photoline/src/utils/position.dart';
 class Photoline extends StatefulWidget {
   const Photoline({
     required this.controller,
-    this.isAspectRatio = true,
     this.photoStripeColor = const Color.fromRGBO(255, 255, 255, .1),
     super.key,
   });
 
   final PhotolineController controller;
-  final bool isAspectRatio;
   final Color photoStripeColor;
 
   @override
@@ -52,13 +50,9 @@ class PhotolineState extends State<Photoline>
 
   late final PhotolineHolderState? holder;
 
-  double _aspectRatio = 1.6;
-
-  set aspectRatio(double value) {
-    final nv = (_aspectRatio + value).clamp(1.25, 1.6);
-    if (_aspectRatio == nv) return;
-    _aspectRatio = nv;
-    rebuild();
+  set _aspectRatio(double value) {
+    final av = controller.aspectRatio.value;
+    controller.aspectRatio.value = (av + value).clamp(0, 1);
   }
 
   void _closingListener() {
@@ -133,24 +127,32 @@ class PhotolineState extends State<Photoline>
     }
   }
 
-  void _listener() {
-    final dx = animationPosition.velocity * .01;
+  void _listenerPosition() {
     switch (controller.action.value) {
       case PhotolineAction.opening:
-        aspectRatio = -dx;
         _openingListener();
       case PhotolineAction.closing:
-        aspectRatio = dx;
         _closingListener();
       case PhotolineAction.open ||
             PhotolineAction.close ||
             PhotolineAction.drag:
-        aspectRatio = -dx;
     }
     rebuild();
   }
 
-  void _listenerStatus(AnimationStatus status) {
+  void _listenerOpacity() {
+    final dx = animationOpacity.velocity.abs() * 1.8;
+    switch (controller.action.value) {
+      case PhotolineAction.open || PhotolineAction.opening:
+        _aspectRatio = dx;
+      case PhotolineAction.closing ||
+            PhotolineAction.close ||
+            PhotolineAction.drag:
+        _aspectRatio = -dx;
+    }
+  }
+
+  void _listenerPositionStatus(AnimationStatus status) {
     if (status == AnimationStatus.completed) {
       switch (controller.action.value) {
         case PhotolineAction.open:
@@ -518,11 +520,12 @@ class PhotolineState extends State<Photoline>
       vsync: this,
       duration: const Duration(milliseconds: 400),
     )
-      ..addListener(_listener)
-      ..addStatusListener(_listenerStatus);
+      ..addListener(_listenerPosition)
+      ..addStatusListener(_listenerPositionStatus);
 
     animationOpacity = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 50 * 1000))
+      ..addListener(_listenerOpacity)
       ..repeat();
     animationAdd = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 20 * 1000))
@@ -583,24 +586,17 @@ class PhotolineState extends State<Photoline>
       ),
     );
 
-    child = Stack(
-      fit: StackFit.expand,
-      children: [
-        Positioned.fill(child: PhotolineBackside(photoline: this)),
-        Positioned.fill(
-          child: child,
-        )
-      ],
+    child = Expanded(
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Positioned.fill(child: PhotolineBackside(photoline: this)),
+          Positioned.fill(
+            child: child,
+          )
+        ],
+      ),
     );
-
-    if (widget.isAspectRatio) {
-      child = AspectRatio(
-        aspectRatio: _aspectRatio,
-        child: child,
-      );
-    } else {
-      child = Expanded(child: child);
-    }
 
     return LayoutBuilder(builder: (context, constraints) {
       controller.photolineWidth = constraints.maxWidth;
@@ -636,10 +632,7 @@ class PhotolineState extends State<Photoline>
               ),
             ),
           child,
-          if (!widget.isAspectRatio && controller.getPagerItem != null)
-            PhotolinePager(
-              photoline: this,
-            ),
+          if (controller.getPagerItem != null) PhotolinePager(photoline: this),
         ],
       );
     });

@@ -122,8 +122,10 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
       ..didStartLayout()
       ..setDidUnderflow(false);
 
-    final widthOpen =
-        constraints.viewportMainAxisExtent * _controller.openRatio;
+    final vp = constraints.viewportMainAxisExtent;
+    final vph = vp * .5;
+
+    final widthOpen = vp * _controller.openRatio;
     final double scrollOffset =
         constraints.scrollOffset + constraints.cacheOrigin;
     final scrollExtent = widthOpen * count;
@@ -141,7 +143,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
     RenderBox curBox = firstChild!;
     int indexOffset = 0;
-    for (int indexReal = 1; indexReal < count; indexReal++) {
+    for (int index = 1; index < count; index++) {
       RenderBox? child = childAfter(curBox);
 
       indexOffset++;
@@ -149,25 +151,29 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
       itemWidth = widthOpen;
       itemOffset = indexOffset * widthOpen;
 
+      final double itemViewOffset = itemOffset - scrollOffset;
       // left
-      final double leftDiff = scrollOffset - itemOffset;
-      if (leftDiff > 0 && itemWidth > leftDiff) {
-        itemWidth -= leftDiff;
-        itemOffset += leftDiff;
+      if (itemViewOffset < vph) {
+        if (itemViewOffset < 0 && itemViewOffset + itemWidth > 0) {
+          itemWidth += itemViewOffset;
+          itemOffset -= itemViewOffset;
+        }
       }
 
       // right
-      final double rightDiff = (itemWidth + itemOffset) -
-          (scrollOffset + constraints.viewportMainAxisExtent);
-      if (rightDiff > 0 && itemWidth > rightDiff) {
-        itemWidth -= rightDiff;
+      if (itemViewOffset > 0 && itemViewOffset < vp) {
+        final rdiff = vp - (itemViewOffset + itemWidth);
+        if (rdiff < 0) {
+          itemWidth += rdiff;
+        }
       }
 
-      if (child == null || indexOf(child) != indexReal) {
+      if (child == null || indexOf(child) != index) {
         child = insertAndLayoutChild(bc(itemWidth), after: curBox);
       } else {
         child.layout(bc(itemWidth));
       }
+
       curBox = child!;
       (child.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset =
           itemOffset;
