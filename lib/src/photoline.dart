@@ -55,7 +55,7 @@ class PhotolineState extends State<Photoline>
     controller.aspectRatio.value = (av + value).clamp(0, 1);
   }
 
-  void _closingListener() {
+  void _listenerPositionClosing() {
     final t = Curves.easeInOut.transform(animationPosition.value);
     final count = controller.count;
 
@@ -83,7 +83,7 @@ class PhotolineState extends State<Photoline>
     }
   }
 
-  void _openingListener() {
+  void _listenerPositionOpening() {
     final t = Curves.easeInOut.transform(animationPosition.value);
     final count = controller.count;
 
@@ -103,10 +103,12 @@ class PhotolineState extends State<Photoline>
       for (int i = pto - 1; i >= 0; i--) {
         final c = positionOpen[i];
         c.offset.current = positionOpen[i + 1].offset.current - c.width.current;
-        if (c.offsetL != null && c.offset.current < c.offsetL!) {
-          final diff = c.offsetL! - c.offset.current;
-          c.offset.current += diff;
-          c.width.current = math.max(0, c.width.current - diff);
+        if (controller.useOpenSideResize) {
+          if (c.offsetL != null && c.offset.current < c.offsetL!) {
+            final diff = c.offsetL! - c.offset.current;
+            c.offset.current += diff;
+            c.width.current = math.max(0, c.width.current - diff);
+          }
         }
       }
     }
@@ -119,9 +121,11 @@ class PhotolineState extends State<Photoline>
         final s = positionOpen[i - 1];
         c.offset.current = s.offset.current + s.width.current;
         final r = c.offset.current + c.width.current;
-        if (c.offsetR != null && r > c.offsetR!) {
-          final diff = r - c.offsetR!;
-          c.width.current = math.max(0, c.width.current - diff);
+        if (controller.useOpenSideResize) {
+          if (c.offsetR != null && r > c.offsetR!) {
+            final diff = r - c.offsetR!;
+            c.width.current = math.max(0, c.width.current - diff);
+          }
         }
       }
     }
@@ -130,9 +134,9 @@ class PhotolineState extends State<Photoline>
   void _listenerPosition() {
     switch (controller.action.value) {
       case PhotolineAction.opening:
-        _openingListener();
+        _listenerPositionOpening();
       case PhotolineAction.closing:
-        _closingListener();
+        _listenerPositionClosing();
       case PhotolineAction.open ||
             PhotolineAction.close ||
             PhotolineAction.drag:
@@ -177,7 +181,7 @@ class PhotolineState extends State<Photoline>
     }
   }
 
-  void _toPageOpening() {
+  void _toPageOpenFromOpening() {
     controller.pageActivePaginator.value = -1;
     final size = controller.size;
     final count = controller.count;
@@ -204,11 +208,14 @@ class PhotolineState extends State<Photoline>
     final lend = pto == count - 1 ? size.side2 : size.side;
     final rend = isFirst ? size.side2 : size.side;
 
-    final li = pto - 1;
-    final ri = pto + 1;
-
-    if (pto > 0) positionOpen[li].width.end = lend;
-    if (pto < count - 1) positionOpen[ri].width.end = rend;
+    if (pto > 0) {
+      positionOpen[pto - 1].width.end =
+          controller.useOpenSideResize ? lend : size.open;
+    }
+    if (pto < count - 1) {
+      positionOpen[pto + 1].width.end =
+          controller.useOpenSideResize ? rend : size.open;
+    }
 
     // <->
     final c = positionOpen[pto]..end(size.open, isFirst ? 0 : lend);
@@ -257,30 +264,45 @@ class PhotolineState extends State<Photoline>
     final isFirst =
         pto == 0 || (pto == 1 && controller.getPagerIndexOffset() > 0);
 
-    final lend = pto == count - 1 ? size.side2 : size.side;
-    final rend = isFirst ? size.side2 : size.side;
+    if (controller.useOpenSideResize) {
+      final lend = pto == count - 1 ? size.side2 : size.side;
+      final rend = isFirst ? size.side2 : size.side;
 
-    final li = pto - 1;
-    final ri = pto + 1;
+      if (pto > 0) positionOpen[pto - 1].width.end = lend;
+      if (pto < count - 1) positionOpen[pto + 1].width.end = rend;
 
-    if (pto > 0) positionOpen[li].width.end = lend;
-    if (pto < count - 1) positionOpen[ri].width.end = rend;
+      // <->
+      final c = positionOpen[pto]..end(size.open, isFirst ? 0 : lend);
+      for (int i = 0; i < count; i++) {
+        if ((i - pto).abs() <= 1) continue;
+        final p = positionOpen[i];
+        p.width.start = p.width.current;
+        p.width.end = 0;
+      }
 
-    // <->
-    final c = positionOpen[pto]..end(size.open, isFirst ? 0 : lend);
-    for (int i = 0; i < count; i++) {
-      if ((i - pto).abs() <= 1) continue;
-      final p = positionOpen[i];
-      p.width.start = p.width.current;
-      p.width.end = 0;
+      controller.action.value = PhotolineAction.opening;
+      _animationStart(c);
+    } else {
+      final lend = pto == count - 1 ? size.side2 : size.side;
+
+      if (pto > 0) positionOpen[pto - 1].width.end = size.open;
+      if (pto < count - 1) positionOpen[pto + 1].width.end = size.open;
+
+      // <->
+      final c = positionOpen[pto]..end(size.open, isFirst ? 0 : lend);
+      for (int i = 0; i < count; i++) {
+        if ((i - pto).abs() <= 1) continue;
+        final p = positionOpen[i];
+        p.width.start = p.width.current;
+        p.width.end = 0;
+      }
+
+      controller.action.value = PhotolineAction.opening;
+      _animationStart(c);
     }
-
-    controller.action.value = PhotolineAction.opening;
-
-    _animationStart(c);
   }
 
-  void _toPageFromOpen() {
+  void _toPageOpenFromOpen() {
     controller.pageActivePaginator.value = -1;
     final List<int> visible = _positionOpenAddOpen();
     final count = controller.count;
@@ -309,24 +331,26 @@ class PhotolineState extends State<Photoline>
       final l = positionOpen[pto - 1];
       l.width
         ..start = l.width.current
-        ..end = rend;
+        ..end = controller.useOpenSideResize ? rend : size.open;
     }
 
     if (pto < count - 1) {
       final r = positionOpen[pto + 1];
       r.width
         ..start = r.width.current
-        ..end = lend;
+        ..end = controller.useOpenSideResize ? lend : size.open;
     }
 
     if (isFirst) {
       c.offset.end = 0;
-      positionOpen[pto + 1].width.end = size.side2;
+      positionOpen[pto + 1].width.end =
+          controller.useOpenSideResize ? size.side2 : size.open;
     }
 
     if (pto == count - 1) {
       c.offset.end = size.side2;
-      positionOpen[pto - 1].width.end = size.side2;
+      positionOpen[pto - 1].width.end =
+          controller.useOpenSideResize ? size.side2 : size.open;
     }
 
     if (pto < visible.first) {
@@ -365,10 +389,8 @@ class PhotolineState extends State<Photoline>
     controller.pageActivePaginator.value = -1;
     controller.action.value = PhotolineAction.closing;
     _positionOpenAddOpen();
-    _closeStart();
-  }
 
-  void _closeStart() {
+    // --- close start
     final size = controller.size;
     final count = controller.count;
 
@@ -388,6 +410,7 @@ class PhotolineState extends State<Photoline>
     }
 
     final big = positionOpen[controller.pageTargetOpen.value];
+
     final bigLeft = big.offset.current.clamp(0, size.viewport).toDouble();
     final bigRight = (big.offset.current + big.width.current)
         .clamp(0, size.viewport)
@@ -397,8 +420,10 @@ class PhotolineState extends State<Photoline>
     final closeCount = controller.getViewCount(controller.photolineWidth);
 
     for (int i = 0; i < closeCount; i++) {
-      final a = i * size.close;
-      final b = (i + 1) * size.close;
+      final sizz = controller.useOpenSideResize ? size.open : size.close;
+
+      final a = i * sizz;
+      final b = (i + 1) * sizz;
       final s = math.min(bigRight, b) - math.max(bigLeft, a);
       if (s > sz) {
         t = i;
@@ -430,12 +455,14 @@ class PhotolineState extends State<Photoline>
       double width = size.open;
       double offset = -size.pixels + size.open * i;
       if (offset + width > 0 && offset < size.viewport) {
-        if (offset < 0) {
-          width += offset;
-          offset = 0;
+        if (controller.useOpenSideResize) {
+          if (offset < 0) {
+            width += offset;
+            offset = 0;
+          }
+          final double r = offset + width;
+          if (r > size.viewport) width += size.viewport - r;
         }
-        final double r = offset + width;
-        if (r > size.viewport) width += size.viewport - r;
         visible.add(i);
       } else {
         width = 0;
@@ -458,11 +485,11 @@ class PhotolineState extends State<Photoline>
         controller.pageOpenInitial = target;
         return _toPageOpenFromClose();
       case PhotolineAction.open:
-        return pto == target ? _toPageClose() : _toPageFromOpen();
+        return pto == target ? _toPageClose() : _toPageOpenFromOpen();
       case PhotolineAction.opening:
-        return pto == target ? _toPageClose() : _toPageOpening();
+        return pto == target ? _toPageClose() : _toPageOpenFromOpening();
       case PhotolineAction.closing:
-        return _toPageOpening();
+        return _toPageOpenFromOpening();
       case PhotolineAction.drag:
     }
   }

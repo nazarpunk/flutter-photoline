@@ -133,7 +133,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
     if (firstChild == null) addInitialChild();
     double itemWidth = widthOpen;
     double itemOffset = 0;
-    if (itemWidth > scrollOffset) {
+    if (_controller.useOpenSideResize && itemWidth > scrollOffset) {
       itemWidth -= scrollOffset;
       itemOffset += scrollOffset;
     }
@@ -151,20 +151,22 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
       itemWidth = widthOpen;
       itemOffset = indexOffset * widthOpen;
 
-      final double itemViewOffset = itemOffset - scrollOffset;
-      // left
-      if (itemViewOffset < vph) {
-        if (itemViewOffset < 0 && itemViewOffset + itemWidth > 0) {
-          itemWidth += itemViewOffset;
-          itemOffset -= itemViewOffset;
+      if (_controller.useOpenSideResize) {
+        final double itemViewOffset = itemOffset - scrollOffset;
+        // left
+        if (itemViewOffset < vph) {
+          if (itemViewOffset < 0 && itemViewOffset + itemWidth > 0) {
+            itemWidth += itemViewOffset;
+            itemOffset -= itemViewOffset;
+          }
         }
-      }
 
-      // right
-      if (itemViewOffset > 0 && itemViewOffset < vp) {
-        final rdiff = vp - (itemViewOffset + itemWidth);
-        if (rdiff < 0) {
-          itemWidth += rdiff;
+        // right
+        if (itemViewOffset > 0 && itemViewOffset < vp) {
+          final rdiff = vp - (itemViewOffset + itemWidth);
+          if (rdiff < 0) {
+            itemWidth += rdiff;
+          }
         }
       }
 

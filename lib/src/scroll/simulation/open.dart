@@ -9,7 +9,7 @@ class PhotolineOpenSimulation extends Simulation {
     required this.controller,
     required this.position,
     required this.velocity,
-    this.friction = 0.015,
+    this.friction = 0.0125, // 0.015
     super.tolerance,
   }) : pixels = position.pixels {
     _duration = _flingDuration();
@@ -50,7 +50,7 @@ class PhotolineOpenSimulation extends Simulation {
       *
       39.37 // 1 meter / 1 inch
       *
-      160.0 // 1 inch / 1 logical pixel
+      400.0 // 1 inch / 1 logical pixel || 160.0
       *
       0.84; // "look and feel tuning"
 
@@ -74,20 +74,16 @@ class PhotolineOpenSimulation extends Simulation {
   // sign of [velocity], and in logical pixels.
   double _flingDistance() {
     final double distance = velocity * _duration / _kDecelerationRate;
-    final double page = position.getPageFromPixels(pixels + distance);
+    double page = position.getPageFromPixels(pixels + distance);
+    page = velocity > 0 ? page.ceilToDouble() : page.floorToDouble();
 
-    // ---
-    int pg = page.round().clamp(0, position.controller.getPhotoCount() - 1);
+    int pg = page.round();
     if (position.controller.getPagerIndexOffset() > 0) {
       pg = math.max(pg, 1);
     }
     position.controller.pageTargetOpen.value = pg;
-    // ---
 
-    final target = position.getPixelsFromPage(
-        velocity > 0 ? page.floorToDouble() : page.ceilToDouble());
-
-    return target - pixels;
+    return position.getPixelsFromPage(page) - pixels;
   }
 
   @override

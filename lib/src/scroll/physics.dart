@@ -31,6 +31,38 @@ class PhotolineScrollPhysics extends ScrollPhysics {
     return page * position.viewportDimension;
   }
 
+  Simulation? _simulation(covariant PhotolineScrollPosition position,
+      double velocity, Tolerance tolerance) {
+    if (velocity.abs() < tolerance.velocity) {
+      final double page = position.getPageFromPixels(position.pixels);
+      final double target = position.getPixelsFromPage(page.roundToDouble());
+
+      if (position.pixels == target) return null;
+
+      return ScrollSpringSimulation(
+        spring,
+        position.pixels,
+        target,
+        math.min(0.0, velocity),
+        tolerance: tolerance,
+      );
+    }
+
+    if (velocity > 0.0 && position.pixels >= position.maxScrollExtent) {
+      return null;
+    }
+    if (velocity < 0.0 && position.pixels <= position.minScrollExtent) {
+      return null;
+    }
+
+    return PhotolineOpenSimulation(
+      controller: position.controller,
+      position: position,
+      velocity: velocity,
+      tolerance: tolerance,
+    );
+  }
+
   @override
   Simulation? createBallisticSimulation(
       covariant PhotolineScrollPosition position, double velocity) {
@@ -50,39 +82,21 @@ class PhotolineScrollPhysics extends ScrollPhysics {
     switch (position.controller.action.value) {
       case PhotolineAction.open:
         if (position.controller.useOpenSimulation) {
-          if (velocity.abs() < tolerance.velocity) {
-            final double page = position.getPageFromPixels(position.pixels);
-            final double target =
-                position.getPixelsFromPage(page.roundToDouble());
-            if (position.pixels == target) return null;
-
-            return ScrollSpringSimulation(
-              spring,
-              position.pixels,
-              target,
-              math.min(0.0, velocity),
-              tolerance: tolerance,
-            );
-          }
-
-          return PhotolineOpenSimulation(
-            controller: position.controller,
-            position: position,
-            velocity: velocity,
-            tolerance: tolerance,
-          );
-        } else {
-          pageNew = position.pageAdd(
-              v / (position.viewportDimension * position.controller.openRatio));
-          if ((pageCur - pageNew).abs() < 1 && velocity.abs() > 1000) {
-            if (velocity > 0) {
-              pageNew += .5;
-            } else {
-              pageNew -= .5;
-            }
+          return _simulation(position, velocity, tolerance);
+        }
+        pageNew = position.pageAdd(
+            v / (position.viewportDimension * position.controller.openRatio));
+        if ((pageCur - pageNew).abs() < 1 && velocity.abs() > 1000) {
+          if (velocity > 0) {
+            pageNew += .5;
+          } else {
+            pageNew -= .5;
           }
         }
       case PhotolineAction.close:
+        if (position.controller.useOpenSimulation) {
+          return _simulation(position, velocity, tolerance);
+        }
         pageNew = position.pageAdd(
             v / (position.viewportDimension * position.controller.closeRatio));
       case PhotolineAction.opening:
