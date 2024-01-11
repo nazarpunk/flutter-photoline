@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'dart:ui' as ui;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class ImagePainter extends CustomPainter {
@@ -50,6 +51,15 @@ class ImagePainter extends CustomPainter {
 
       canvas.drawImageRect(image!, Rect.fromLTWH(cx, cy, cw, ch),
           Rect.fromLTWH(0, 0, w, h), paint);
+    }
+
+    if (kProfileMode) {
+      canvas.drawPath(
+          Path()..addRRect(RRect.fromRectXY(Rect.fromLTWH(0, 0, w, h), 20, 20)),
+          Paint()
+            ..color = Colors.red
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 2);
     }
 
     if (grayOpacity > 0) {

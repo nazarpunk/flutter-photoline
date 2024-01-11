@@ -123,9 +123,9 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
       ..setDidUnderflow(false);
 
     final vp = constraints.viewportMainAxisExtent;
-    final vph = vp * .5;
 
     final widthOpen = vp * _controller.openRatio;
+    final widthSide = (vp - widthOpen) * .5;
     final double scrollOffset =
         constraints.scrollOffset + constraints.cacheOrigin;
     final scrollExtent = widthOpen * count;
@@ -153,19 +153,48 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
       if (_controller.useOpenSideResize) {
         final double itemViewOffset = itemOffset - scrollOffset;
-        // left
-        if (itemViewOffset < vph) {
-          if (itemViewOffset < 0 && itemViewOffset + itemWidth > 0) {
+        final int firstIndex = controller.getPagerIndexOffset() > 0 ? 1 : 0;
+        final int lastIndex = count - 1;
+
+        if (_controller.useOpenSideResizeScale) {
+          // left
+          if (itemViewOffset < 0 && itemViewOffset > -widthOpen) {
+            final sm = index >= lastIndex - 1 ? widthSide * 2 : widthSide;
+            final wcur = widthOpen + itemViewOffset;
+            final dt = (wcur - sm) / (widthOpen - sm);
+            double off = itemViewOffset * (1 - dt);
+            if (itemViewOffset < widthSide - widthOpen) {
+              off = itemViewOffset;
+            }
+            itemWidth += off;
+            itemOffset -= off;
+          }
+
+          // right
+          if (itemViewOffset > widthSide * 2 && itemViewOffset < vp) {
+            final rdiff = vp - (itemViewOffset + itemWidth);
+            final sm = index <= firstIndex + 1 ? widthSide * 2 : widthSide;
+            final wcur = widthOpen + rdiff;
+            final dt = (wcur - sm) / (widthOpen - sm);
+            double off = rdiff * (1 - dt);
+            if (itemViewOffset > vp - widthSide) {
+              off = rdiff;
+            }
+            itemWidth += off;
+          }
+        } else {
+          // left
+          if (itemViewOffset < 0 && itemViewOffset > -widthOpen) {
             itemWidth += itemViewOffset;
             itemOffset -= itemViewOffset;
           }
-        }
 
-        // right
-        if (itemViewOffset > 0 && itemViewOffset < vp) {
-          final rdiff = vp - (itemViewOffset + itemWidth);
-          if (rdiff < 0) {
-            itemWidth += rdiff;
+          // right
+          if (itemViewOffset > widthSide * 2 && itemViewOffset < vp) {
+            final rdiff = vp - (itemViewOffset + itemWidth);
+            if (rdiff < 0) {
+              itemWidth += rdiff;
+            }
           }
         }
       }

@@ -41,7 +41,8 @@ class PhotolineController extends ScrollController {
     this.isTileOpenGray = false,
     this.onDebugAdd,
     this.useOpenSimulation = true,
-    this.useOpenSideResize = false,
+    this.useOpenSideResize = true,
+    this.useOpenSideResizeScale = true,
   });
 
   PhotolineHolderDragController? dragController;
@@ -66,6 +67,7 @@ class PhotolineController extends ScrollController {
 
   final bool useOpenSimulation;
   final bool useOpenSideResize;
+  final bool useOpenSideResizeScale;
 
   final double openRatio;
 

@@ -161,14 +161,16 @@ class PhotolineTileState extends State<PhotolineTile>
 
         final size = _controller.size;
 
-        final List<Widget>? persistent =
-            _controller.getPersistentWidgets?.call(PhotolineTileData(
+        final data = PhotolineTileData(
           index: _index,
           loading: _animationImage.value,
           closeDw: (constraints.maxWidth.clamp(size.side2, size.close) -
                   size.side2) /
               (size.close - size.side2),
-        ));
+        );
+
+        final List<Widget>? persistent =
+            _controller.getPersistentWidgets?.call(data);
 
         Widget child = Stack(
           children: [
