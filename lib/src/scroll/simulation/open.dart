@@ -9,7 +9,7 @@ class PhotolineOpenSimulation extends Simulation {
     required this.controller,
     required this.position,
     required this.velocity,
-    this.friction = 0.0125, // 0.015
+    this.friction = 0.0175, // 0.015
     super.tolerance,
   }) : pixels = position.pixels {
     _duration = _flingDuration();
