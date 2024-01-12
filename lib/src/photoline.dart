@@ -415,30 +415,33 @@ class PhotolineState extends State<Photoline>
     final bigRight = (big.offset.current + big.width.current)
         .clamp(0, size.viewport)
         .toDouble();
-    int t = 0;
+    int viewIndex = 0;
     sz = 0;
     final closeCount = controller.getViewCount(controller.photolineWidth);
 
     for (int i = 0; i < closeCount; i++) {
-      final sizz = controller.useOpenSideResize ? size.open : size.close;
+      final sizz =
+          controller.useOpenSideResize && !controller.useOpenSideResizeScale
+              ? size.open
+              : size.close;
 
       final a = i * sizz;
       final b = (i + 1) * sizz;
       final s = math.min(bigRight, b) - math.max(bigLeft, a);
       if (s > sz) {
-        t = i;
+        viewIndex = i;
         sz = s;
       }
     }
 
     if (controller.pageTargetOpen.value == 1 &&
-        controller.getPagerIndexOffset() > 0) t = 1;
+        controller.getPagerIndexOffset() > 0) viewIndex = 1;
 
-    t = controller.correctCloseTargetIndex(
-        count, closeCount, controller.pageTargetOpen.value, t);
-    _pageTargetClose = controller.pageTargetOpen.value - t;
+    viewIndex = controller.correctCloseTargetIndex(
+        count, closeCount, controller.pageTargetOpen.value, viewIndex);
+    _pageTargetClose = controller.pageTargetOpen.value - viewIndex;
 
-    big.offset.end = t * size.close;
+    big.offset.end = viewIndex * size.close;
     big.width.end = size.close;
 
     controller.action.value = PhotolineAction.closing;
