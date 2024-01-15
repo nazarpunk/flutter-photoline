@@ -584,50 +584,6 @@ class PhotolineState extends State<Photoline>
     _updater = !_updater;
     final count = controller.getPhotoCount();
 
-    Widget child = NotificationListener<ScrollNotification>(
-      onNotification: _notification,
-      child: Scrollable(
-        axisDirection: AxisDirection.right,
-        controller: controller,
-        physics: _physics,
-        viewportBuilder: (context, position) => Viewport(
-          cacheExtent: 0.0,
-          cacheExtentStyle: CacheExtentStyle.viewport,
-          axisDirection: AxisDirection.right,
-          offset: position,
-          slivers: [
-            PhotolineSliverMultiBoxAdaptorWidget(
-              controller: controller,
-              photoline: this,
-              delegate: PhotolineSliverChildBuilderDelegate(
-                (context, i) => PhotolineTile(
-                  photoline: this,
-                  key: controller.getKey(i),
-                  index: i,
-                  uri: controller.getUri(i),
-                  controller: controller,
-                ),
-                controller: controller,
-              ),
-              updater: _updater,
-            ),
-          ],
-        ),
-      ),
-    );
-
-    child = Expanded(
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Positioned.fill(child: PhotolineBackside(photoline: this)),
-          Positioned.fill(
-            child: child,
-          )
-        ],
-      ),
-    );
-
     return LayoutBuilder(builder: (context, constraints) {
       controller.photolineWidth = constraints.maxWidth;
       return Column(
@@ -661,7 +617,49 @@ class PhotolineState extends State<Photoline>
                 ],
               ),
             ),
-          child,
+          Expanded(
+            child: ClipRect(
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Positioned.fill(child: PhotolineBackside(photoline: this)),
+                  Positioned.fill(
+                    child: NotificationListener<ScrollNotification>(
+                      onNotification: _notification,
+                      child: Scrollable(
+                        axisDirection: AxisDirection.right,
+                        controller: controller,
+                        physics: _physics,
+                        viewportBuilder: (context, position) => Viewport(
+                          cacheExtent: 0.0,
+                          cacheExtentStyle: CacheExtentStyle.viewport,
+                          axisDirection: AxisDirection.right,
+                          offset: position,
+                          slivers: [
+                            PhotolineSliverMultiBoxAdaptorWidget(
+                              controller: controller,
+                              photoline: this,
+                              delegate: PhotolineSliverChildBuilderDelegate(
+                                (context, i) => PhotolineTile(
+                                  photoline: this,
+                                  key: controller.getKey(i),
+                                  index: i,
+                                  uri: controller.getUri(i),
+                                  controller: controller,
+                                ),
+                                controller: controller,
+                              ),
+                              updater: _updater,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
           if (controller.getPagerItem != null) PhotolinePager(photoline: this),
         ],
       );

@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:photoline/photoline.dart';
@@ -30,17 +31,24 @@ class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem>
 
   PhotolineController get _controller => widget.photoline.widget.controller;
 
+  int get _index => widget.index;
+
   int get _indexOffset => _controller.getPagerIndexOffset();
 
-  Color get _color =>
-      widget.index >= _controller.getPhotoCount() - _indexOffset
-          ? const Color.fromRGBO(200, 200, 200, 1)
-          : Color.lerp(const Color.fromRGBO(120, 120, 130, 1),
+  int get _indexView => _index + 1;
+
+  int get _indexTrigger => _index + _indexOffset;
+
+  Color get _color => widget.index >= _controller.getPhotoCount() - _indexOffset
+      ? const Color.fromRGBO(200, 200, 200, 1)
+      : Color.lerp(const Color.fromRGBO(120, 120, 130, 1),
           const Color.fromRGBO(0, 0, 0, 1), _starAnim.value)!;
 
   void _triLis() {
     final double value =
-    _controller.pageActivePaginator.value == (widget.index + _indexOffset) ? 1 : 0;
+        _controller.pageActivePaginator.value == (widget.index + _indexOffset)
+            ? 1
+            : 0;
 
     rebuild();
 
@@ -53,9 +61,9 @@ class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem>
   }
 
   void _starLis() {
-    final pto = _controller.pageTargetOpen.value;
+    final pto = _controller.pageActivePaginator.value;
 
-    double value = pto == (widget.index + _indexOffset) ? 1 : 0;
+    double value = pto == _indexTrigger ? 1 : 0;
     switch (_controller.action.value) {
       case PhotolineAction.close:
       case PhotolineAction.closing:
@@ -78,7 +86,8 @@ class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem>
 
   @override
   void initState() {
-    final double v = _controller.pageActivePaginator.value == widget.index ? 1 : 0;
+    final double v =
+        _controller.pageActivePaginator.value == widget.index ? 1 : 0;
 
     _starAnim = AnimationController(
       vsync: this,
@@ -86,7 +95,7 @@ class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem>
     )
       ..value = v
       ..addListener(rebuild);
-    _controller.pageTargetOpen.addListener(_starLis);
+    _controller.pageActivePaginator.addListener(_starLis);
     _controller.action.addListener(_starLis);
 
     _triAnim = AnimationController(
@@ -117,12 +126,20 @@ class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem>
       child: Stack(
         alignment: Alignment.center,
         children: [
-          ..._controller.getPagerItem!(widget.index, _color),
+          ..._controller.getPagerItem!(_indexView, _color),
           GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: () => _photoline.toPage(widget.index + _indexOffset),
+            onTap: () => _photoline.toPage(_indexView),
             child: const SizedBox.expand(),
           ),
+          if (kDebugMode && kProfileMode)
+            ColoredBox(
+              color: Colors.black,
+              child: Text(
+                '$_indexView',
+                style: const TextStyle(color: Colors.red),
+              ),
+            ),
           const MouseRegion(
             cursor: SystemMouseCursors.click,
             opaque: false,
@@ -148,8 +165,7 @@ class _StarTriangle extends SingleChildRenderObjectWidget {
   }
 
   @override
-  _RenderProxyBox createRenderObject(BuildContext context) =>
-      _RenderProxyBox(
+  _RenderProxyBox createRenderObject(BuildContext context) => _RenderProxyBox(
         height: height,
       );
 }
@@ -158,8 +174,7 @@ class _RenderProxyBox extends RenderProxyBox {
   _RenderProxyBox({
     RenderBox? child,
     required double height,
-  })
-      : _height = height,
+  })  : _height = height,
         super(child);
 
   double _height;
@@ -181,7 +196,8 @@ class _RenderProxyBox extends RenderProxyBox {
       context.canvas.drawPath(
         Path()
           ..moveTo(size.width * .5, size.height - _height)
-          ..lineTo(size.width - p, size.height)..lineTo(p, size.height)
+          ..lineTo(size.width - p, size.height)
+          ..lineTo(p, size.height)
           ..close(),
         Paint()
           ..color = const Color.fromRGBO(0, 0, 0, 1)

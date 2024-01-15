@@ -15,14 +15,19 @@ class BlurPainter extends CustomPainter {
   /// [Image], [LinearGradient]
   @override
   void paint(Canvas canvas, Size size) {
-    if (size.isEmpty || imageOpacity >= 1.0 || blur == null || blur!.width == 0 || blur!.height == 0) return;
+    if (size.isEmpty ||
+        imageOpacity >= 1.0 ||
+        blur == null ||
+        blur!.width == 0 ||
+        blur!.height == 0) return;
     final w = size.width, h = size.height;
 
     const offsetX = .5;
     const offsetY = .5;
+    const p = 1;
 
-    final iw = blur!.width.toDouble();
-    final ih = blur!.height.toDouble();
+    final iw = (blur!.width - p * 2).toDouble();
+    final ih = (blur!.height - p * 2).toDouble();
 
     final r = math.min(w / iw, h / ih);
 
@@ -40,10 +45,10 @@ class BlurPainter extends CustomPainter {
     final double cx = math.max((iw - cw) * offsetX, 0);
     final double cy = math.max((ih - ch) * offsetY, 0);
 
-    final Rect ra = Rect.fromLTWH(cx, cy, cw, ch);
+    final Rect ra = Rect.fromLTWH(cx + p, cy + p, cw, ch);
     final Rect rb = Rect.fromLTWH(0, 0, w, h);
 
-    const double s = 20;
+    const double s = 30;
 
     canvas
       ..clipRect(rb)
@@ -53,7 +58,8 @@ class BlurPainter extends CustomPainter {
         rb,
         Paint()
           ..color = const Color.fromRGBO(0, 0, 0, 1)
-          ..imageFilter = ui.ImageFilter.blur(sigmaX: s, sigmaY: s, tileMode: TileMode.mirror),
+          ..imageFilter = ui.ImageFilter.blur(
+              sigmaX: s, sigmaY: s, tileMode: TileMode.mirror),
       );
   }
 

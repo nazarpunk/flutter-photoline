@@ -67,7 +67,8 @@ class PhotolineOpenSimulation extends Simulation {
 
     // We finish a bit sooner than Android, in order to travel the
     // same total distance.
-    return math.max(0.5, _kDecelerationRate * _kInflexion * androidDuration); // fix jump
+    return math.max(
+        0.5, _kDecelerationRate * _kInflexion * androidDuration); // fix jump
   }
 
   // See getSplineFlingDistance().  This returns the same value but with the

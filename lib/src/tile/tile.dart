@@ -161,12 +161,18 @@ class PhotolineTileState extends State<PhotolineTile>
 
         final size = _controller.size;
 
+        final (double, double) limit = size.close > size.side2
+            ? (size.side2, size.close)
+            : (size.close, size.side2);
+        final double cdwa =
+            constraints.maxWidth.clamp(limit.$1, limit.$2) - size.side2;
+
         final data = PhotolineTileData(
           index: _index,
           loading: _animationImage.value,
-          closeDw: (constraints.maxWidth.clamp(size.side2, size.close) -
-                  size.side2) /
-              (size.close - size.side2),
+          closeDw: (cdwa / (size.close - size.side2)).clamp(0, 1),
+          openDw: (constraints.maxWidth - size.close) /
+              (size.open - size.close).clamp(-1, 1),
         );
 
         final List<Widget>? persistent =
@@ -174,15 +180,18 @@ class PhotolineTileState extends State<PhotolineTile>
 
         Widget child = Stack(
           children: [
-            Positioned.fill(
-              child: CustomPaint(
-                painter: BlurPainter(
-                  blur: _blur,
-                  imageOpacity: _animationImage.value,
+            if (_animationImage.value < 1)
+              Positioned.fill(
+                key: const ValueKey('blur'),
+                child: CustomPaint(
+                  painter: BlurPainter(
+                    blur: _blur,
+                    imageOpacity: _animationImage.value,
+                  ),
                 ),
               ),
-            ),
             Positioned.fill(
+              key: const ValueKey('image'),
               child: CustomPaint(
                 painter: ImagePainter(
                   image: _image,
@@ -196,6 +205,7 @@ class PhotolineTileState extends State<PhotolineTile>
               ),
             ),
             Positioned.fill(
+              key: const ValueKey('widget'),
               child: _controller.pageActivePaginator.value == _index
                   ? _controller.getWidget(_index)
                   : const SizedBox(),
@@ -209,6 +219,8 @@ class PhotolineTileState extends State<PhotolineTile>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text('$_index'),
+                      //Text(data.openDw.toStringAsFixed(2)),
+                      //Text(data.closeDw.toStringAsFixed(2))
                     ],
                   ),
                 ),

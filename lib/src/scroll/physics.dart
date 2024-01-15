@@ -9,6 +9,9 @@ class PhotolineScrollPhysics extends ScrollPhysics {
   const PhotolineScrollPhysics({super.parent});
 
   @override
+  double get maxFlingVelocity => 8000;
+
+  @override
   PhotolineScrollPhysics applyTo(ScrollPhysics? ancestor) {
     return PhotolineScrollPhysics(parent: buildParent(ancestor));
   }
