@@ -7,6 +7,8 @@ export 'src/holder/controller/drag.dart';
 export 'src/holder/holder.dart';
 export 'src/photo/blur.dart';
 export 'src/photoline.dart';
+export 'src/scrollable/notification/pointer.dart';
+export 'src/scrollable/scrollable.dart';
 export 'src/utils/gradient.dart';
 export 'src/utils/misc/album_photo_dummy.dart';
 export 'src/utils/stripe.dart';

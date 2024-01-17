@@ -46,7 +46,7 @@ class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem>
 
   void _triLis() {
     final double value =
-        _controller.pageActivePaginator.value == (widget.index + _indexOffset)
+        _controller.pageActivePaginator.value == _indexTrigger
             ? 1
             : 0;
 
@@ -74,14 +74,12 @@ class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem>
         break;
     }
 
-    if (value == _starAnim.value && !_starAnim.isAnimating) return;
-    WidgetsBinding.instance.addPostFrameCallback((timestamp) {
-      if (value > 0) {
-        _starAnim.forward(from: _starAnim.value);
-      } else {
-        _starAnim.reverse(from: _starAnim.value);
-      }
-    });
+    //if (value == _starAnim.value && !_starAnim.isAnimating) return;
+    if (value > 0) {
+      _starAnim.forward(from: _starAnim.value);
+    } else {
+      _starAnim.reverse(from: _starAnim.value);
+    }
   }
 
   @override
@@ -129,15 +127,17 @@ class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem>
           ..._controller.getPagerItem!(_indexView, _color),
           GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: () => _photoline.toPage(_indexView),
+            onTap: () => _photoline.toPage(_indexTrigger),
             child: const SizedBox.expand(),
           ),
           if (kDebugMode && kProfileMode)
-            ColoredBox(
-              color: Colors.black,
-              child: Text(
-                '$_indexView',
-                style: const TextStyle(color: Colors.red),
+            IgnorePointer(
+              child: ColoredBox(
+                color: Colors.black,
+                child: Text(
+                  '$_indexTrigger - ${_controller.pageActivePaginator.value}',
+                  style: const TextStyle(color: Colors.red),
+                ),
               ),
             ),
           const MouseRegion(

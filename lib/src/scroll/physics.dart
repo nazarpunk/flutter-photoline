@@ -69,6 +69,7 @@ class PhotolineScrollPhysics extends ScrollPhysics {
   @override
   Simulation? createBallisticSimulation(
       covariant PhotolineScrollPosition position, double velocity) {
+
     if ((velocity <= 0.0 && position.pixels <= position.minScrollExtent) ||
         (velocity >= 0.0 && position.pixels >= position.maxScrollExtent)) {
       return super.createBallisticSimulation(position, velocity);

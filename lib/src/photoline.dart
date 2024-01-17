@@ -11,6 +11,8 @@ import 'package:photoline/src/mixin/state/rebuild.dart';
 import 'package:photoline/src/paginaror/paginator.dart';
 import 'package:photoline/src/scroll/physics.dart';
 import 'package:photoline/src/scroll/position.dart';
+import 'package:photoline/src/scrollable/notification/pointer.dart';
+import 'package:photoline/src/scrollable/scrollable.dart';
 import 'package:photoline/src/sliver/sliver_child_delegate.dart';
 import 'package:photoline/src/sliver/sliver_multi_box_adaptor_widget.dart';
 import 'package:photoline/src/tile/tile.dart';
@@ -182,7 +184,7 @@ class PhotolineState extends State<Photoline>
   }
 
   void _toPageOpenFromOpening() {
-    controller.pageActivePaginator.value = -1;
+    //controller.pageActivePaginator.value = -1;
     final size = controller.size;
     final count = controller.count;
 
@@ -303,7 +305,7 @@ class PhotolineState extends State<Photoline>
   }
 
   void _toPageOpenFromOpen() {
-    controller.pageActivePaginator.value = -1;
+    //controller.pageActivePaginator.value = -1;
     final List<int> visible = _positionOpenAddOpen();
     final count = controller.count;
     final pto = controller.pageTargetOpen.value;
@@ -482,6 +484,7 @@ class PhotolineState extends State<Photoline>
 
     final pto = controller.pageTargetOpen.value;
     controller.pageTargetOpen.value = target;
+    controller.pageActivePaginator.value = target;
 
     switch (controller.action.value) {
       case PhotolineAction.close:
@@ -509,7 +512,35 @@ class PhotolineState extends State<Photoline>
     }
   }
 
-  bool _notification(ScrollNotification notification) {
+  bool _onNotification(ScrollNotification notification) {
+    if (notification is PhotolinePointerScrollNotification) {
+      switch (controller.action.value) {
+        case PhotolineAction.open:
+        case PhotolineAction.close:
+          if (!_position.hasPixels) return true;
+          final dx = notification.event.scrollDelta.dy;
+          final pp = _position.pixels;
+          final max = _position.maxScrollExtent;
+          final min = _position.minScrollExtent;
+
+          if (min + max == 0) return false;
+          if (dx > 0) {
+            if (pp >= max) return false;
+          } else {
+            if (pp <= min) return false;
+          }
+          final double velocity = (math.max(dx.abs(), 50) * dx.sign) * 10;
+
+          _position.goBallistic(velocity);
+          return true;
+        case PhotolineAction.opening:
+        case PhotolineAction.closing:
+        case PhotolineAction.drag:
+          return true;
+      }
+      //return false;
+    }
+
     if (notification.depth != 0) return false;
     final a = controller.action.value;
 
@@ -624,9 +655,9 @@ class PhotolineState extends State<Photoline>
                 children: [
                   Positioned.fill(child: PhotolineBackside(photoline: this)),
                   Positioned.fill(
-                    child: NotificationListener<ScrollNotification>(
-                      onNotification: _notification,
-                      child: Scrollable(
+                    child: NotificationListener(
+                      onNotification: _onNotification,
+                      child: PhotolineScrollable(
                         axisDirection: AxisDirection.right,
                         controller: controller,
                         physics: _physics,

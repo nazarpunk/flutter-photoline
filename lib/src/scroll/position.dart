@@ -288,6 +288,7 @@ class PhotolineScrollPosition extends ScrollPosition
     assert(hasPixels);
     final Simulation? simulation =
         physics.createBallisticSimulation(this, velocity);
+
     if (simulation != null) {
       beginActivity(PhotolineBallisticScrollActivity(
         this,
