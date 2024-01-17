@@ -46,9 +46,7 @@ class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem>
 
   void _triLis() {
     final double value =
-        _controller.pageActivePaginator.value == _indexTrigger
-            ? 1
-            : 0;
+        _controller.pageActivePaginator.value == _indexTrigger ? 1 : 0;
 
     rebuild();
 
@@ -85,7 +83,7 @@ class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem>
   @override
   void initState() {
     final double v =
-        _controller.pageActivePaginator.value == widget.index ? 1 : 0;
+        _controller.pageActivePaginator.value == _indexTrigger ? 1 : 0;
 
     _starAnim = AnimationController(
       vsync: this,
