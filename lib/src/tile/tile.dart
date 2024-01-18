@@ -183,24 +183,28 @@ class PhotolineTileState extends State<PhotolineTile>
             if (_animationImage.value < 1)
               Positioned.fill(
                 key: const ValueKey('blur'),
-                child: CustomPaint(
-                  painter: BlurPainter(
-                    blur: _blur,
-                    imageOpacity: _animationImage.value,
+                child: IgnorePointer(
+                  child: CustomPaint(
+                    painter: BlurPainter(
+                      blur: _blur,
+                      imageOpacity: _animationImage.value,
+                    ),
                   ),
                 ),
               ),
             Positioned.fill(
               key: const ValueKey('image'),
-              child: CustomPaint(
-                painter: ImagePainter(
-                  image: _image,
-                  imageOpacity: Curves.easeIn
-                      .transform(_animationImage.value)
-                      .clamp(0, 1),
-                  grayOpacity: _controller.isTileOpenGray
-                      ? _opacityCurrent.clamp(0, 1)
-                      : 0,
+              child: IgnorePointer(
+                child: CustomPaint(
+                  painter: ImagePainter(
+                    image: _image,
+                    imageOpacity: Curves.easeIn
+                        .transform(_animationImage.value)
+                        .clamp(0, 1),
+                    grayOpacity: _controller.isTileOpenGray
+                        ? _opacityCurrent.clamp(0, 1)
+                        : 0,
+                  ),
                 ),
               ),
             ),
@@ -239,6 +243,7 @@ class PhotolineTileState extends State<PhotolineTile>
 
         return GestureDetector(
           onTap: () => _photoline.toPage(_index),
+          behavior: HitTestBehavior.opaque,
           child: PhotolineStripe(
             child: child,
           ),
