@@ -78,6 +78,7 @@ class PhotolineController extends ScrollController {
   final action = ValueNotifier<PhotolineAction>(PhotolineAction.close);
   final pageActivePaginator = ValueNotifier<int>(-1);
   final pageActiveOpen = ValueNotifier<int>(-1);
+  final pageActiveOpenComplete = ValueNotifier<int>(-1);
   final pageTargetOpen = ValueNotifier<int>(-1);
   int pageOpenInitial = -1;
 

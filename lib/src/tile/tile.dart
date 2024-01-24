@@ -117,6 +117,7 @@ class PhotolineTileState extends State<PhotolineTile>
   @override
   void initState() {
     _animation.addListener(_listener);
+    _controller.pageActiveOpenComplete.addListener(rebuild);
     _animationImage = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
@@ -128,6 +129,7 @@ class PhotolineTileState extends State<PhotolineTile>
 
   @override
   void dispose() {
+    _controller.pageActiveOpenComplete.removeListener(rebuild);
     _notifier.removeListener(_imageListener);
     _animationImage.dispose();
     _animation.removeListener(_listener);
@@ -139,6 +141,8 @@ class PhotolineTileState extends State<PhotolineTile>
   final _notifier = PhotolineImageNotifier();
 
   void _imageListener() {
+    //if (kDebugMode) return;
+
     if (_notifier.loader!.uri != widget.uri) return;
     _image = _notifier.loader!.image;
     _animationImage.forward(from: 0);
@@ -188,6 +192,7 @@ class PhotolineTileState extends State<PhotolineTile>
                     painter: BlurPainter(
                       blur: _blur,
                       imageOpacity: _animationImage.value,
+                      sigma: 30,
                     ),
                   ),
                 ),
@@ -210,7 +215,7 @@ class PhotolineTileState extends State<PhotolineTile>
             ),
             Positioned.fill(
               key: const ValueKey('widget'),
-              child: _controller.pageActivePaginator.value == _index
+              child: _controller.pageActiveOpenComplete.value == _index
                   ? _controller.getWidget(_index)
                   : const SizedBox(),
             ),

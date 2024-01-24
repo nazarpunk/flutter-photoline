@@ -171,6 +171,7 @@ class PhotolineState extends State<Photoline>
           positionOpen.clear();
           controller
             ..pageActiveOpen.value = controller.pageTargetOpen.value
+            ..pageActiveOpenComplete.value = controller.pageTargetOpen.value
             ..pageActivePaginator.value = controller.pageTargetOpen.value;
 
         case PhotolineAction.closing:
@@ -485,6 +486,7 @@ class PhotolineState extends State<Photoline>
     final pto = controller.pageTargetOpen.value;
     controller.pageTargetOpen.value = target;
     controller.pageActivePaginator.value = target;
+    controller.pageActiveOpenComplete.value = -1;
 
     switch (controller.action.value) {
       case PhotolineAction.close:
@@ -557,6 +559,9 @@ class PhotolineState extends State<Photoline>
 
         controller.pageActivePaginator.value =
             nearEqual(pto, po, .02) ? controller.pageTargetOpen.value : -1;
+
+        controller.pageActiveOpenComplete.value =
+            controller.pageActivePaginator.value;
 
         final currentPage = controller.pos.pageOpen.round();
         if (currentPage != _lastReportedPage) {

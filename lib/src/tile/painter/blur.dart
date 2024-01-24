@@ -7,10 +7,12 @@ class BlurPainter extends CustomPainter {
   BlurPainter({
     required this.blur,
     required this.imageOpacity,
+    required this.sigma
   });
 
   final ui.Image? blur;
   final double imageOpacity;
+  final double sigma;
 
   /// [Image], [LinearGradient]
   @override
@@ -20,7 +22,8 @@ class BlurPainter extends CustomPainter {
         blur == null ||
         blur!.width == 0 ||
         blur!.height == 0) return;
-    final w = size.width, h = size.height;
+    final w = size.width,
+        h = size.height;
 
     const offsetX = .5;
     const offsetY = .5;
@@ -31,7 +34,9 @@ class BlurPainter extends CustomPainter {
 
     final r = math.min(w / iw, h / ih);
 
-    double nw = iw * r, nh = ih * r, ar = 1;
+    double nw = iw * r,
+        nh = ih * r,
+        ar = 1;
 
     if (nw < w) ar = w / nw;
 
@@ -48,8 +53,6 @@ class BlurPainter extends CustomPainter {
     final Rect ra = Rect.fromLTWH(cx + p, cy + p, cw, ch);
     final Rect rb = Rect.fromLTWH(0, 0, w, h);
 
-    const double s = 30;
-
     canvas
       ..clipRect(rb)
       ..drawImageRect(
@@ -58,8 +61,7 @@ class BlurPainter extends CustomPainter {
         rb,
         Paint()
           ..color = const Color.fromRGBO(0, 0, 0, 1)
-          ..imageFilter = ui.ImageFilter.blur(
-              sigmaX: s, sigmaY: s, tileMode: TileMode.mirror),
+          ..imageFilter = ui.ImageFilter.blur(sigmaX: sigma, sigmaY: sigma, tileMode: TileMode.mirror),
       );
   }
 

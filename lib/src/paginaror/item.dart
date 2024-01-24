@@ -6,7 +6,6 @@ import 'package:flutter/rendering.dart';
 import 'package:photoline/photoline.dart';
 
 import 'package:photoline/src/mixin/state/rebuild.dart';
-import 'package:photoline/src/utils/action.dart';
 
 class PhotolinePaginatorItem extends StatefulWidget {
   const PhotolinePaginatorItem({

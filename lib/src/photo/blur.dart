@@ -15,6 +15,7 @@ class PhotolineBlurPhoto extends StatefulWidget {
     this.preload,
     required this.width,
     required this.height,
+    this.sigma = 30,
   });
 
   final Uri? uri;
@@ -22,6 +23,7 @@ class PhotolineBlurPhoto extends StatefulWidget {
   final Widget? preload;
   final int width;
   final int height;
+  final double sigma;
 
   @override
   State<PhotolineBlurPhoto> createState() => PhotolineBlurPhotoState();
@@ -105,6 +107,7 @@ class PhotolineBlurPhotoState extends State<PhotolineBlurPhoto>
               painter: BlurPainter(
                 blur: _blur,
                 imageOpacity: _animationImage.value,
+                sigma: widget.sigma,
               ),
             ),
           ),
@@ -124,7 +127,7 @@ class PhotolineBlurPhotoState extends State<PhotolineBlurPhoto>
                 opacity: (1 - _animationImage.value).clamp(0, 1),
                 child: widget.preload,
               ),
-            )
+            ),
         ],
       ),
     );

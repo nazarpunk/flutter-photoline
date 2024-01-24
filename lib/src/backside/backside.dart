@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:photoline/photoline.dart';
 import 'package:photoline/src/mixin/state/rebuild.dart';
-import 'package:photoline/src/utils/action.dart';
 import 'package:photoline/src/utils/drag.dart';
 import 'package:photoline/src/utils/position.dart';
 
