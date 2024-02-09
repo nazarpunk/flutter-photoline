@@ -141,8 +141,6 @@ class PhotolineTileState extends State<PhotolineTile>
   final _notifier = PhotolineImageNotifier();
 
   void _imageListener() {
-    //if (kDebugMode) return;
-
     if (_notifier.loader!.uri != widget.uri) return;
     _image = _notifier.loader!.image;
     _animationImage.forward(from: 0);

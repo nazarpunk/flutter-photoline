@@ -548,7 +548,11 @@ class PhotolineState extends State<Photoline>
 
     if (notification is ScrollEndNotification) {
       if (a == PhotolineAction.open) {
-        controller.pageActivePaginator.value = controller.pos.pageOpen.round();
+        final p = controller.pos.pageOpen.round();
+        controller
+          ..pageActiveOpenComplete.value = p
+          ..pageActivePaginator.value = p
+          ..pageTargetOpen.value = p;
       }
     }
 
