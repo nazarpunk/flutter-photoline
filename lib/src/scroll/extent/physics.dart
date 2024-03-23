@@ -2,14 +2,14 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import 'package:photoline/src/paginaror/scroll/view.dart';
+import 'package:photoline/src/scroll/extent/view.dart';
 
-class ScrollExtentPhysics extends ScrollPhysics {
-  const ScrollExtentPhysics({super.parent});
+class PhotolineScrollExtentPhysics extends ScrollPhysics {
+  const PhotolineScrollExtentPhysics({super.parent});
 
   @override
-  ScrollExtentPhysics applyTo(ScrollPhysics? ancestor) =>
-      ScrollExtentPhysics(parent: buildParent(ancestor));
+  PhotolineScrollExtentPhysics applyTo(ScrollPhysics? ancestor) =>
+      PhotolineScrollExtentPhysics(parent: buildParent(ancestor));
 
   @override
   double get maxFlingVelocity => 4000;
@@ -62,11 +62,11 @@ class ScrollExtentPhysics extends ScrollPhysics {
     return p * ie;
   }
 
-  ScrollExtentViewState _scroller(ScrollMetrics position) =>
+  PhotolineScrollExtentViewState _scroller(ScrollMetrics position) =>
       (position as ScrollPosition)
           .context
           .notificationContext!
-          .findAncestorStateOfType<ScrollExtentViewState>()!;
+          .findAncestorStateOfType<PhotolineScrollExtentViewState>()!;
 
   double maxScrollExtent(ScrollMetrics position) =>
       math.max(0, position.maxScrollExtent);
@@ -89,18 +89,10 @@ class ScrollExtentPhysics extends ScrollPhysics {
     final min = position.minScrollExtent;
     final max = maxScrollExtent(position);
 
-    if (value < p && p <= min) {
-      return value - p; // underscroll
-    }
-    if (value > p && p >= max) {
-      return value - p; // overscroll
-    }
-    if (p > min && min > value) {
-      return value - min; // hit top edge
-    }
-    if (p < max && max < value) {
-      return value - max; // hit bottom edge
-    }
+    if (value < p && p <= min) return value - p; // underscroll
+    if (value > p && p >= max) return value - p; // overscroll
+    if (p > min && min > value) return value - min; // hit top edge
+    if (p < max && max < value) return value - max; // hit bottom edge
     return 0;
   }
 

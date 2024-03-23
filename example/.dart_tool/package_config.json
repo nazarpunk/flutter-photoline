@@ -110,6 +110,12 @@
       "languageVersion": "3.0"
     },
     {
+      "name": "photoline",
+      "rootUri": "../../",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
       "name": "sky_engine",
       "rootUri": "file:///Users/nazarpunk/flutter/bin/cache/pkg/sky_engine",
       "packageUri": "lib/",
@@ -170,13 +176,13 @@
       "languageVersion": "3.0"
     },
     {
-      "name": "photoline",
+      "name": "photoline_example",
       "rootUri": "../",
       "packageUri": "lib/",
       "languageVersion": "3.3"
     }
   ],
-  "generated": "2024-03-18T20:34:48.741091Z",
+  "generated": "2024-03-18T20:47:07.169941Z",
   "generator": "pub",
   "generatorVersion": "3.3.1"
 }

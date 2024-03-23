@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'package:photoline/src/paginaror/scroll/physics.dart';
+import 'package:photoline/src/scroll/extent/physics.dart';
 
-class ScrollExtentView extends StatefulWidget {
-  const ScrollExtentView({
+class PhotolineScrollExtentView extends StatefulWidget {
+  const PhotolineScrollExtentView({
     super.key,
     this.controller,
     required this.children,
@@ -20,15 +20,16 @@ class ScrollExtentView extends StatefulWidget {
   final AxisDirection axisDirection;
 
   @override
-  State<ScrollExtentView> createState() => ScrollExtentViewState();
+  State<PhotolineScrollExtentView> createState() =>
+      PhotolineScrollExtentViewState();
 }
 
-class ScrollExtentViewState extends State<ScrollExtentView> {
+class PhotolineScrollExtentViewState extends State<PhotolineScrollExtentView> {
   @override
   Widget build(BuildContext context) => Scrollable(
         controller: widget.controller,
         axisDirection: widget.axisDirection,
-        physics: const ScrollExtentPhysics(
+        physics: const PhotolineScrollExtentPhysics(
           parent: AlwaysScrollableScrollPhysics(),
         ),
         viewportBuilder: (context, offset) => Viewport(

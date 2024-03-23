@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:photoline/src/paginaror/item.dart';
-import 'package:photoline/src/paginaror/scroll/view.dart';
 import 'package:photoline/src/photoline.dart';
+import 'package:photoline/src/scroll/extent/view.dart';
 
 class PhotolinePager extends StatefulWidget {
   const PhotolinePager({
@@ -37,7 +37,7 @@ class PhotolinePagerState extends State<PhotolinePager> {
           width: double.infinity,
           color: Colors.white,
           height: PhotolinePager.height,
-          child: ScrollExtentView(
+          child: PhotolineScrollExtentView(
             axisDirection: AxisDirection.right,
             itemExtent: constraints.maxWidth /
                 (constraints.maxWidth ~/ PhotolinePager.height),

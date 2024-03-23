@@ -56,8 +56,9 @@ class ScrollSnapPhysics extends ScrollPhysics {
 
     if (position is ScrollSnapPosition && controller is ScrollSnapController) {
       final c = controller as ScrollSnapController;
-      if (c.onRefresh != null && value < pp && pp <= min)
+      if (c.onRefresh != null && value < pp && pp <= min) {
         return 0.0; // Bouncing underscroll
+      }
     }
 
     if (value < pp && pp <= min) return value - pp; // Underscroll.
@@ -79,10 +80,12 @@ class ScrollSnapPhysics extends ScrollPhysics {
     final Tolerance tolerance = toleranceFor(position);
     if (position.outOfRange) {
       double? end;
-      if (position.pixels > position.maxScrollExtent)
+      if (position.pixels > position.maxScrollExtent) {
         end = position.maxScrollExtent;
-      if (position.pixels < position.minScrollExtent)
+      }
+      if (position.pixels < position.minScrollExtent) {
         end = position.minScrollExtent;
+      }
       assert(end != null);
 
       //print('🤡 position.outOfRange');
@@ -119,10 +122,12 @@ class ScrollSnapPhysics extends ScrollPhysics {
 
       return null;
     }
-    if (velocity > 0.0 && position.pixels >= position.maxScrollExtent)
+    if (velocity > 0.0 && position.pixels >= position.maxScrollExtent) {
       return null;
-    if (velocity < 0.0 && position.pixels <= position.minScrollExtent)
+    }
+    if (velocity < 0.0 && position.pixels <= position.minScrollExtent) {
       return null;
+    }
 
     if (position is ScrollSnapPosition) {
       double target = position.pixels +

@@ -1,16 +1,18 @@
-name: photoline
+name: photoline_example
 description: Photoline plugin.
 version: 1.0.2
 homepage: https://github.com/nazarpunk/flutter-photoline
+publish_to: none
 
 environment:
   sdk: ^3.3.1
   flutter: ^3.19.3
 
 dependencies:
-  dio: ^5.4.1
   flutter:
     sdk: flutter
+  photoline:
+    path: ../
 
 dev_dependencies:
   flutter_test:
