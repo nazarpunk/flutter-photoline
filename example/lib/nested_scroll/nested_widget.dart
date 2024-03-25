@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:photoline/photoline.dart';
 
-import 'package:photoline_example/nested_scroll/app_bar.dart';
+import 'package:photoline_example/nested_scroll/header/delegate.dart';
+import 'package:photoline_example/nested_scroll/header/header.dart';
+import 'package:photoline_example/nested_scroll/header/holder.dart';
 
 class NestedScrollWidgetExample extends StatefulWidget {
   const NestedScrollWidgetExample({super.key});
@@ -24,6 +26,8 @@ class _NestedScrollWidgetExampleState extends State<NestedScrollWidgetExample> {
     super.initState();
   }
 
+  final holder = SliverHeaderHolder();
+
   @override
   Widget build(BuildContext context) {
     final delegate = SliverChildBuilderDelegate(
@@ -44,7 +48,12 @@ class _NestedScrollWidgetExampleState extends State<NestedScrollWidgetExample> {
             child: ScrollSnap(
               controller: _controller[0],
               slivers: [
-                const SliverAppBarEx(),
+                ScrollSnapSliverHeader(
+                  delegate: ScrollSnapSliverHeaderDelegate(
+                    title: const Center(child: Text('center')),
+                    holder: holder,
+                  ),
+                ),
                 SliverSnapList(
                   controller: _controller[0],
                   delegate: delegate,
@@ -58,7 +67,12 @@ class _NestedScrollWidgetExampleState extends State<NestedScrollWidgetExample> {
             child: ScrollSnap(
               controller: _controller[1],
               slivers: [
-                const SliverAppBarEx(),
+                ScrollSnapSliverHeader(
+                  delegate: ScrollSnapSliverHeaderDelegate(
+                    title: const Center(child: Text('center')),
+                    holder: holder,
+                  ),
+                ),
                 SliverSnapList(
                   controller: _controller[1],
                   delegate: delegate,
