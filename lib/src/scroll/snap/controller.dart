@@ -20,17 +20,16 @@ class ScrollSnapController extends ScrollController {
     ScrollPhysics physics,
     ScrollContext context,
     ScrollPosition? oldPosition,
-  ) {
-    return ScrollSnapPosition(
-      controller: this,
-      physics: physics,
-      context: context,
-      initialPixels: initialScrollOffset,
-      keepScrollOffset: keepScrollOffset,
-      oldPosition: oldPosition,
-      debugLabel: debugLabel,
-    );
-  }
+  ) =>
+      ScrollSnapPosition(
+        controller: this,
+        physics: physics,
+        context: context,
+        initialPixels: initialScrollOffset,
+        keepScrollOffset: keepScrollOffset,
+        oldPosition: oldPosition,
+        debugLabel: debugLabel,
+      );
 
   final Map<int, ScrollSnapBox> box = {};
 
@@ -41,4 +40,8 @@ class ScrollSnapController extends ScrollController {
 
   ScrollSnapSpringSimulation? simulation;
   int? snapTargetIndex;
+
+  final ValueNotifier<double> delta = ValueNotifier<double>(0);
+
+  ScrollSnapPosition get pos => position as ScrollSnapPosition;
 }

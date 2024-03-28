@@ -48,6 +48,12 @@ class ScrollSnapPosition extends ScrollPositionWithSingleContext {
   }
 
   @override
+  void didUpdateScrollPositionBy(double delta) {
+    controller.delta.value = delta;
+    super.didUpdateScrollPositionBy(delta);
+  }
+
+  @override
   void applyNewDimensions() {
     if (activity is BallisticScrollActivity) return;
     super.applyNewDimensions();

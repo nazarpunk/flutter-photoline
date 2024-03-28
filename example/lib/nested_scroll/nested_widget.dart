@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:photoline/photoline.dart';
 
-import 'package:photoline_example/nested_scroll/header/delegate.dart';
-import 'package:photoline_example/nested_scroll/header/header.dart';
-import 'package:photoline_example/nested_scroll/header/holder.dart';
-
 class NestedScrollWidgetExample extends StatefulWidget {
   const NestedScrollWidgetExample({super.key});
 
@@ -14,14 +10,10 @@ class NestedScrollWidgetExample extends StatefulWidget {
 }
 
 class _NestedScrollWidgetExampleState extends State<NestedScrollWidgetExample> {
-  final List<ScrollSnapController> _controller = [];
   late PageController _pageViewController;
 
   @override
   void initState() {
-    _controller
-      ..add(ScrollSnapController())
-      ..add(ScrollSnapController());
     _pageViewController = PageController(viewportFraction: .5);
     super.initState();
   }
@@ -39,55 +31,50 @@ class _NestedScrollWidgetExampleState extends State<NestedScrollWidgetExample> {
       childCount: 50,
     );
 
-    return PageView(
-      controller: _pageViewController,
-      padEnds: false,
-      children: [
-        _KeepAlive(
-          child: SizedBox.expand(
-            child: ScrollSnap(
-              controller: _controller[0],
-              slivers: [
-                ScrollSnapSliverHeader(
-                  delegate: ScrollSnapSliverHeaderDelegate(
-                    title: const Center(child: Text('center')),
-                    holder: holder,
+    return ScrollSnapHeader(
+      header: const Placeholder(color: Colors.red),
+      holder: holder,
+      content: PageView(
+        controller: _pageViewController,
+        padEnds: false,
+        children: [
+          _KeepAlive(
+            child: SizedBox.expand(
+              child: ScrollSnap(
+                controller: holder.controller('one'),
+                slivers: [
+                  ScrollSnapHeaderDummy(holder: holder),
+                  SliverSnapList(
+                    controller: holder.controller('one'),
+                    delegate: delegate,
                   ),
-                ),
-                SliverSnapList(
-                  controller: _controller[0],
-                  delegate: delegate,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-        _KeepAlive(
-          child: SizedBox.expand(
-            child: ScrollSnap(
-              controller: _controller[1],
-              slivers: [
-                ScrollSnapSliverHeader(
-                  delegate: ScrollSnapSliverHeaderDelegate(
-                    title: const Center(child: Text('center')),
-                    holder: holder,
+          _KeepAlive(
+            child: SizedBox.expand(
+              child: ScrollSnap(
+                controller: holder.controller('two'),
+                slivers: [
+                  ScrollSnapHeaderDummy(holder: holder),
+                  SliverSnapList(
+                    controller: holder.controller('two'),
+                    delegate: delegate,
                   ),
-                ),
-                SliverSnapList(
-                  controller: _controller[1],
-                  delegate: delegate,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-        const ColoredBox(
-          color: Colors.redAccent,
-          child: Center(
-            child: Text('Third Page'),
+          const ColoredBox(
+            color: Colors.redAccent,
+            child: Center(
+              child: Text('Third Page'),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
+      media: MediaQuery.of(context),
     );
   }
 }
