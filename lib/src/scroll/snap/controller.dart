@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:photoline/src/scroll/snap/simulation/spring.dart';
+import 'package:photoline/photoline.dart';
 import 'package:photoline/src/scroll/snap/snap/box.dart';
 import 'package:photoline/src/scroll/snap/snap/position.dart';
 
@@ -12,6 +12,7 @@ class ScrollSnapController extends ScrollController {
     super.onDetach,
     this.snap = false,
     this.snapLast = false,
+    this.headerHolder,
     this.onRefresh,
   });
 
@@ -20,16 +21,23 @@ class ScrollSnapController extends ScrollController {
     ScrollPhysics physics,
     ScrollContext context,
     ScrollPosition? oldPosition,
-  ) =>
-      ScrollSnapPosition(
-        controller: this,
-        physics: physics,
-        context: context,
-        initialPixels: initialScrollOffset,
-        keepScrollOffset: keepScrollOffset,
-        oldPosition: oldPosition,
-        debugLabel: debugLabel,
-      );
+  ) {
+    double initital = 0;
+
+    if (headerHolder != null) {
+      initital = -headerHolder!.extent.value;
+    }
+
+    return ScrollSnapPosition(
+      controller: this,
+      physics: physics,
+      context: context,
+      initialPixels: initital,
+      keepScrollOffset: keepScrollOffset,
+      oldPosition: oldPosition,
+      debugLabel: debugLabel,
+    );
+  }
 
   final Map<int, ScrollSnapBox> box = {};
 
@@ -38,10 +46,10 @@ class ScrollSnapController extends ScrollController {
   final RefreshCallback? onRefresh;
   final isUserDrag = ValueNotifier<bool>(false);
 
+  final ScrollSnapHeaderHolder? headerHolder;
+
   ScrollSnapSpringSimulation? simulation;
   int? snapTargetIndex;
-
-  final ValueNotifier<double> delta = ValueNotifier<double>(0);
 
   ScrollSnapPosition get pos => position as ScrollSnapPosition;
 }

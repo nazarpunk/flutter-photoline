@@ -44,12 +44,41 @@ class ScrollSnapPosition extends ScrollPositionWithSingleContext {
       }
     }
 
+    if (controller.headerHolder != null) {
+      final h = controller.headerHolder!;
+      final e = h.extent.value;
+      minScrollExtent -= e;
+      maxScrollExtent += e;
+    }
+
     return super.applyContentDimensions(minScrollExtent, maxScrollExtent);
   }
 
   @override
+  double setPixels(double newPixels) {
+    final delta = newPixels - pixels;
+    if (delta == 0) return super.setPixels(newPixels);
+
+    if (controller.headerHolder != null) {
+      final holder = controller.headerHolder!;
+      double h = holder.extent.value;
+
+      if (delta > 0) {
+        // scroll up
+        final dt = holder.minExtent - h - delta;
+        print(dt);
+      }
+
+      // extent.value = clampDouble(extent.value - delta, minExtent, maxExtent);
+      //  headerHolder?.delta = delta;
+    }
+
+    return super.setPixels(newPixels);
+  }
+
+  @override
   void didUpdateScrollPositionBy(double delta) {
-    controller.delta.value = delta;
+    //controller.delta = delta;
     super.didUpdateScrollPositionBy(delta);
   }
 

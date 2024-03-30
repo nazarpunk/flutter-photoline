@@ -18,7 +18,7 @@ class _NestedScrollWidgetExampleState extends State<NestedScrollWidgetExample> {
     super.initState();
   }
 
-  final holder = SliverHeaderHolder();
+  final holder = ScrollSnapHeaderHolder();
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +43,7 @@ class _NestedScrollWidgetExampleState extends State<NestedScrollWidgetExample> {
               child: ScrollSnap(
                 controller: holder.controller('one'),
                 slivers: [
-                  ScrollSnapHeaderDummy(holder: holder),
+                  //ScrollSnapHeaderDummy(holder: holder),
                   SliverSnapList(
                     controller: holder.controller('one'),
                     delegate: delegate,
@@ -57,7 +57,7 @@ class _NestedScrollWidgetExampleState extends State<NestedScrollWidgetExample> {
               child: ScrollSnap(
                 controller: holder.controller('two'),
                 slivers: [
-                  ScrollSnapHeaderDummy(holder: holder),
+                  //ScrollSnapHeaderDummy(holder: holder),
                   SliverSnapList(
                     controller: holder.controller('two'),
                     delegate: delegate,
@@ -74,7 +74,6 @@ class _NestedScrollWidgetExampleState extends State<NestedScrollWidgetExample> {
           ),
         ],
       ),
-      media: MediaQuery.of(context),
     );
   }
 }

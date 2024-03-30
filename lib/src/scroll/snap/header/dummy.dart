@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:photoline/src/scroll/snap/header/holder.dart';
 
+/// [SliverOverlapAbsorber]
 class ScrollSnapHeaderDummy extends RenderObjectWidget {
   const ScrollSnapHeaderDummy({
     super.key,
     required this.holder,
   });
 
-  final SliverHeaderHolder holder;
+  final ScrollSnapHeaderHolder holder;
 
   @override
   ScrollSnapHeaderDummyObject createRenderObject(BuildContext context) =>
@@ -62,6 +63,7 @@ class ScrollSnapHeaderDummyElement extends RenderObjectElement {
   }
 }
 
+/// [RenderSliverOverlapAbsorber]
 class ScrollSnapHeaderDummyObject extends RenderSliver
     with RenderObjectWithChildMixin<RenderBox>, RenderSliverHelpers {
   ScrollSnapHeaderDummyObject({
@@ -71,7 +73,7 @@ class ScrollSnapHeaderDummyObject extends RenderSliver
     this.child = child;
   }
 
-  SliverHeaderHolder holder;
+  ScrollSnapHeaderHolder holder;
 
   @override
   double childMainAxisPosition(RenderBox child) {
@@ -105,12 +107,14 @@ class ScrollSnapHeaderDummyObject extends RenderSliver
 
   @override
   void performLayout() {
+    final h = holder.extent.value;
+
     geometry = SliverGeometry(
-      scrollExtent: holder.maxExtent,
-      paintExtent: holder.extent.value,
-      layoutExtent: holder.extent.value,
-      maxPaintExtent: holder.extent.value,
-      maxScrollObstructionExtent: holder.minExtent,
+      scrollExtent: h,
+      paintExtent: h,
+      layoutExtent: h,
+      maxPaintExtent: h,
+      maxScrollObstructionExtent: h,
     );
   }
 }

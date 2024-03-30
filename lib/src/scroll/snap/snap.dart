@@ -14,7 +14,7 @@ class ScrollSnap extends StatefulWidget {
   });
 
   final List<Widget> slivers;
-  final ScrollController controller;
+  final ScrollSnapController controller;
   final double cacheExtent;
 
   @override
@@ -24,7 +24,7 @@ class ScrollSnap extends StatefulWidget {
 class ScrollSnapState extends State<ScrollSnap> {
   late final ScrollPhysics _physics;
 
-  ScrollController get controller => widget.controller;
+  ScrollSnapController get controller => widget.controller;
 
   @override
   void initState() {
@@ -49,10 +49,7 @@ class ScrollSnapState extends State<ScrollSnap> {
         }
 
         if (notification is ScrollUpdateNotification) {
-          if (controller is ScrollSnapController) {
-            final c = controller as ScrollSnapController;
-            c.isUserDrag.value = notification.dragDetails != null;
-          }
+          controller.isUserDrag.value = notification.dragDetails != null;
         }
         return false;
       },
