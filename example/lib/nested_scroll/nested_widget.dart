@@ -12,13 +12,19 @@ class NestedScrollWidgetExample extends StatefulWidget {
 class _NestedScrollWidgetExampleState extends State<NestedScrollWidgetExample> {
   late PageController _pageViewController;
 
+  late final ScrollSnapController _ca;
+  late final ScrollSnapController _cb;
+
   @override
   void initState() {
+    _ca = ScrollSnapController(headerHolder: holder);
+    _cb = ScrollSnapController(headerHolder: holder);
+
     _pageViewController = PageController(viewportFraction: .5);
     super.initState();
   }
 
-  final holder = ScrollSnapHeaderHolder();
+  final holder = ScrollSnapHeaderController();
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +39,7 @@ class _NestedScrollWidgetExampleState extends State<NestedScrollWidgetExample> {
 
     return ScrollSnapHeader(
       header: const Placeholder(color: Colors.red),
-      holder: holder,
+      controller: holder,
       content: PageView(
         controller: _pageViewController,
         padEnds: false,
@@ -41,13 +47,9 @@ class _NestedScrollWidgetExampleState extends State<NestedScrollWidgetExample> {
           _KeepAlive(
             child: SizedBox.expand(
               child: ScrollSnap(
-                controller: holder.controller('one'),
+                controller: _ca,
                 slivers: [
-                  //ScrollSnapHeaderDummy(holder: holder),
-                  SliverSnapList(
-                    controller: holder.controller('one'),
-                    delegate: delegate,
-                  ),
+                  SliverSnapList(controller: _ca, delegate: delegate),
                 ],
               ),
             ),
@@ -55,13 +57,9 @@ class _NestedScrollWidgetExampleState extends State<NestedScrollWidgetExample> {
           _KeepAlive(
             child: SizedBox.expand(
               child: ScrollSnap(
-                controller: holder.controller('two'),
+                controller: _cb,
                 slivers: [
-                  //ScrollSnapHeaderDummy(holder: holder),
-                  SliverSnapList(
-                    controller: holder.controller('two'),
-                    delegate: delegate,
-                  ),
+                  SliverSnapList(controller: _cb, delegate: delegate),
                 ],
               ),
             ),

@@ -1,7 +1,9 @@
 import 'dart:collection';
 import 'dart:math' as math;
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:photoline/src/scroll/snap/controller.dart';
 import 'package:photoline/src/scroll/snap/snap/box.dart';
 
@@ -46,9 +48,9 @@ class ScrollSnapPosition extends ScrollPositionWithSingleContext {
 
     if (controller.headerHolder != null) {
       final h = controller.headerHolder!;
-      final e = h.extent.value;
+      final e = h.height.value;
       minScrollExtent -= e;
-      maxScrollExtent += e;
+      //maxScrollExtent += e;
     }
 
     return super.applyContentDimensions(minScrollExtent, maxScrollExtent);
@@ -61,19 +63,18 @@ class ScrollSnapPosition extends ScrollPositionWithSingleContext {
 
     if (controller.headerHolder != null) {
       final holder = controller.headerHolder!;
-      double h = holder.extent.value;
-
-      if (delta > 0) {
-        // scroll up
-        final dt = holder.minExtent - h - delta;
-        print(dt);
-      }
-
-      // extent.value = clampDouble(extent.value - delta, minExtent, maxExtent);
-      //  headerHolder?.delta = delta;
+      holder.height.value = clampDouble(
+          holder.height.value - delta, holder.minHeight, holder.maxHeight);
     }
 
     return super.setPixels(newPixels);
+  }
+
+  @override
+  void applyUserOffset(double delta) {
+    updateUserScrollDirection(
+        delta > 0.0 ? ScrollDirection.forward : ScrollDirection.reverse);
+    setPixels(pixels - physics.applyPhysicsToUserOffset(this, delta));
   }
 
   @override

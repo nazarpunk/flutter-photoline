@@ -25,7 +25,7 @@ class ScrollSnapController extends ScrollController {
     double initital = 0;
 
     if (headerHolder != null) {
-      initital = -headerHolder!.extent.value;
+      initital = -headerHolder!.height.value;
     }
 
     return ScrollSnapPosition(
@@ -46,7 +46,7 @@ class ScrollSnapController extends ScrollController {
   final RefreshCallback? onRefresh;
   final isUserDrag = ValueNotifier<bool>(false);
 
-  final ScrollSnapHeaderHolder? headerHolder;
+  final ScrollSnapHeaderController? headerHolder;
 
   ScrollSnapSpringSimulation? simulation;
   int? snapTargetIndex;

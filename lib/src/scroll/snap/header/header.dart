@@ -1,23 +1,23 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:photoline/src/scroll/snap/header/holder.dart';
+import 'package:photoline/src/scroll/snap/header/controller.dart';
 
 class ScrollSnapHeader extends MultiChildRenderObjectWidget {
   ScrollSnapHeader({
     super.key,
     required this.header,
     this.content = const SizedBox(height: double.infinity),
-    required this.holder,
+    required this.controller,
   }) : super(children: [content, header]);
 
   final Widget header;
   final Widget content;
-  final ScrollSnapHeaderHolder holder;
+  final ScrollSnapHeaderController controller;
 
   @override
   ScrollSnapScrollHeaderRenderBox createRenderObject(BuildContext context) =>
-      ScrollSnapScrollHeaderRenderBox(holder: holder);
+      ScrollSnapScrollHeaderRenderBox(controller: controller);
 
   @override
   void updateRenderObject(
@@ -29,22 +29,22 @@ class ScrollSnapScrollHeaderRenderBox extends RenderBox
         ContainerRenderObjectMixin<RenderBox, MultiChildLayoutParentData>,
         RenderBoxContainerDefaultsMixin<RenderBox, MultiChildLayoutParentData> {
   ScrollSnapScrollHeaderRenderBox({
-    required this.holder,
+    required this.controller,
   });
 
   @override
   void attach(PipelineOwner owner) {
-    holder.extent.addListener(markNeedsLayout);
+    controller.height.addListener(markNeedsLayout);
     super.attach(owner);
   }
 
   @override
   void detach() {
-    holder.extent.removeListener(markNeedsLayout);
+    controller.height.removeListener(markNeedsLayout);
     super.detach();
   }
 
-  ScrollSnapHeaderHolder holder;
+  ScrollSnapHeaderController controller;
 
   RenderBox get _headerBox => lastChild!;
 
@@ -54,7 +54,7 @@ class ScrollSnapScrollHeaderRenderBox extends RenderBox
   void performLayout() {
     final c = constraints.loosen();
 
-    _headerBox.layout(c.copyWith(maxHeight: holder.extent.value),
+    _headerBox.layout(c.copyWith(maxHeight: controller.height.value),
         parentUsesSize: true);
     _contentBox.layout(c, parentUsesSize: true);
 
