@@ -61,6 +61,9 @@ class PhotolineState extends State<Photoline>
     final t = Curves.easeInOut.transform(animationPosition.value);
     final count = controller.count;
 
+    controller.fullScreenExpander.value =
+        math.min(controller.fullScreenExpander.value, 1 - t);
+
     // center
     positionOpen[controller.pageTargetOpen.value].lerp(t);
 
@@ -90,6 +93,9 @@ class PhotolineState extends State<Photoline>
     final count = controller.count;
 
     final pto = controller.pageTargetOpen.value;
+
+    controller.fullScreenExpander.value =
+        math.max(controller.fullScreenExpander.value, t);
 
     // center
     final c = positionOpen[pto]..lerp(t);
@@ -638,20 +644,6 @@ class PhotolineState extends State<Photoline>
                   for (int i = 0; i < math.max(1, count); i++)
                     IconButton(
                       onPressed: () => controller.onDebugAdd!(i),
-                      icon: Text('$i'),
-                    ),
-                ],
-              ),
-            ),
-          if (kProfileMode)
-            SizedBox(
-              height: 50,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  for (int i = 0; i < count; i++)
-                    IconButton(
-                      onPressed: () => controller.removeItem(i),
                       icon: Text('$i'),
                     ),
                 ],

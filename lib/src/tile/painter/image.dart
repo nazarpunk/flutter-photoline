@@ -49,8 +49,12 @@ class ImagePainter extends CustomPainter {
       final double cx = math.max((iw - cw) * offsetX, 0);
       final double cy = math.max((ih - ch) * offsetY, 0);
 
-      canvas.drawImageRect(image!, Rect.fromLTWH(cx, cy, cw, ch),
-          Rect.fromLTWH(0, 0, w, h), paint);
+      //print("draw|$canvas");
+
+      if (kProfileMode) {
+        canvas.drawImageRect(image!, Rect.fromLTWH(cx, cy, cw, ch),
+            Rect.fromLTWH(0, 0, w, h), paint);
+      }
     }
 
     if (kProfileMode) {
@@ -65,7 +69,8 @@ class ImagePainter extends CustomPainter {
     if (grayOpacity > 0) {
       paint
         ..isAntiAlias = false
-        ..color = Color.fromRGBO(0, 0, 0, grayOpacity)
+        //..color = Color.fromRGBO(0, 0, 0, grayOpacity)
+        ..color = Colors.black
         ..filterQuality = FilterQuality.medium;
       canvas.drawRect(Rect.fromLTWH(0, 0, w, h), paint);
     }

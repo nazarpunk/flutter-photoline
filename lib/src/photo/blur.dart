@@ -12,6 +12,7 @@ class PhotolineBlurPhoto extends StatefulWidget {
     super.key,
     required this.uri,
     required this.blur,
+    required this.color,
     this.preload,
     required this.width,
     required this.height,
@@ -20,6 +21,7 @@ class PhotolineBlurPhoto extends StatefulWidget {
 
   final Uri? uri;
   final Uint8List? blur;
+  final Color? color;
   final Widget? preload;
   final int width;
   final int height;
@@ -32,6 +34,8 @@ class PhotolineBlurPhoto extends StatefulWidget {
 class PhotolineBlurPhotoState extends State<PhotolineBlurPhoto>
     with StateRebuildMixin, TickerProviderStateMixin {
   ui.Image? _blur;
+
+  Color? get _color => widget.color;
 
   void _reblur() {
     final blist = widget.blur;
@@ -105,6 +109,7 @@ class PhotolineBlurPhotoState extends State<PhotolineBlurPhoto>
           Positioned.fill(
             child: CustomPaint(
               painter: BlurPainter(
+                color: _color,
                 blur: _blur,
                 imageOpacity: _animationImage.value,
                 sigma: widget.sigma,

@@ -24,6 +24,7 @@ class PhotolineController extends ScrollController {
   PhotolineController({
     this.openRatio = .8,
     this.getBlur,
+    this.getColor,
     required this.getUri,
     required this.getKey,
     required this.getWidget,
@@ -48,6 +49,7 @@ class PhotolineController extends ScrollController {
   PhotolineHolderDragController? dragController;
 
   final Uint8List Function(int index)? getBlur;
+  final Color? Function(int index)? getColor;
   final Uri? Function(int) getUri;
   final Widget Function(int) getWidget;
   final Widget Function(int index)? getBackside;
@@ -74,6 +76,8 @@ class PhotolineController extends ScrollController {
   double get closeRatio => 1 / getViewCount(photolineWidth);
 
   double? photolineWidth;
+
+  final fullScreenExpander = ValueNotifier<double>(0);
 
   final action = ValueNotifier<PhotolineAction>(PhotolineAction.close);
   final pageActivePaginator = ValueNotifier<int>(-1);

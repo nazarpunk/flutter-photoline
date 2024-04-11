@@ -33,7 +33,7 @@
     },
     {
       "name": "dio",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/dio-5.4.1",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/dio-5.4.2+1",
       "packageUri": "lib/",
       "languageVersion": "2.15"
     },
@@ -182,7 +182,7 @@
       "languageVersion": "3.3"
     }
   ],
-  "generated": "2024-03-27T12:59:00.811619Z",
+  "generated": "2024-04-02T16:55:26.583956Z",
   "generator": "pub",
-  "generatorVersion": "3.3.2"
+  "generatorVersion": "3.3.3"
 }

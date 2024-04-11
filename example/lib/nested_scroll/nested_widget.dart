@@ -15,16 +15,16 @@ class _NestedScrollWidgetExampleState extends State<NestedScrollWidgetExample> {
   late final ScrollSnapController _ca;
   late final ScrollSnapController _cb;
 
+  final headerController = ScrollSnapHeaderController();
+
   @override
   void initState() {
-    _ca = ScrollSnapController(headerHolder: holder);
-    _cb = ScrollSnapController(headerHolder: holder);
+    _ca = ScrollSnapController(headerHolder: headerController);
+    _cb = ScrollSnapController(headerHolder: headerController);
 
     _pageViewController = PageController(viewportFraction: .5);
     super.initState();
   }
-
-  final holder = ScrollSnapHeaderController();
 
   @override
   Widget build(BuildContext context) {
@@ -37,31 +37,30 @@ class _NestedScrollWidgetExampleState extends State<NestedScrollWidgetExample> {
       childCount: 50,
     );
 
-    return ScrollSnapHeader(
-      header: const Placeholder(color: Colors.red),
-      controller: holder,
+    return ScrollSnapHeaderMultiChild(
+      header: const ColoredBox(
+        color: Colors.teal,
+        child: Placeholder(color: Colors.red),
+      ),
+      controller: headerController,
       content: PageView(
         controller: _pageViewController,
         padEnds: false,
         children: [
           _KeepAlive(
-            child: SizedBox.expand(
-              child: ScrollSnap(
-                controller: _ca,
-                slivers: [
-                  SliverSnapList(controller: _ca, delegate: delegate),
-                ],
-              ),
+            child: ScrollSnap(
+              controller: _ca,
+              slivers: [
+                SliverSnapList(controller: _ca, delegate: delegate),
+              ],
             ),
           ),
           _KeepAlive(
-            child: SizedBox.expand(
-              child: ScrollSnap(
-                controller: _cb,
-                slivers: [
-                  SliverSnapList(controller: _cb, delegate: delegate),
-                ],
-              ),
+            child: ScrollSnap(
+              controller: _cb,
+              slivers: [
+                SliverSnapList(controller: _cb, delegate: delegate),
+              ],
             ),
           ),
           const ColoredBox(

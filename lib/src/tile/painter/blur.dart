@@ -1,15 +1,18 @@
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'dart:ui';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class BlurPainter extends CustomPainter {
   BlurPainter({
+    required this.color,
     required this.blur,
     required this.imageOpacity,
-    required this.sigma
+    required this.sigma,
   });
 
+  final Color? color;
   final ui.Image? blur;
   final double imageOpacity;
   final double sigma;
@@ -17,13 +20,19 @@ class BlurPainter extends CustomPainter {
   /// [Image], [LinearGradient]
   @override
   void paint(Canvas canvas, Size size) {
-    if (size.isEmpty ||
-        imageOpacity >= 1.0 ||
-        blur == null ||
-        blur!.width == 0 ||
-        blur!.height == 0) return;
-    final w = size.width,
-        h = size.height;
+    if (size.isEmpty || imageOpacity >= 1.0) return;
+
+    if (blur == null || blur!.width == 0 || blur!.height == 0) {
+      if (color != null) {
+        canvas.drawRect(
+          Rect.fromLTWH(0, 0, size.width, size.height),
+          Paint()..color = color!,
+        );
+      }
+      return;
+    }
+
+    final w = size.width, h = size.height;
 
     const offsetX = .5;
     const offsetY = .5;
@@ -34,9 +43,7 @@ class BlurPainter extends CustomPainter {
 
     final r = math.min(w / iw, h / ih);
 
-    double nw = iw * r,
-        nh = ih * r,
-        ar = 1;
+    double nw = iw * r, nh = ih * r, ar = 1;
 
     if (nw < w) ar = w / nw;
 
@@ -61,7 +68,8 @@ class BlurPainter extends CustomPainter {
         rb,
         Paint()
           ..color = const Color.fromRGBO(0, 0, 0, 1)
-          ..imageFilter = ui.ImageFilter.blur(sigmaX: sigma, sigmaY: sigma, tileMode: TileMode.mirror),
+          ..imageFilter = ui.ImageFilter.blur(
+              sigmaX: sigma, sigmaY: sigma, tileMode: TileMode.mirror),
       );
   }
 

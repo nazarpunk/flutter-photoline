@@ -3,11 +3,40 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:photoline/src/scroll/snap/header/controller.dart';
 
-class ScrollSnapHeader extends MultiChildRenderObjectWidget {
-  ScrollSnapHeader({
+class ScrollSnapHeader extends StatefulWidget {
+  const ScrollSnapHeader({
+    required this.header,
+    required this.content,
+    required this.controller,
+    super.key,
+  });
+
+  final Widget header;
+  final Widget content;
+  final ScrollSnapHeaderController controller;
+
+  @override
+  State<ScrollSnapHeader> createState() => _ScrollSnapHeaderState();
+}
+
+class _ScrollSnapHeaderState extends State<ScrollSnapHeader> {
+  @override
+  Widget build(BuildContext context) {
+    return ScrollSnapHeader(
+      controller: widget.controller,
+      header: widget.header,
+      content: widget.content,
+    );
+  }
+}
+
+// ==================================================================================================================
+
+class ScrollSnapHeaderMultiChild extends MultiChildRenderObjectWidget {
+  ScrollSnapHeaderMultiChild({
     super.key,
     required this.header,
-    this.content = const SizedBox(height: double.infinity),
+    required this.content,
     required this.controller,
   }) : super(children: [content, header]);
 

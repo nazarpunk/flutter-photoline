@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:photoline_example/nested_scroll/nested_widget.dart';
+import 'package:photoline_example/photoline/photoline.dart';
 
 void main() => runApp(const MyApp());
 
@@ -20,6 +21,7 @@ class MyApp extends StatelessWidget {
             backgroundColor: Theme.of(context).colorScheme.inversePrimary,
             title: const Text('Title')),
         body: const NestedScrollWidgetExample(),
+        //body: const PhotolineTestWidget(),
       ),
     );
   }

@@ -1,6 +1,7 @@
 /// Photoline
 library photoline;
 
+export 'src/constrainted/constrainted.dart';
 export 'src/controller.dart';
 export 'src/extension/list.dart';
 export 'src/holder/controller/drag.dart';
@@ -11,8 +12,8 @@ export 'src/scroll/extent/physics.dart';
 export 'src/scroll/extent/view.dart';
 export 'src/scroll/snap/controller.dart';
 export 'src/scroll/snap/focus.dart';
-export 'src/scroll/snap/header/header.dart';
 export 'src/scroll/snap/header/controller.dart';
+export 'src/scroll/snap/header/header.dart';
 export 'src/scroll/snap/refresh/refresh.dart';
 export 'src/scroll/snap/simulation/spring.dart';
 export 'src/scroll/snap/snap.dart';

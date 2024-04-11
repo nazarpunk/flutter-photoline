@@ -189,6 +189,7 @@ class PhotolineTileState extends State<PhotolineTile>
                 child: IgnorePointer(
                   child: CustomPaint(
                     painter: BlurPainter(
+                      color: _controller.getColor?.call(_index),
                       blur: _blur,
                       imageOpacity: _animationImage.value,
                       sigma: 30,
