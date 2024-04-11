@@ -31,6 +31,7 @@ class PhotolineImageLoader {
   PhotolineImageLoader(this.uri);
 
   factory PhotolineImageLoader.add(Uri uri) {
+    print("💋 $uri");
     if (_map[uri] != null) return _map[uri]!;
     final l = PhotolineImageLoader(uri);
     _map[uri] = l;

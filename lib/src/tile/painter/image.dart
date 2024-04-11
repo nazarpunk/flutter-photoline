@@ -50,7 +50,6 @@ class ImagePainter extends CustomPainter {
       final double cy = math.max((ih - ch) * offsetY, 0);
 
       //print("draw|$canvas");
-
       if (kProfileMode) {
         canvas.drawImageRect(image!, Rect.fromLTWH(cx, cy, cw, ch),
             Rect.fromLTWH(0, 0, w, h), paint);
