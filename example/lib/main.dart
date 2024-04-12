@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+// ignore: unused_import
 import 'package:photoline_example/nested_scroll/nested_widget.dart';
 import 'package:photoline_example/photoline/photoline.dart';
 
@@ -20,8 +21,8 @@ class MyApp extends StatelessWidget {
         appBar: AppBar(
             backgroundColor: Theme.of(context).colorScheme.inversePrimary,
             title: const Text('Title')),
-        body: const NestedScrollWidgetExample(),
-        //body: const PhotolineTestWidget(),
+        //body: const NestedScrollWidgetExample(),
+        body: const PhotolineTestWidget(),
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:photoline/photoline.dart';
+import 'package:photoline_example/photoline/dummy.dart';
 
 class PhotolineTestWidget extends StatefulWidget {
   const PhotolineTestWidget({super.key});
@@ -25,7 +26,10 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
                 SliverSnapList(
                   controller: _controller,
                   delegate: SliverChildBuilderDelegate(
-                    (context, index) => _Child(constraints),
+                    (context, index) => _Child(
+                      index: index,
+                      constraints: constraints,
+                    ),
                     childCount: 10,
                   ),
                 ),
@@ -37,8 +41,12 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
 }
 
 class _Child extends StatefulWidget {
-  const _Child(this.constraints);
+  const _Child({
+    required this.index,
+    required this.constraints,
+  });
 
+  final int index;
   final BoxConstraints constraints;
 
   @override
@@ -51,7 +59,7 @@ class _ChildState extends State<_Child> {
   @override
   void initState() {
     _controller = PhotolineController(
-      getUri: (index) => null,
+      getUri: (index) => PhotolineDummys.get(widget.index, index),
       getKey: ValueKey.new,
       getWidget: (index) => const Placeholder(),
       getPersistentWidgets: (index) => [const Placeholder()],
