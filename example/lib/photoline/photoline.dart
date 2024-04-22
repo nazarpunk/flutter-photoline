@@ -30,7 +30,7 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
                       index: index,
                       constraints: constraints,
                     ),
-                    childCount: 10,
+                    childCount: 1,
                   ),
                 ),
               ],

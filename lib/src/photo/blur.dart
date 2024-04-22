@@ -31,8 +31,7 @@ class PhotolineBlurPhoto extends StatefulWidget {
   State<PhotolineBlurPhoto> createState() => PhotolineBlurPhotoState();
 }
 
-class PhotolineBlurPhotoState extends State<PhotolineBlurPhoto>
-    with StateRebuildMixin, TickerProviderStateMixin {
+class PhotolineBlurPhotoState extends State<PhotolineBlurPhoto> with StateRebuildMixin, TickerProviderStateMixin {
   ui.Image? _blur;
 
   Color? get _color => widget.color;

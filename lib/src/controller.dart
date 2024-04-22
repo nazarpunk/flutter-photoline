@@ -88,6 +88,23 @@ class PhotolineController extends ScrollController {
 
   final aspectRatio = ValueNotifier<double>(0);
 
+  final Map<int, ValueNotifier<bool>> painted = {};
+
+  void canPaint(int i, bool can) {
+    if (painted[i] == null) {
+      painted[i] = ValueNotifier<bool>(can);
+    } else {
+      painted[i]!.value = can;
+    }
+  }
+
+  ValueNotifier<bool> paintedNotifier(int i) {
+    if (painted[i] == null) {
+      painted[i] = ValueNotifier<bool>(false);
+    }
+    return painted[i]!;
+  }
+
   double? get page {
     assert(positions.isNotEmpty,
         'PageController.page cannot be accessed before a PageView is built with it.');

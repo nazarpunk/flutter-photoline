@@ -199,6 +199,8 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
         }
       }
 
+      if (itemWidth < 0) itemWidth = 0;
+
       if (child == null || indexOf(child) != index) {
         child = insertAndLayoutChild(bc(itemWidth), after: curBox);
       } else {
@@ -374,7 +376,10 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
     final vp = constraints.viewportMainAxisExtent;
 
+    int index = -1;
+
     while (child != null) {
+      index++;
       final double mainAxisDelta = childMainAxisPosition(child);
       final double crossAxisDelta = childCrossAxisPosition(child);
       final Offset childOffset = Offset(
@@ -402,9 +407,9 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
           canPaint = mainAxisDelta < constraints.remainingPaintExtent &&
               mainAxisDelta + paintExtentOf(child) > 0;
       }
-
       if (canPaint) context.paintChild(child, childOffset);
       child = childAfter(child);
+      controller.canPaint(index, canPaint);
     }
 
     if (dragBox != null && dragOffset != null) {

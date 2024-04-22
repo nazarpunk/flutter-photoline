@@ -663,7 +663,7 @@ class PhotolineState extends State<Photoline>
                         controller: controller,
                         physics: _physics,
                         viewportBuilder: (context, position) => Viewport(
-                          cacheExtent: 0.0,
+                          cacheExtent: 0.0, // dont edit this value
                           cacheExtentStyle: CacheExtentStyle.viewport,
                           axisDirection: AxisDirection.right,
                           offset: position,

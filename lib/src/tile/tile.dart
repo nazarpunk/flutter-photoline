@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:photoline/src/controller.dart';
 import 'package:photoline/src/holder/controller/drag.dart';
 import 'package:photoline/src/mixin/state/rebuild.dart';
@@ -93,12 +94,14 @@ class PhotolineTileState extends State<PhotolineTile>
     }
   }
 
-  void _reimage(PhotolineImageLoader? loader) {
-    if (loader?.image == null) {
+  void _reimage() {
+    if (!_controller.paintedNotifier(widget.index).value) return;
+    if (widget.uri == null) return;
+    final loader = PhotolineImageLoader.add(widget.uri!);
+    if (loader.image == null) {
       _animationImage
         ..value = 0
         ..addListener(rebuild);
-
       _notifier.addListener(_imageListener);
     } else {
       _animationImage.value = 1;
@@ -106,11 +109,15 @@ class PhotolineTileState extends State<PhotolineTile>
     }
   }
 
+  void _reimageCallback() {
+    SchedulerBinding.instance.addPostFrameCallback((d) => _reimage());
+  }
+
   @override
   void didUpdateWidget(covariant PhotolineTile oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.uri != null && widget.uri != oldWidget.uri) {
-      _reimage(PhotolineImageLoader.add(widget.uri!));
+      _reimage();
     }
   }
 
@@ -122,8 +129,15 @@ class PhotolineTileState extends State<PhotolineTile>
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
-    _reimage(widget.uri == null ? null : PhotolineImageLoader.add(widget.uri!));
-    _reblur();
+    _controller.paintedNotifier(widget.index).addListener(_reimageCallback);
+    final loader = PhotolineImageLoader.loaded(widget.uri);
+    if (loader == null) {
+      _reimage();
+      _reblur();
+    } else {
+      _animationImage.value = 1;
+      if (widget.uri != null) _image = _notifier.image(widget.uri!);
+    }
     super.initState();
   }
 
@@ -133,6 +147,7 @@ class PhotolineTileState extends State<PhotolineTile>
     _notifier.removeListener(_imageListener);
     _animationImage.dispose();
     _animation.removeListener(_listener);
+    _controller.paintedNotifier(widget.index).removeListener(_reimageCallback);
     super.dispose();
   }
 
@@ -140,11 +155,36 @@ class PhotolineTileState extends State<PhotolineTile>
   late final AnimationController _animationImage;
   final _notifier = PhotolineImageNotifier();
 
+  bool get _visible {
+    if (_data == null) return false;
+    final RenderObject? box = context.findRenderObject();
+    if (box == null) return true;
+    final g = (box as RenderBox).localToGlobal(Offset.zero);
+    final s = _data!.size;
+
+    // left
+    if (g.dx + s.width < 0) return false;
+    // top
+    if (g.dy + s.height < 0) return false;
+    // right
+    if (g.dx > s.width) return false;
+    // bottom
+    if (g.dy > s.height) return false;
+    return true;
+  }
+
+  MediaQueryData? _data;
+
   void _imageListener() {
     //if (kDebugMode) return;
-    if (_notifier.loader!.uri != widget.uri) return;
+    if (_notifier.loader!.uri != widget.uri || _image != null) return;
     _image = _notifier.loader!.image;
-    _animationImage.forward(from: 0);
+
+    if (_visible) {
+      _animationImage.forward(from: 0);
+    } else {
+      _animationImage.value = 1;
+    }
   }
 
   PhotolineHolderDragController? get _drag =>
@@ -154,6 +194,7 @@ class PhotolineTileState extends State<PhotolineTile>
   /// [ReorderableDelayedDragStartListener]
   @override
   Widget build(BuildContext context) {
+    _data = MediaQuery.of(context);
     return LayoutBuilder(
       builder: (context, constraints) {
         final sc =
