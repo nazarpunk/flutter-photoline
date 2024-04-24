@@ -90,8 +90,8 @@ class PhotolineConstraintedRenderBox extends RenderBox
 
     const double fh = 64;
 
-    final double gap =
-        lerpDouble(0, 20, 1 - _controller.fullScreenExpander.value)!;
+    //final double gap =        lerpDouble(0, 20, 1 - _controller.fullScreenExpander.value)!;
+    const double gap = 0;
 
     final double h = lerpDouble(
       _boxConstraints.maxWidth * .7 + fh,

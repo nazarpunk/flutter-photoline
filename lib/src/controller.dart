@@ -88,6 +88,19 @@ class PhotolineController extends ScrollController {
 
   final aspectRatio = ValueNotifier<double>(0);
 
+  @override
+  void dispose() {
+    fullScreenExpander.dispose();
+    action.dispose();
+    pageActivePaginator.dispose();
+    pageActiveOpen.dispose();
+    pageActiveOpenComplete.dispose();
+    pageTargetOpen.dispose();
+    aspectRatio.dispose();
+
+    super.dispose();
+  }
+
   final Map<int, ValueNotifier<bool>> painted = {};
 
   void canPaint(int i, bool can) {

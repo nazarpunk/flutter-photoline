@@ -12,8 +12,10 @@ class ScrollSnapController extends ScrollController {
     super.onDetach,
     this.snap = false,
     this.snapLast = false,
+    this.snapPhotolines,
     this.headerHolder,
     this.onRefresh,
+    this.photolineGap = 20,
   });
 
   @override
@@ -43,6 +45,8 @@ class ScrollSnapController extends ScrollController {
 
   final bool snap;
   final bool snapLast;
+  final List<PhotolineController>? snapPhotolines;
+  final int photolineGap;
   final RefreshCallback? onRefresh;
   final isUserDrag = ValueNotifier<bool>(false);
 

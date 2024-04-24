@@ -10,7 +10,28 @@ class PhotolineTestWidget extends StatefulWidget {
 }
 
 class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
-  late final _controller = ScrollSnapController();
+  late final ScrollSnapController _controller;
+
+  final List<PhotolineController> _photolines = [];
+
+  @override
+  void initState() {
+    _controller = ScrollSnapController(
+      //snap: true,
+      snapPhotolines: _photolines,
+    );
+    for (int i = 0; i < 10; i++) {
+      _photolines.add(PhotolineController(
+        getUri: (index) => PhotolineDummys.get(i, index),
+        getKey: ValueKey.new,
+        getWidget: (index) => const Placeholder(),
+        getPersistentWidgets: (index) => [const Placeholder()],
+        getPhotoCount: () => 10,
+      ));
+    }
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
@@ -25,12 +46,13 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
                 ),
                 SliverSnapList(
                   controller: _controller,
-                  delegate: SliverChildBuilderDelegate(
+                  delegate: SliverChildBuilderDelegateWithGap(
                     (context, index) => _Child(
                       index: index,
                       constraints: constraints,
+                      controller: _photolines[index],
                     ),
-                    childCount: 1,
+                    childCount: _photolines.length,
                   ),
                 ),
               ],
@@ -44,36 +66,24 @@ class _Child extends StatefulWidget {
   const _Child({
     required this.index,
     required this.constraints,
+    required this.controller,
   });
 
   final int index;
   final BoxConstraints constraints;
+  final PhotolineController controller;
 
   @override
   State<_Child> createState() => _ChildState();
 }
 
 class _ChildState extends State<_Child> {
-  late final PhotolineController _controller;
-
-  @override
-  void initState() {
-    _controller = PhotolineController(
-      getUri: (index) => PhotolineDummys.get(widget.index, index),
-      getKey: ValueKey.new,
-      getWidget: (index) => const Placeholder(),
-      getPersistentWidgets: (index) => [const Placeholder()],
-      getPhotoCount: () => 10,
-    );
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return PhotolineConstrainted(
-      controller: _controller,
+      controller: widget.controller,
       constraints: widget.constraints,
-      header: Photoline(controller: _controller),
+      header: Photoline(controller: widget.controller),
       footer: const SizedBox(child: Placeholder(color: Colors.green)),
     );
   }
