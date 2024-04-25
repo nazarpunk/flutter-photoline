@@ -2,8 +2,7 @@ import 'dart:collection';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:photoline/src/scroll/snap/controller.dart';
-import 'package:photoline/src/scroll/snap/simulation/spring.dart';
+import 'package:photoline/photoline.dart';
 import 'package:photoline/src/scroll/snap/snap/box.dart';
 import 'package:photoline/src/scroll/snap/snap/position.dart';
 
@@ -68,12 +67,19 @@ class ScrollSnapPhysics extends ScrollPhysics {
     return 0.0;
   }
 
+  (double heightClose, double heightOpen) photolineHeights(
+      ScrollSnapPosition position) {
+    final c = position.controller;
+    final b = c.boxConstraints!;
+    return (c.photolineHeight(b.maxWidth), b.maxHeight);
+  }
+
   /// [ClampingScrollPhysics.createBallisticSimulation]
   /// [BouncingScrollSimulation]
   @override
   Simulation? createBallisticSimulation(
       ScrollMetrics position, double velocity) {
-    //print('☢️ createBallisticSimulation | ${position}');
+    //print('☢️ createBallisticSimulation');
 
     //assert(position.pixels == 0);
 
@@ -99,6 +105,7 @@ class ScrollSnapPhysics extends ScrollPhysics {
       );
     }
     if (velocity.abs() < tolerance.velocity) {
+      /// snap box
       if (position is ScrollSnapPosition && position.controller.snap) {
         double dist = double.infinity;
         for (final b in position.controller.box.entries) {
@@ -120,6 +127,42 @@ class ScrollSnapPhysics extends ScrollPhysics {
         );
       }
 
+      /// snap photoline
+      if (position is ScrollSnapPosition &&
+          position.controller.snapPhotolines != null &&
+          position.controller.boxConstraints != null) {
+        double dist = double.infinity;
+        double target = 0;
+        double so = 0;
+
+        final (heightClose, heightOpen) = photolineHeights(position);
+
+        for (final p in position.controller.snapPhotolines!()) {
+          final d = so - position.pixels;
+          if (dist.isInfinite || d.abs() < dist.abs()) {
+            dist = d;
+            target = so;
+          }
+          switch (p.action.value) {
+            case PhotolineAction.drag:
+            case PhotolineAction.open:
+            case PhotolineAction.opening:
+              so += heightOpen;
+            case PhotolineAction.closing:
+            case PhotolineAction.close:
+              so += heightClose;
+          }
+          so += position.controller.photolineGap;
+        }
+        if (dist == 0 || dist.isInfinite) return null;
+        return ScrollSpringSimulation(
+          spring,
+          position.pixels,
+          target,
+          math.min(0.0, velocity),
+          tolerance: tolerance,
+        );
+      }
       return null;
     }
     if (velocity > 0.0 && position.pixels >= position.maxScrollExtent) {
@@ -136,13 +179,43 @@ class ScrollSnapPhysics extends ScrollPhysics {
               velocity.sign;
       if (controller is ScrollSnapController) {
         final c = controller as ScrollSnapController;
+        final toBottom = velocity > 0;
 
+        /// snap box
         if (c.snap && c.box.isNotEmpty) {
-          final toBottom = velocity > 0;
           final box = SplayTreeMap<int, ScrollSnapBox>.from(c.box,
               toBottom ? (a, b) => a.compareTo(b) : (a, b) => b.compareTo(a));
           for (final b in box.entries) {
             final so = b.value.scrollOffset;
+            if ((toBottom && so >= target) || (!toBottom && so <= target)) {
+              target = so;
+              break;
+            }
+          }
+        }
+
+        /// snap photoline
+        if (c.snapPhotolines != null && c.boxConstraints != null) {
+          final List<double> offsets = [];
+          double so = 0;
+
+          final (heightClose, heightOpen) = photolineHeights(position);
+          for (final p in position.controller.snapPhotolines!()) {
+            offsets.add(so);
+            switch (p.action.value) {
+              case PhotolineAction.drag:
+              case PhotolineAction.open:
+              case PhotolineAction.opening:
+                so += heightOpen;
+              case PhotolineAction.closing:
+              case PhotolineAction.close:
+                so += heightClose;
+            }
+            so += position.controller.photolineGap;
+          }
+
+          final list = toBottom ? offsets : offsets.reversed;
+          for (final so in list) {
             if ((toBottom && so >= target) || (!toBottom && so <= target)) {
               target = so;
               break;

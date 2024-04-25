@@ -17,10 +17,10 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
   @override
   void initState() {
     _controller = ScrollSnapController(
-      //snap: true,
-      snapPhotolines: _photolines,
+      snapLast: true,
+      snapPhotolines: () => _photolines,
     );
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 3; i++) {
       _photolines.add(PhotolineController(
         getUri: (index) => PhotolineDummys.get(i, index),
         getKey: ValueKey.new,
@@ -36,6 +36,7 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
   @override
   Widget build(BuildContext context) => LayoutBuilder(
         builder: (context, constraints) {
+          _controller.boxConstraints = constraints;
           return PhotolineHolder(
             child: ScrollSnap(
               controller: _controller,

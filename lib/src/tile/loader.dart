@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:ui' as ui;
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 final _dio = Dio();
 
@@ -86,7 +88,32 @@ class PhotolineImageLoader {
     _next();
   }
 
+  Future<void> _loadNew() async {
+    _attempt++;
+    final response = await http.get(uri);
+    if (response.statusCode != 200) return _reload();
+
+    final data = response.bodyBytes;
+    if (kIsWeb) {
+      image = await decodeImageFromList(data);
+    } else {
+      final codec = await ui.instantiateImageCodec(data);
+      final frame = await codec.getNextFrame();
+      image = frame.image;
+    }
+
+    _loading = false;
+    _next();
+
+    PhotolineImageNotifier().update(this);
+  }
+
   Future<void> _load() async {
+    if (!kProfileMode) {
+      await _loadNew();
+      return;
+    }
+
     _attempt++;
     late final Response<Uint8List> r;
     try {

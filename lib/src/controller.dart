@@ -63,7 +63,7 @@ class PhotolineController extends ScrollController {
   final List<Widget> Function(int index, Color color)? getPagerItem;
   final int Function() getPagerIndexOffset;
   final bool isTileOpenGray;
-  final State Function()? getTransferState;
+  final State? Function()? getTransferState;
   final void Function(State from, int fi, State target, int ti)? onTransfer;
   final ValueSetter<int>? onDebugAdd;
 

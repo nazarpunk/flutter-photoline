@@ -70,9 +70,9 @@ class PhotolineHolderDragController implements Drag {
           } else {
             if (controller == _initialController) {
               controller.onTransfer?.call(
-                _initialController.getTransferState!(),
+                _initialController.getTransferState!()!,
                 _initialController.pageDragInitial,
-                _currentController.getTransferState!(),
+                _currentController.getTransferState!()!,
                 _currentController.pageDragTransferTarget,
               );
             }

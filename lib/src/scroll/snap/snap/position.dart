@@ -4,8 +4,9 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:photoline/src/scroll/snap/controller.dart';
+import 'package:photoline/photoline.dart';
 import 'package:photoline/src/scroll/snap/snap/box.dart';
+import 'package:photoline/src/scroll/snap/snap/physics.dart';
 
 class ScrollSnapPosition extends ScrollPositionWithSingleContext {
   ScrollSnapPosition({
@@ -22,6 +23,7 @@ class ScrollSnapPosition extends ScrollPositionWithSingleContext {
 
   @override
   bool applyContentDimensions(double minScrollExtent, double maxScrollExtent) {
+    /// snapLast box
     if (controller.snap) {
       if (controller.box.isNotEmpty) {
         final box = SplayTreeMap<int, ScrollSnapBox>.from(
@@ -44,6 +46,32 @@ class ScrollSnapPosition extends ScrollPositionWithSingleContext {
           }
         }
       }
+    }
+
+    /// snap last photolines
+    if (controller.snapPhotolines != null &&
+        controller.boxConstraints != null &&
+        physics is ScrollSnapPhysics) {
+      final p = physics as ScrollSnapPhysics;
+      double so = 0;
+
+      final (heightClose, heightOpen) = p.photolineHeights(this);
+      final list = controller.snapPhotolines!();
+
+      for (int i = 0; i < list.length - 1; i++) {
+        final p = list[i];
+        switch (p.action.value) {
+          case PhotolineAction.drag:
+          case PhotolineAction.open:
+          case PhotolineAction.opening:
+            so += heightOpen;
+          case PhotolineAction.closing:
+          case PhotolineAction.close:
+            so += heightClose;
+        }
+        so += controller.photolineGap;
+      }
+      maxScrollExtent = math.max(maxScrollExtent, so);
     }
 
     if (controller.headerHolder != null) {

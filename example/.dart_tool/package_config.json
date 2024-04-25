@@ -33,7 +33,7 @@
     },
     {
       "name": "dio",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/dio-5.4.2+1",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/dio-5.4.3+1",
       "packageUri": "lib/",
       "languageVersion": "2.15"
     },
@@ -54,6 +54,12 @@
       "rootUri": "file:///Users/nazarpunk/flutter/packages/flutter_test",
       "packageUri": "lib/",
       "languageVersion": "3.2"
+    },
+    {
+      "name": "http",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/http-1.2.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
     },
     {
       "name": "http_parser",
@@ -176,13 +182,19 @@
       "languageVersion": "3.0"
     },
     {
+      "name": "web",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/web-0.5.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
       "name": "photoline_example",
       "rootUri": "../",
       "packageUri": "lib/",
       "languageVersion": "3.3"
     }
   ],
-  "generated": "2024-04-23T19:48:09.650769Z",
+  "generated": "2024-04-25T15:26:19.922224Z",
   "generator": "pub",
   "generatorVersion": "3.3.4"
 }

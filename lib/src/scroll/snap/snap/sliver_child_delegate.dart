@@ -14,7 +14,7 @@ class SliverChildBuilderDelegateWithGap extends SliverChildDelegate {
 
   @override
   Widget? build(BuildContext context, int index) {
-    if (index < 0 || index >= childCount) return null;
+    if (index < 0 || index >= estimatedChildCount!) return null;
     if (index.isEven) {
       return builder(context, index ~/ 2);
     } else {

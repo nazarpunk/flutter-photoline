@@ -3,6 +3,8 @@ import 'package:photoline/photoline.dart';
 import 'package:photoline/src/scroll/snap/snap/box.dart';
 import 'package:photoline/src/scroll/snap/snap/position.dart';
 
+double _photolineHeight(double width) => width * .7 + 64;
+
 class ScrollSnapController extends ScrollController {
   ScrollSnapController({
     super.initialScrollOffset,
@@ -16,6 +18,7 @@ class ScrollSnapController extends ScrollController {
     this.headerHolder,
     this.onRefresh,
     this.photolineGap = 20,
+    this.photolineHeight = _photolineHeight,
   });
 
   @override
@@ -42,11 +45,13 @@ class ScrollSnapController extends ScrollController {
   }
 
   final Map<int, ScrollSnapBox> box = {};
+  BoxConstraints? boxConstraints;
 
   final bool snap;
   final bool snapLast;
-  final List<PhotolineController>? snapPhotolines;
+  final List<PhotolineController> Function()? snapPhotolines;
   final int photolineGap;
+  final double Function(double) photolineHeight;
   final RefreshCallback? onRefresh;
   final isUserDrag = ValueNotifier<bool>(false);
 
