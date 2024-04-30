@@ -25,7 +25,7 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
         getUri: (index) => PhotolineDummys.get(i, index),
         getKey: ValueKey.new,
         getWidget: (index) => const Placeholder(),
-        getPersistentWidgets: (index) => [const Placeholder()],
+        //getPersistentWidgets: (index) => [const Placeholder()],
         getPhotoCount: () => 10,
       ));
     }

@@ -66,8 +66,8 @@ class PhotolineTileState extends State<PhotolineTile>
   void _listenerDrag(double ax) {
     final bool cl = _drag?.isDragClose ?? true;
     final dcx = cl ||
-            _controller.pageDragInitial != _index ||
-            _controller.action.value != PhotolineAction.drag
+        _controller.pageDragInitial != _index ||
+        _controller.action.value != PhotolineAction.drag
         ? -1
         : 1;
 
@@ -95,7 +95,10 @@ class PhotolineTileState extends State<PhotolineTile>
   }
 
   void _reimage() {
-    if (!_controller.paintedNotifier(widget.index).value) return;
+    if (!mounted) return;
+    if (!_controller
+        .paintedNotifier(widget.index)
+        .value) return;
     if (widget.uri == null) return;
     final loader = PhotolineImageLoader.add(widget.uri!);
     if (loader.image == null) {
@@ -143,8 +146,8 @@ class PhotolineTileState extends State<PhotolineTile>
 
   @override
   void dispose() {
-    _controller.pageActiveOpenComplete.removeListener(rebuild);
     _notifier.removeListener(_imageListener);
+    _controller.pageActiveOpenComplete.removeListener(rebuild);
     _animationImage.dispose();
     _animation.removeListener(_listener);
     _controller.paintedNotifier(widget.index).removeListener(_reimageCallback);
@@ -156,7 +159,7 @@ class PhotolineTileState extends State<PhotolineTile>
   final _notifier = PhotolineImageNotifier();
 
   bool get _visible {
-    if (_data == null) return false;
+    if (_data == null || !mounted) return false;
     final RenderObject? box = context.findRenderObject();
     if (box == null) return true;
     final g = (box as RenderBox).localToGlobal(Offset.zero);
@@ -177,7 +180,7 @@ class PhotolineTileState extends State<PhotolineTile>
 
   void _imageListener() {
     //if (kDebugMode) return;
-    if (_notifier.loader!.uri != widget.uri || _image != null) return;
+    if (!mounted || _notifier.loader!.uri != widget.uri || _image != null) return;
     _image = _notifier.loader!.image;
 
     if (_visible) {
@@ -198,9 +201,9 @@ class PhotolineTileState extends State<PhotolineTile>
     return LayoutBuilder(
       builder: (context, constraints) {
         final sc =
-            Color.fromRGBO(0, 0, 200, ui.lerpDouble(0, .4, _dragCurrent)!);
+        Color.fromRGBO(0, 0, 200, ui.lerpDouble(0, .4, _dragCurrent)!);
         final rc =
-            Color.fromRGBO(200, 0, 0, ui.lerpDouble(0, .4, _dragCurrent)!);
+        Color.fromRGBO(200, 0, 0, ui.lerpDouble(0, .4, _dragCurrent)!);
         final cc = Color.lerp(sc, rc, _drag?.removeDx ?? 0)!;
 
         final size = _controller.size;
@@ -220,7 +223,7 @@ class PhotolineTileState extends State<PhotolineTile>
         );
 
         final List<Widget>? persistent =
-            _controller.getPersistentWidgets?.call(data);
+        _controller.getPersistentWidgets?.call(data);
 
         Widget child = Stack(
           children: [

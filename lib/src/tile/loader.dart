@@ -91,7 +91,10 @@ class PhotolineImageLoader {
   Future<void> _loadNew() async {
     _attempt++;
     final response = await http.get(uri);
-    if (response.statusCode != 200) return _reload();
+    if (response.statusCode != 200) {
+      print(response.statusCode);
+      return _reload();
+    }
 
     final data = response.bodyBytes;
     if (kIsWeb) {
