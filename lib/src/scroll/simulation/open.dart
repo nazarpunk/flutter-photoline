@@ -39,12 +39,12 @@ class PhotolineOpenSimulation extends Simulation {
   late double _distance;
 
   // See DECELERATION_RATE.
-  static final double _kDecelerationRate = math.log(0.78) / math.log(0.9);
+  static const double _kDecelerationRate = 3.8;
 
-  // static final double _kDecelerationRate = math.log(0.78) / math.log(0.9);
+  // static final double _kDecelerationRate = math.log(0.78) / math.log(0.9) = 2.3582018154259448;
 
   // See INFLEXION.
-  static const double _kInflexion = 0.35;
+  static const double _kInflexion = .4;
 
   //static const double _kInflexion = 0.35;
 
