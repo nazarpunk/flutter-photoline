@@ -41,8 +41,12 @@ class PhotolineOpenSimulation extends Simulation {
   // See DECELERATION_RATE.
   static final double _kDecelerationRate = math.log(0.78) / math.log(0.9);
 
+  // static final double _kDecelerationRate = math.log(0.78) / math.log(0.9);
+
   // See INFLEXION.
   static const double _kInflexion = 0.35;
+
+  //static const double _kInflexion = 0.35;
 
   // See mPhysicalCoeff.  This has a value of 0.84 times Earth gravity,
   // expressed in units of logical pixels per second^2.
@@ -53,6 +57,16 @@ class PhotolineOpenSimulation extends Simulation {
       400.0 // 1 inch / 1 logical pixel || 160.0
       *
       0.84; // "look and feel tuning"
+
+  /*
+  static const double _physicalCoeff = 9.80665 // g, in meters per second^2
+      *
+      39.37 // 1 meter / 1 inch
+      *
+      400.0 // 1 inch / 1 logical pixel || 160.0
+      *
+      0.84; // "look and feel tuning"
+   */
 
   // See getSplineFlingDuration().
   double _flingDuration() {

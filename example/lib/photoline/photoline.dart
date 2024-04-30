@@ -24,7 +24,8 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
       _photolines.add(PhotolineController(
         getUri: (index) => PhotolineDummys.get(i, index),
         getKey: ValueKey.new,
-        getWidget: (index) => const Placeholder(),
+        //getWidget: (index) => const Placeholder(),
+        getWidget: (index) => const SizedBox(),
         //getPersistentWidgets: (index) => [const Placeholder()],
         getPhotoCount: () => 10,
       ));
