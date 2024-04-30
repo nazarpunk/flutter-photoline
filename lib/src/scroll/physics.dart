@@ -13,9 +13,9 @@ class PhotolineScrollPhysics extends ScrollPhysics {
 
   @override
   SpringDescription get spring => SpringDescription.withDampingRatio(
-        mass: 2110.5,
-        stiffness: 500.0,
-        ratio: 5.1,
+        mass: 0.5,
+        stiffness: 100.0,
+        ratio: 1.1,
       );
 
   /*
@@ -49,14 +49,12 @@ class PhotolineScrollPhysics extends ScrollPhysics {
 
   Simulation? _simulation(covariant PhotolineScrollPosition position,
       double velocity, Tolerance tolerance) {
-    print('☠️ _sim');
     if (velocity.abs() < tolerance.velocity) {
       final double page = position.getPageFromPixels(position.pixels);
       final double target = position.getPixelsFromPage(page.roundToDouble());
 
       if (position.pixels == target) return null;
 
-      print('🍒_sim| $spring');
       return ScrollSpringSimulation(
         spring,
         position.pixels,
@@ -73,7 +71,6 @@ class PhotolineScrollPhysics extends ScrollPhysics {
       return null;
     }
 
-    print('_💋 sim');
     return PhotolineOpenSimulation(
       controller: position.controller,
       position: position,
@@ -86,11 +83,8 @@ class PhotolineScrollPhysics extends ScrollPhysics {
   @override
   Simulation? createBallisticSimulation(
       covariant PhotolineScrollPosition position, double velocity) {
-    print('✅ create');
-
     if ((velocity <= 0.0 && position.pixels <= position.minScrollExtent) ||
         (velocity >= 0.0 && position.pixels >= position.maxScrollExtent)) {
-      print('catch');
       final Tolerance tolerance = toleranceFor(position);
       if (position.outOfRange) {
         double? end;
@@ -101,7 +95,6 @@ class PhotolineScrollPhysics extends ScrollPhysics {
           end = position.minScrollExtent;
         }
         assert(end != null);
-        print('spring');
         return ScrollSpringSimulation(
           spring,
           position.pixels,
@@ -117,7 +110,6 @@ class PhotolineScrollPhysics extends ScrollPhysics {
       if (velocity < 0.0 && position.pixels <= position.minScrollExtent) {
         return null;
       }
-      print('clamping');
       return ClampingScrollSimulation(
         position: position.pixels,
         velocity: velocity,
@@ -136,7 +128,6 @@ class PhotolineScrollPhysics extends ScrollPhysics {
     switch (position.controller.action.value) {
       case PhotolineAction.open:
         if (position.controller.useOpenSimulation) {
-          print('2');
           return _simulation(position, velocity, tolerance);
         }
         pageNew = position.pageAdd(
@@ -150,7 +141,6 @@ class PhotolineScrollPhysics extends ScrollPhysics {
         }
       case PhotolineAction.close:
         if (position.controller.useOpenSimulation) {
-          print('🤡 close');
           return _simulation(position, velocity, tolerance);
         }
         pageNew = position.pageAdd(
@@ -175,7 +165,6 @@ class PhotolineScrollPhysics extends ScrollPhysics {
         position.controller.pageTargetOpen.value = pg;
       }
     }
-    print('1');
     return ScrollSpringSimulation(
       spring,
       position.pixels,
