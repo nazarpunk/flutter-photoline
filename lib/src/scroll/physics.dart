@@ -2,7 +2,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:photoline/src/scroll/position.dart';
-import 'package:photoline/src/scroll/simulation/open.dart';
 import 'package:photoline/src/utils/action.dart';
 
 class PhotolineScrollPhysics extends ScrollPhysics {
@@ -71,10 +70,19 @@ class PhotolineScrollPhysics extends ScrollPhysics {
       return null;
     }
 
-    return PhotolineOpenSimulation(
-      controller: position.controller,
-      position: position,
-      velocity: velocity,
+    final double target = position.pixels +
+        200 *
+            math.exp(1.2 * math.log(.6 * velocity.abs() / 800)) *
+            velocity.sign;
+
+    final double page = position.getPageFromPixels(target);
+
+    return ScrollSpringSimulation(
+      spring,
+      position.pixels,
+      position.getPixelsFromPage(
+          velocity > 0 ? page.ceilToDouble() : page.floorToDouble()),
+      velocity,
       tolerance: tolerance,
     );
   }
