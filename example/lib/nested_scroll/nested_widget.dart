@@ -26,6 +26,7 @@ class _NestedScrollWidgetExampleState extends State<NestedScrollWidgetExample> {
     super.initState();
   }
 
+  /// [NestedScrollView]
   @override
   Widget build(BuildContext context) {
     final delegate = SliverChildBuilderDelegate(
@@ -36,11 +37,29 @@ class _NestedScrollWidgetExampleState extends State<NestedScrollWidgetExample> {
       ),
       childCount: 50,
     );
-
     return ScrollSnapHeaderMultiChild(
-      header: const ColoredBox(
-        color: Colors.teal,
-        child: Placeholder(color: Colors.red),
+      header: IgnorePointer(
+        ignoring: false,
+        child: ColoredBox(
+          color: Colors.teal,
+          child: SizedBox.expand(
+            child: Placeholder(
+              color: Colors.red,
+              child: Column(
+                children: [
+                  //NestedScrollView(headerSliverBuilder: headerSliverBuilder, body: body),
+                  const Expanded(child: SizedBox()),
+                  ElevatedButton(
+                    onPressed: () {
+                      print('tap');
+                    },
+                    child: const Text('button'),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
       controller: headerController,
       content: PageView(

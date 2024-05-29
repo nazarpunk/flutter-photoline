@@ -242,7 +242,7 @@ class PhotolineState extends State<Photoline>
   }
 
   void _toPageOpenFromClose() {
-    controller.pageActivePaginator.value = -1;
+    //controller.pageActivePaginator.value = -1;
     final size = controller.size;
     final count = controller.count;
 
@@ -663,7 +663,8 @@ class PhotolineState extends State<Photoline>
                         controller: controller,
                         physics: _physics,
                         viewportBuilder: (context, position) => Viewport(
-                          cacheExtent: 0.0, // dont edit this value
+                          cacheExtent: 0.0,
+                          // dont edit this value
                           cacheExtentStyle: CacheExtentStyle.viewport,
                           axisDirection: AxisDirection.right,
                           offset: position,

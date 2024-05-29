@@ -15,12 +15,15 @@ class RenderSliverSnapList extends RenderSliverList {
     super.performLayout();
 
     final SliverConstraints constraints = this.constraints;
-    final double scrollOffset = constraints.scrollOffset + constraints.cacheOrigin;
+    final double scrollOffset =
+        constraints.scrollOffset + constraints.cacheOrigin;
 
     if (firstChild != null) {
       RenderBox? child = firstChild;
+      controller.box.clear();
       while (true) {
-        final SliverMultiBoxAdaptorParentData childParentData = child!.parentData! as SliverMultiBoxAdaptorParentData;
+        final SliverMultiBoxAdaptorParentData childParentData =
+            child!.parentData! as SliverMultiBoxAdaptorParentData;
         final so = childScrollOffset(child);
         if (so != null) {
           final int i = indexOf(child);

@@ -1,4 +1,4 @@
-import 'dart:ui';
+import 'dart:ui' as ui;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +32,14 @@ class PhotolineConstrainted extends MultiChildRenderObjectWidget {
       BuildContext context, PhotolineConstraintedRenderBox renderObject) {
     renderObject.controller = controller;
   }
+
+  static double lerpConstraints(BoxConstraints constraints, double t,
+          [double footer = 64]) =>
+      ui.lerpDouble(
+        constraints.maxWidth * .7 + footer,
+        constraints.maxHeight,
+        t,
+      )!;
 }
 
 class PhotolineConstraintedRenderBox extends RenderBox
@@ -90,20 +98,14 @@ class PhotolineConstraintedRenderBox extends RenderBox
 
     const double fh = 64;
 
-    //final double gap =        lerpDouble(0, 20, 1 - _controller.fullScreenExpander.value)!;
-    const double gap = 0;
-
-    final double h = lerpDouble(
-      _boxConstraints.maxWidth * .7 + fh,
-      _boxConstraints.maxHeight,
-      _controller.fullScreenExpander.value,
-    )!;
+    final double h = PhotolineConstrainted.lerpConstraints(
+        _boxConstraints, _controller.fullScreenExpander.value);
 
     final hh = h - fh;
     _headerBox.layout(c.copyWith(maxHeight: hh), parentUsesSize: true);
     _footerBox.layout(c.copyWith(maxHeight: fh), parentUsesSize: true);
 
-    size = Size(constraints.minWidth, h + gap);
+    size = Size(constraints.minWidth, h);
 
     (_headerBox.parentData! as MultiChildLayoutParentData).offset = Offset.zero;
     (_footerBox.parentData! as MultiChildLayoutParentData).offset =

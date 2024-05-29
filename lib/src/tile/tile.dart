@@ -1,6 +1,5 @@
 import 'dart:ui' as ui;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:photoline/src/controller.dart';
@@ -66,8 +65,8 @@ class PhotolineTileState extends State<PhotolineTile>
   void _listenerDrag(double ax) {
     final bool cl = _drag?.isDragClose ?? true;
     final dcx = cl ||
-        _controller.pageDragInitial != _index ||
-        _controller.action.value != PhotolineAction.drag
+            _controller.pageDragInitial != _index ||
+            _controller.action.value != PhotolineAction.drag
         ? -1
         : 1;
 
@@ -96,9 +95,7 @@ class PhotolineTileState extends State<PhotolineTile>
 
   void _reimage() {
     if (!mounted) return;
-    if (!_controller
-        .paintedNotifier(widget.index)
-        .value) return;
+    if (!_controller.paintedNotifier(widget.index).value) return;
     if (widget.uri == null) return;
     final loader = PhotolineImageLoader.add(widget.uri!);
     if (loader.image == null) {
@@ -180,7 +177,9 @@ class PhotolineTileState extends State<PhotolineTile>
 
   void _imageListener() {
     //if (kDebugMode) return;
-    if (!mounted || _notifier.loader!.uri != widget.uri || _image != null) return;
+    if (!mounted || _notifier.loader!.uri != widget.uri || _image != null) {
+      return;
+    }
     _image = _notifier.loader!.image;
 
     if (_visible) {
@@ -201,9 +200,9 @@ class PhotolineTileState extends State<PhotolineTile>
     return LayoutBuilder(
       builder: (context, constraints) {
         final sc =
-        Color.fromRGBO(0, 0, 200, ui.lerpDouble(0, .4, _dragCurrent)!);
+            Color.fromRGBO(0, 0, 200, ui.lerpDouble(0, .4, _dragCurrent)!);
         final rc =
-        Color.fromRGBO(200, 0, 0, ui.lerpDouble(0, .4, _dragCurrent)!);
+            Color.fromRGBO(200, 0, 0, ui.lerpDouble(0, .4, _dragCurrent)!);
         final cc = Color.lerp(sc, rc, _drag?.removeDx ?? 0)!;
 
         final size = _controller.size;
@@ -223,7 +222,7 @@ class PhotolineTileState extends State<PhotolineTile>
         );
 
         final List<Widget>? persistent =
-        _controller.getPersistentWidgets?.call(data);
+            _controller.getPersistentWidgets?.call(data);
 
         Widget child = Stack(
           children: [
@@ -233,7 +232,9 @@ class PhotolineTileState extends State<PhotolineTile>
                 child: IgnorePointer(
                   child: CustomPaint(
                     painter: BlurPainter(
-                      color: _controller.getColor?.call(_index),
+                      color: _controller.getBlur?.call(_index) == null
+                          ? _controller.getColor?.call(_index)
+                          : Colors.transparent,
                       blur: _blur,
                       imageOpacity: _animationImage.value,
                       sigma: 30,
@@ -265,19 +266,6 @@ class PhotolineTileState extends State<PhotolineTile>
             ),
             if (persistent != null) ...persistent,
             if (_dragCurrent > 0) Positioned.fill(child: ColoredBox(color: cc)),
-            if (kDebugMode)
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('$_index'),
-                      //Text(data.openDw.toStringAsFixed(2)),
-                      //Text(data.closeDw.toStringAsFixed(2))
-                    ],
-                  ),
-                ),
-              )
           ],
         );
 

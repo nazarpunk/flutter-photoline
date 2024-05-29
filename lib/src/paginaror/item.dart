@@ -62,8 +62,8 @@ class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem>
 
     double value = pto == _indexTrigger ? 1 : 0;
     switch (_controller.action.value) {
-      case PhotolineAction.close:
       case PhotolineAction.closing:
+      case PhotolineAction.close:
         value = 0;
       case PhotolineAction.open:
       case PhotolineAction.opening:

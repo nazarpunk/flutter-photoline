@@ -1,5 +1,5 @@
 /// Photoline
-library photoline;
+library;
 
 export 'src/constrainted/constrainted.dart';
 export 'src/controller.dart';
