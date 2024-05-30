@@ -112,81 +112,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
     childManager.didFinishLayout();
   }
 
-  void _performOpen1() {
-    final constraints = this.constraints;
-    BoxConstraints bc(double width) =>
-        constraints.asBoxConstraints(minExtent: width, maxExtent: width);
-
-    childManager
-      ..didStartLayout()
-      ..setDidUnderflow(false);
-
-    final widthOpen =
-        constraints.viewportMainAxisExtent * _controller.openRatio;
-    final count = _count;
-
-    final List<double> ws = [];
-    final List<double> os = [];
-
-    final mod = _controller.mod;
-
-    for (int i = 0; i < count; i++) {
-      final double o = i == 0 ? 0 : os[i - 1] + ws[i - 1];
-      final double w;
-      if (i < mod.length && mod[i] != null) {
-        w = mod[i]!.t * widthOpen;
-      } else {
-        w = widthOpen;
-      }
-      os.add(o);
-      ws.add(w);
-    }
-
-    if (firstChild == null) addInitialChild();
-    if (firstChild == null) {
-      geometry = SliverGeometry.zero;
-      childManager.didFinishLayout();
-      return;
-    }
-
-    firstChild!.layout(bc(ws[0]));
-    (firstChild!.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset =
-        os[0];
-
-    RenderBox curBox = firstChild!;
-    for (int i = 1; i < count; i++) {
-      RenderBox? child = childAfter(curBox);
-
-      if (child == null || indexOf(child) != i) {
-        child = insertAndLayoutChild(bc(ws[i]), after: curBox);
-      } else {
-        child.layout(bc(ws[i]));
-      }
-      curBox = child!;
-      (child.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset =
-          os[i];
-    }
-
-    final scrollExtent = os.last + ws.last;
-
-    geometry = SliverGeometry(
-      scrollExtent: scrollExtent,
-      paintExtent: calculatePaintOffset(
-        constraints,
-        from: 0,
-        to: double.infinity,
-      ),
-      maxPaintExtent: double.infinity,
-    );
-
-    childManager.didFinishLayout();
-  }
-
   void _performOpen() {
-    if (kDebugMode) {
-      return _performOpen1();
-    }
-
     final constraints = this.constraints;
     BoxConstraints bc(double width) =>
         constraints.asBoxConstraints(minExtent: width, maxExtent: width);
@@ -202,27 +128,28 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
     final widthSide = (vp - widthOpen) * .5;
     final double scrollOffset =
         constraints.scrollOffset + constraints.cacheOrigin;
-
-    double itemWidth = widthOpen;
-    double itemOffset = 0;
-    if (_controller.useOpenSideResize) {
-      final double ro = widthOpen - scrollOffset;
-      if (ro > 0) {
-        itemOffset = scrollOffset;
-      }
-    }
+    final scrollExtent = widthOpen * count;
 
     if (firstChild == null) addInitialChild();
+    double itemWidth = widthOpen;
+    double itemOffset = 0;
+    if (_controller.useOpenSideResize && itemWidth > scrollOffset) {
+      itemWidth -= scrollOffset;
+      itemOffset += scrollOffset;
+    }
     firstChild!.layout(bc(itemWidth));
     (firstChild!.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset =
         itemOffset;
 
     RenderBox curBox = firstChild!;
+    int indexOffset = 0;
     for (int index = 1; index < count; index++) {
       RenderBox? child = childAfter(curBox);
 
+      indexOffset++;
+
       itemWidth = widthOpen;
-      itemOffset = index * widthOpen;
+      itemOffset = indexOffset * widthOpen;
 
       if (_controller.useOpenSideResize) {
         final double itemViewOffset = itemOffset - scrollOffset;
@@ -271,6 +198,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
           }
         }
       }
+
       if (itemWidth < 0) itemWidth = 0;
 
       if (child == null || indexOf(child) != index) {
@@ -279,24 +207,21 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
         child.layout(bc(itemWidth));
       }
 
-      (child!.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset =
+      curBox = child!;
+      (child.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset =
           itemOffset;
-
-      curBox = child;
     }
 
-    final pe = calculatePaintOffset(
-      constraints,
-      from: -double.infinity,
-      to: double.infinity,
-    );
-
     geometry = SliverGeometry(
-      scrollExtent: double.infinity,
-      layoutExtent: pe,
-      paintExtent: pe,
+      scrollExtent: scrollExtent,
+      paintExtent: calculatePaintOffset(
+        constraints,
+        from: 0,
+        //to: scrollExtent,
+        to: double.infinity,
+      ),
       maxPaintExtent: double.infinity,
-      //hasVisualOverflow: true,
+      hasVisualOverflow: true,
     );
 
     //..setDidUnderflow(true)
