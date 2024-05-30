@@ -67,7 +67,7 @@ class ScrollSnapPosition extends ScrollPositionWithSingleContext {
             so += heightOpen;
           case PhotolineAction.closing:
           case PhotolineAction.close:
-            so += heightClose;
+            so += heightClose + p.bottomHeightAddition();
         }
         so += controller.photolineGap;
       }

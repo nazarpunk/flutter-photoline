@@ -20,15 +20,18 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
       snapLast: true,
       snapPhotolines: () => _photolines,
     );
-    for (int i = 0; i < 3; i++) {
-      _photolines.add(PhotolineController(
-        getUri: (index) => PhotolineDummys.get(i, index),
-        getKey: ValueKey.new,
-        //getWidget: (index) => const Placeholder(),
-        getWidget: (index) => const SizedBox(),
-        //getPersistentWidgets: (index) => [const Placeholder()],
-        getPhotoCount: () => 10,
-      ));
+    for (int i = 0; i < 13; i++) {
+      _photolines.add(
+        PhotolineController(
+          getUri: (index) => PhotolineDummys.get(i, index),
+          getKey: ValueKey.new,
+          //getWidget: (index) => const Placeholder(),
+          getWidget: (index) => const SizedBox(),
+          //getPersistentWidgets: (index) => [const Placeholder()],
+          getPhotoCount: () => 10,
+          bottomHeightAddition: () => 30,
+        ),
+      );
     }
 
     super.initState();
@@ -82,11 +85,22 @@ class _Child extends StatefulWidget {
 class _ChildState extends State<_Child> {
   @override
   Widget build(BuildContext context) {
-    return PhotolineConstrainted(
-      controller: widget.controller,
-      constraints: widget.constraints,
-      header: Photoline(controller: widget.controller),
-      footer: const SizedBox(child: Placeholder(color: Colors.green)),
+    return Column(
+      children: [
+        SizedBox(
+          width: double.infinity,
+          child: PhotolineConstrainted(
+            controller: widget.controller,
+            constraints: widget.constraints,
+            header: Photoline(controller: widget.controller),
+            footer: const SizedBox(child: Placeholder(color: Colors.green)),
+          ),
+        ),
+        const SizedBox(
+          height: 30,
+          child: Placeholder(color: Colors.red),
+        )
+      ],
     );
   }
 }

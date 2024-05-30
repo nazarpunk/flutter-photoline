@@ -71,6 +71,7 @@ class ScrollSnapPhysics extends ScrollPhysics {
       ScrollSnapPosition position) {
     final c = position.controller;
     final b = c.boxConstraints!;
+
     return (c.photolineHeight(b.maxWidth), b.maxHeight);
   }
 
@@ -150,7 +151,7 @@ class ScrollSnapPhysics extends ScrollPhysics {
               so += heightOpen;
             case PhotolineAction.closing:
             case PhotolineAction.close:
-              so += heightClose;
+              so += heightClose + p.bottomHeightAddition();
           }
           so += position.controller.photolineGap;
         }
@@ -209,7 +210,7 @@ class ScrollSnapPhysics extends ScrollPhysics {
                 so += heightOpen;
               case PhotolineAction.closing:
               case PhotolineAction.close:
-                so += heightClose;
+                so += heightClose + p.bottomHeightAddition();
             }
             so += position.controller.photolineGap;
           }

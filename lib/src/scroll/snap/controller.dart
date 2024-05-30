@@ -52,6 +52,7 @@ class ScrollSnapController extends ScrollController {
   final List<PhotolineController> Function()? snapPhotolines;
   final int photolineGap;
   final double Function(double) photolineHeight;
+
   final RefreshCallback? onRefresh;
   final isUserDrag = ValueNotifier<bool>(false);
 

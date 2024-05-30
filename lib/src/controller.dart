@@ -18,6 +18,8 @@ int _getCloseCount(double? width) => 3;
 
 int _getPagerIndexOffset() => 0;
 
+double _bottomHeightAddition() => 0;
+
 /// Photoline controller
 /// [ClipRect]
 class PhotolineController extends ScrollController {
@@ -44,6 +46,7 @@ class PhotolineController extends ScrollController {
     this.useOpenSimulation = true,
     this.useOpenSideResize = true,
     this.useOpenSideResizeScale = true,
+    this.bottomHeightAddition = _bottomHeightAddition,
   });
 
   PhotolineHolderDragController? dragController;
@@ -70,6 +73,8 @@ class PhotolineController extends ScrollController {
   final bool useOpenSimulation;
   final bool useOpenSideResize;
   final bool useOpenSideResizeScale;
+
+  final double Function() bottomHeightAddition;
 
   final double openRatio;
 
