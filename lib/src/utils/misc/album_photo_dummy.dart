@@ -9,7 +9,8 @@ class PhotolineAlbumPhotoDummy extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) => LayoutBuilder(builder: (context, constraints) {
+  Widget build(BuildContext context) =>
+      LayoutBuilder(builder: (context, constraints) {
         return ClipRect(
           child: OverflowBox(
             minWidth: 0,

@@ -479,6 +479,7 @@ class PhotolineState extends State<Photoline>
       } else {
         width = 0;
       }
+
       if (toAdd) positionOpen.add(PhotolinePosition(width, offset));
     }
 

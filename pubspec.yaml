@@ -1,11 +1,11 @@
 name: photoline
 description: Photoline plugin.
-version: 1.0.2
+version: 1.0.3
 homepage: https://github.com/nazarpunk/flutter-photoline
 
 environment:
-  sdk: ^3.3.3
-  flutter: ^3.19.5
+  sdk: ^3.4.1
+  flutter: ^3.22.1
 
 dependencies:
   dio: ^5.4.3+1
@@ -16,5 +16,5 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  lints: ^3.0.0
+  lints: ^4.0.0
 

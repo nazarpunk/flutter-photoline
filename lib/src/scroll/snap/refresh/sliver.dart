@@ -18,17 +18,20 @@ class ScrollSnapRefreshSliver extends SingleChildRenderObjectWidget {
   final ScrollSnapRefreshState refresh;
 
   @override
-  ScrollSnapRefreshSliverRender createRenderObject(BuildContext context) => ScrollSnapRefreshSliverRender(
+  ScrollSnapRefreshSliverRender createRenderObject(BuildContext context) =>
+      ScrollSnapRefreshSliverRender(
         refresh: refresh,
       );
 
   @override
-  void updateRenderObject(BuildContext context, covariant ScrollSnapRefreshSliverRender renderObject) {
+  void updateRenderObject(BuildContext context,
+      covariant ScrollSnapRefreshSliverRender renderObject) {
     renderObject.refresh = refresh;
   }
 }
 
-class ScrollSnapRefreshSliverRender extends RenderSliver with RenderObjectWithChildMixin<RenderBox> {
+class ScrollSnapRefreshSliverRender extends RenderSliver
+    with RenderObjectWithChildMixin<RenderBox> {
   ScrollSnapRefreshSliverRender({
     required ScrollSnapRefreshState refresh,
     RenderBox? child,
@@ -61,17 +64,22 @@ class ScrollSnapRefreshSliverRender extends RenderSliver with RenderObjectWithCh
     final double oh = refresh.overlapHeight;
 
     geometry = SliverGeometry(
-      scrollOffsetCorrection: constraints.overlap <= 0 && constraints.overlap > -oh ? -oh - constraints.overlap : null,
+      scrollOffsetCorrection:
+          constraints.overlap <= 0 && constraints.overlap > -oh
+              ? -oh - constraints.overlap
+              : null,
       paintOrigin: constraints.overlap,
       paintExtent: math.max(child!.size.height - constraints.scrollOffset, 0.0),
-      maxPaintExtent: math.max(child!.size.height - constraints.scrollOffset, 0.0),
+      maxPaintExtent:
+          math.max(child!.size.height - constraints.scrollOffset, 0.0),
       layoutExtent: math.max(0 - constraints.scrollOffset, 0.0),
     );
   }
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    if (constraints.overlap < 0.0 || constraints.scrollOffset + child!.size.height > 0) {
+    if (constraints.overlap < 0.0 ||
+        constraints.scrollOffset + child!.size.height > 0) {
       context.paintChild(child!, offset);
     }
   }

@@ -16,7 +16,8 @@ class PhotolineHolder extends StatefulWidget {
   State<PhotolineHolder> createState() => PhotolineHolderState();
 }
 
-class PhotolineHolderState extends State<PhotolineHolder> with TickerProviderStateMixin {
+class PhotolineHolderState extends State<PhotolineHolder>
+    with TickerProviderStateMixin {
   PhotolineHolderDragController? get dragController => widget.dragController;
   final Set<PhotolineState> photolines = {};
 
@@ -25,7 +26,8 @@ class PhotolineHolderState extends State<PhotolineHolder> with TickerProviderSta
   @override
   void initState() {
     dragController?.holder = this;
-    animationDrag = AnimationController(vsync: this, duration: const Duration(milliseconds: 20 * 1000));
+    animationDrag = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 20 * 1000));
     if (dragController != null) {
       animationDrag.addListener(dragController!.onAnimationDrag);
     }
