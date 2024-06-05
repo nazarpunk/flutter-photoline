@@ -497,6 +497,8 @@ class PhotolineRenderViewport<
 
     final double centerOffset = -correctedOffset;
 
+    print(centerOffset);
+
     double scrollOffset = math.max(0.0, -centerOffset);
     final double overlap = math.min(0.0, -centerOffset);
 
@@ -518,7 +520,7 @@ class PhotolineRenderViewport<
     final ScrollDirection adjustedUserScrollDirection =
         applyGrowthDirectionToScrollDirection(
             offset.userScrollDirection, GrowthDirection.forward);
-    final double maxPaintOffset = layoutOffset + overlap;
+    double maxPaintOffset = layoutOffset + overlap;
     double precedingScrollExtent = 0.0;
 
     RenderSliver? child = firstChild;
@@ -565,12 +567,12 @@ class PhotolineRenderViewport<
       final double effectiveLayoutOffset =
           layoutOffset + childLayoutGeometry.paintOrigin;
 
-      (child.parentData! as SliverPhysicalParentData).paintOffset = Offset(
-          (childLayoutGeometry.visible || scrollOffset > 0)
-              ? effectiveLayoutOffset
-              : -scrollOffset + initialLayoutOffset,
-          0.0);
+      (child.parentData! as SliverPhysicalParentData).paintOffset =
+          Offset((childLayoutGeometry.visible || scrollOffset > 0) ?effectiveLayoutOffset : -scrollOffset + initialLayoutOffset , 0.0);
 
+      maxPaintOffset = math.max(
+          effectiveLayoutOffset + childLayoutGeometry.paintExtent,
+          maxPaintOffset);
       scrollOffset -= childLayoutGeometry.scrollExtent;
       precedingScrollExtent += childLayoutGeometry.scrollExtent;
       layoutOffset += childLayoutGeometry.layoutExtent;
