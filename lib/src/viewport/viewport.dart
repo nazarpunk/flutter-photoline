@@ -49,7 +49,6 @@ class _ViewportElement extends MultiChildRenderObjectElement
     assert(!_doingMountOrUpdate);
     _doingMountOrUpdate = true;
     super.mount(parent, newSlot);
-    _updateCenter();
     assert(_doingMountOrUpdate);
     _doingMountOrUpdate = false;
   }
@@ -59,32 +58,16 @@ class _ViewportElement extends MultiChildRenderObjectElement
     assert(!_doingMountOrUpdate);
     _doingMountOrUpdate = true;
     super.update(newWidget);
-    _updateCenter();
     assert(_doingMountOrUpdate);
     _doingMountOrUpdate = false;
   }
 
-  void _updateCenter() {
-    if (children.isNotEmpty) {
-      renderObject.center = children.first.renderObject as RenderSliver?;
-    } else {
-      renderObject.center = null;
-    }
-  }
 
   @override
   void moveRenderObjectChild(RenderObject child, IndexedSlot<Element?> oldSlot,
       IndexedSlot<Element?> newSlot) {
     super.moveRenderObjectChild(child, oldSlot, newSlot);
     assert(_doingMountOrUpdate);
-  }
-
-  @override
-  void removeRenderObjectChild(RenderObject child, Object? slot) {
-    super.removeRenderObjectChild(child, slot);
-    if (!_doingMountOrUpdate && renderObject.center == child) {
-      renderObject.center = null;
-    }
   }
 
   @override
