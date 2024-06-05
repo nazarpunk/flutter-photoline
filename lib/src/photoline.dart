@@ -625,6 +625,7 @@ class PhotolineState extends State<Photoline>
 
   bool _updater = false;
 
+  /// [Viewport]
   @override
   Widget build(BuildContext context) {
     _updater = !_updater;
@@ -648,7 +649,7 @@ class PhotolineState extends State<Photoline>
                         physics: _physics,
                         viewportBuilder: (context, position) =>
                             PhotolineViewport(
-                          cacheExtent: 0.0,
+                          cacheExtent: 1.0,
                           offset: position,
                           slivers: [
                             PhotolineSliverMultiBoxAdaptorWidget(
