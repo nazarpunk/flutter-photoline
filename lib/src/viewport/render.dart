@@ -27,9 +27,6 @@ class PhotolineRenderViewport<
         .forEach(visitor);
   }
 
-  final AxisDirection _axisDirection = AxisDirection.right;
-  final AxisDirection _crossAxisDirection = AxisDirection.down;
-
   ViewportOffset get offset => _offset;
   ViewportOffset _offset;
 
@@ -74,97 +71,6 @@ class PhotolineRenderViewport<
   @override
   bool get isRepaintBoundary => true;
 
-  double layoutChildSequence({
-    required RenderSliver? child,
-    required double scrollOffset,
-    required double overlap,
-    required double layoutOffset,
-    required double remainingPaintExtent,
-    required double mainAxisExtent,
-    required double crossAxisExtent,
-    required GrowthDirection growthDirection,
-    required RenderSliver? Function(RenderSliver child) advance,
-    required double remainingCacheExtent,
-    required double cacheOrigin,
-  }) {
-    assert(scrollOffset.isFinite);
-    assert(scrollOffset >= 0.0);
-    final double initialLayoutOffset = layoutOffset;
-    final ScrollDirection adjustedUserScrollDirection =
-        applyGrowthDirectionToScrollDirection(
-            offset.userScrollDirection, growthDirection);
-    double maxPaintOffset = layoutOffset + overlap;
-    double precedingScrollExtent = 0.0;
-
-    while (child != null) {
-      final double sliverScrollOffset =
-          scrollOffset <= 0.0 ? 0.0 : scrollOffset;
-      final double correctedCacheOrigin =
-          math.max(cacheOrigin, -sliverScrollOffset);
-      final double cacheExtentCorrection = cacheOrigin - correctedCacheOrigin;
-
-      assert(sliverScrollOffset >= correctedCacheOrigin.abs());
-      assert(correctedCacheOrigin <= 0.0);
-      assert(sliverScrollOffset >= 0.0);
-      assert(cacheExtentCorrection <= 0.0);
-
-      child.layout(
-          SliverConstraints(
-            axisDirection: _axisDirection,
-            growthDirection: growthDirection,
-            userScrollDirection: adjustedUserScrollDirection,
-            scrollOffset: sliverScrollOffset,
-            precedingScrollExtent: precedingScrollExtent,
-            overlap: maxPaintOffset - layoutOffset,
-            remainingPaintExtent: math.max(
-                0.0, remainingPaintExtent - layoutOffset + initialLayoutOffset),
-            crossAxisExtent: crossAxisExtent,
-            crossAxisDirection: _crossAxisDirection,
-            viewportMainAxisExtent: mainAxisExtent,
-            remainingCacheExtent:
-                math.max(0.0, remainingCacheExtent + cacheExtentCorrection),
-            cacheOrigin: correctedCacheOrigin,
-          ),
-          parentUsesSize: true);
-
-      final SliverGeometry childLayoutGeometry = child.geometry!;
-      assert(childLayoutGeometry.debugAssertIsValid());
-
-      if (childLayoutGeometry.scrollOffsetCorrection != null) {
-        return childLayoutGeometry.scrollOffsetCorrection!;
-      }
-
-      final double effectiveLayoutOffset =
-          layoutOffset + childLayoutGeometry.paintOrigin;
-
-      if (childLayoutGeometry.visible || scrollOffset > 0) {
-        updateChildLayoutOffset(child, effectiveLayoutOffset, growthDirection);
-      } else {
-        updateChildLayoutOffset(
-            child, -scrollOffset + initialLayoutOffset, growthDirection);
-      }
-
-      maxPaintOffset = math.max(
-          effectiveLayoutOffset + childLayoutGeometry.paintExtent,
-          maxPaintOffset);
-      scrollOffset -= childLayoutGeometry.scrollExtent;
-      precedingScrollExtent += childLayoutGeometry.scrollExtent;
-      layoutOffset += childLayoutGeometry.layoutExtent;
-      if (childLayoutGeometry.cacheExtent != 0.0) {
-        remainingCacheExtent -=
-            childLayoutGeometry.cacheExtent - cacheExtentCorrection;
-        cacheOrigin = math.min(
-            correctedCacheOrigin + childLayoutGeometry.cacheExtent, 0.0);
-      }
-
-      updateOutOfBandData(growthDirection, childLayoutGeometry);
-
-      child = advance(child);
-    }
-
-    return 0.0;
-  }
-
   void updateChildLayoutOffset(RenderSliver child, double layoutOffset,
       GrowthDirection growthDirection) {
     (child.parentData! as SliverPhysicalParentData).paintOffset =
@@ -184,7 +90,6 @@ class PhotolineRenderViewport<
     }
   }
 
-
   @override
   Rect? describeApproximatePaintClip(RenderSliver child) {
     final Rect viewportClip = Offset.zero & size;
@@ -194,7 +99,6 @@ class PhotolineRenderViewport<
       return viewportClip;
     }
 
-    // Adjust the clip rect for this sliver by the overlap from the previous sliver.
     double left = viewportClip.left;
     double right = viewportClip.right;
     double top = viewportClip.top;
@@ -203,7 +107,7 @@ class PhotolineRenderViewport<
         child.constraints.remainingPaintExtent;
     final double overlapCorrection = startOfOverlap + child.constraints.overlap;
     switch (applyGrowthDirectionToAxisDirection(
-        _axisDirection, child.constraints.growthDirection)) {
+        AxisDirection.right, child.constraints.growthDirection)) {
       case AxisDirection.down:
         top += overlapCorrection;
       case AxisDirection.up:
@@ -345,8 +249,8 @@ class PhotolineRenderViewport<
       GrowthDirection growthDirection) {
     assert(hasSize);
     assert(child.geometry != null);
-    return switch (
-        applyGrowthDirectionToAxisDirection(_axisDirection, growthDirection)) {
+    return switch (applyGrowthDirectionToAxisDirection(
+        AxisDirection.right, growthDirection)) {
       AxisDirection.up =>
         Offset(0.0, size.height - layoutOffset - child.geometry!.paintExtent),
       AxisDirection.left =>
@@ -420,10 +324,10 @@ class PhotolineRenderViewport<
   }
 
   PhotolineViewportRevealedOffset getOffsetToReveal(
-      RenderObject target,
-      double alignment, {
-        Rect? rect,
-      }) {
+    RenderObject target,
+    double alignment, {
+    Rect? rect,
+  }) {
     double leadingScrollOffset = 0.0;
     // Starting at `target` and walking towards the root:
     //  - `child` will be the last object before we reach this viewport, and
@@ -431,7 +335,7 @@ class PhotolineRenderViewport<
     RenderObject child = target;
     RenderBox? pivot;
     bool onlySlivers = target
-    is RenderSliver; // ... between viewport and `target` (`target` included).
+        is RenderSliver; // ... between viewport and `target` (`target` included).
     while (child.parent != this) {
       final RenderObject parent = child.parent!;
       if (child is RenderBox) {
@@ -486,8 +390,8 @@ class PhotolineRenderViewport<
     final RenderSliver sliver = child as RenderSliver;
 
     // The scroll offset of `rect` within `child`.
-    leadingScrollOffset += switch (
-    applyGrowthDirectionToAxisDirection(_axisDirection, growthDirection)) {
+    leadingScrollOffset += switch (applyGrowthDirectionToAxisDirection(
+        AxisDirection.right, growthDirection)) {
       AxisDirection.up => pivotExtent - rectLocal.bottom,
       AxisDirection.left => pivotExtent - rectLocal.right,
       AxisDirection.right => rectLocal.left,
@@ -502,7 +406,7 @@ class PhotolineRenderViewport<
     final Matrix4 transform = target.getTransformTo(this);
     Rect targetRect = MatrixUtils.transformRect(transform, rect);
     final double extentOfPinnedSlivers =
-    maxScrollObstructionExtentBefore(sliver);
+        maxScrollObstructionExtentBefore(sliver);
 
     switch (sliver.constraints.growthDirection) {
       case GrowthDirection.forward:
@@ -526,12 +430,7 @@ class PhotolineRenderViewport<
         leadingScrollOffset - mainAxisExtentDifference * alignment;
     final double offsetDifference = offset.pixels - targetOffset;
 
-    targetRect = switch (_axisDirection) {
-      AxisDirection.up => targetRect.translate(0.0, -offsetDifference),
-      AxisDirection.down => targetRect.translate(0.0, offsetDifference),
-      AxisDirection.left => targetRect.translate(-offsetDifference, 0.0),
-      AxisDirection.right => targetRect.translate(offsetDifference, 0.0),
-    };
+    targetRect = targetRect.translate(offsetDifference, 0.0);
 
     return PhotolineViewportRevealedOffset(
         offset: targetOffset, rect: targetRect);
@@ -632,58 +531,116 @@ class PhotolineRenderViewport<
 
     final double centerOffset = -correctedOffset;
 
-    final double reverseDirectionRemainingPaintExtent =
-        clampDouble(centerOffset, 0.0, mainAxisExtent);
-
-    final double forwardDirectionRemainingPaintExtent =
-        clampDouble(mainAxisExtent - centerOffset, 0.0, mainAxisExtent);
-
-    final double fullCacheExtent = mainAxisExtent;
-    final double centerCacheOffset = centerOffset;
-    final double reverseDirectionRemainingCacheExtent =
-        clampDouble(centerCacheOffset, 0.0, fullCacheExtent);
-    final double forwardDirectionRemainingCacheExtent =
-        clampDouble(fullCacheExtent - centerCacheOffset, 0.0, fullCacheExtent);
-
-    final RenderSliver? leadingNegativeChild = childBefore(firstChild!);
-
-    if (leadingNegativeChild != null) {
-      // negative scroll offsets
-      final double result = layoutChildSequence(
-        child: leadingNegativeChild,
-        scrollOffset: math.max(mainAxisExtent, centerOffset) - mainAxisExtent,
-        overlap: 0.0,
-        layoutOffset: forwardDirectionRemainingPaintExtent,
-        remainingPaintExtent: reverseDirectionRemainingPaintExtent,
-        mainAxisExtent: mainAxisExtent,
-        crossAxisExtent: crossAxisExtent,
-        growthDirection: GrowthDirection.reverse,
-        advance: childBefore,
-        remainingCacheExtent: reverseDirectionRemainingCacheExtent,
-        cacheOrigin: clampDouble(mainAxisExtent - centerOffset, 0, 0.0),
-      );
-      if (result != 0.0) {
-        return -result;
-      }
-    }
-
-    // positive scroll offsets
     return layoutChildSequence(
       child: firstChild,
       scrollOffset: math.max(0.0, -centerOffset),
-      overlap:
-          leadingNegativeChild == null ? math.min(0.0, -centerOffset) : 0.0,
+      overlap: math.min(0.0, -centerOffset),
       layoutOffset: centerOffset >= mainAxisExtent
           ? centerOffset
-          : reverseDirectionRemainingPaintExtent,
-      remainingPaintExtent: forwardDirectionRemainingPaintExtent,
+          : clampDouble(centerOffset, 0.0, mainAxisExtent),
+      remainingPaintExtent:
+          clampDouble(mainAxisExtent - centerOffset, 0.0, mainAxisExtent),
       mainAxisExtent: mainAxisExtent,
       crossAxisExtent: crossAxisExtent,
       growthDirection: GrowthDirection.forward,
       advance: childAfter,
-      remainingCacheExtent: forwardDirectionRemainingCacheExtent,
+      remainingCacheExtent:
+          clampDouble(mainAxisExtent - centerOffset, 0.0, mainAxisExtent),
       cacheOrigin: clampDouble(centerOffset, 0, 0.0),
     );
+
+
+  }
+
+  double layoutChildSequence({
+    required RenderSliver? child,
+    required double scrollOffset,
+    required double overlap,
+    required double layoutOffset,
+    required double remainingPaintExtent,
+    required double mainAxisExtent,
+    required double crossAxisExtent,
+    required GrowthDirection growthDirection,
+    required RenderSliver? Function(RenderSliver child) advance,
+    required double remainingCacheExtent,
+    required double cacheOrigin,
+  }) {
+    assert(scrollOffset.isFinite);
+    assert(scrollOffset >= 0.0);
+    final double initialLayoutOffset = layoutOffset;
+    final ScrollDirection adjustedUserScrollDirection =
+    applyGrowthDirectionToScrollDirection(
+        offset.userScrollDirection, growthDirection);
+    double maxPaintOffset = layoutOffset + overlap;
+    double precedingScrollExtent = 0.0;
+
+    while (child != null) {
+      final double sliverScrollOffset =
+      scrollOffset <= 0.0 ? 0.0 : scrollOffset;
+      final double correctedCacheOrigin =
+      math.max(cacheOrigin, -sliverScrollOffset);
+      final double cacheExtentCorrection = cacheOrigin - correctedCacheOrigin;
+
+      assert(sliverScrollOffset >= correctedCacheOrigin.abs());
+      assert(correctedCacheOrigin <= 0.0);
+      assert(sliverScrollOffset >= 0.0);
+      assert(cacheExtentCorrection <= 0.0);
+
+      child.layout(
+          SliverConstraints(
+            axisDirection: AxisDirection.right,
+            growthDirection: growthDirection,
+            userScrollDirection: adjustedUserScrollDirection,
+            scrollOffset: sliverScrollOffset,
+            precedingScrollExtent: precedingScrollExtent,
+            overlap: maxPaintOffset - layoutOffset,
+            remainingPaintExtent: math.max(
+                0.0, remainingPaintExtent - layoutOffset + initialLayoutOffset),
+            crossAxisExtent: crossAxisExtent,
+            crossAxisDirection: AxisDirection.down,
+            viewportMainAxisExtent: mainAxisExtent,
+            remainingCacheExtent:
+            math.max(0.0, remainingCacheExtent + cacheExtentCorrection),
+            cacheOrigin: correctedCacheOrigin,
+          ),
+          parentUsesSize: true);
+
+      final SliverGeometry childLayoutGeometry = child.geometry!;
+      assert(childLayoutGeometry.debugAssertIsValid());
+
+      if (childLayoutGeometry.scrollOffsetCorrection != null) {
+        return childLayoutGeometry.scrollOffsetCorrection!;
+      }
+
+      final double effectiveLayoutOffset =
+          layoutOffset + childLayoutGeometry.paintOrigin;
+
+      if (childLayoutGeometry.visible || scrollOffset > 0) {
+        updateChildLayoutOffset(child, effectiveLayoutOffset, growthDirection);
+      } else {
+        updateChildLayoutOffset(
+            child, -scrollOffset + initialLayoutOffset, growthDirection);
+      }
+
+      maxPaintOffset = math.max(
+          effectiveLayoutOffset + childLayoutGeometry.paintExtent,
+          maxPaintOffset);
+      scrollOffset -= childLayoutGeometry.scrollExtent;
+      precedingScrollExtent += childLayoutGeometry.scrollExtent;
+      layoutOffset += childLayoutGeometry.layoutExtent;
+      if (childLayoutGeometry.cacheExtent != 0.0) {
+        remainingCacheExtent -=
+            childLayoutGeometry.cacheExtent - cacheExtentCorrection;
+        cacheOrigin = math.min(
+            correctedCacheOrigin + childLayoutGeometry.cacheExtent, 0.0);
+      }
+
+      updateOutOfBandData(growthDirection, childLayoutGeometry);
+
+      child = advance(child);
+    }
+
+    return 0.0;
   }
 
   bool get hasVisualOverflow => _hasVisualOverflow;
