@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui';
 
@@ -5,28 +6,17 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
+import 'package:photoline/src/viewport/offset.dart';
 
 abstract class _RenderViewportBase<
         ParentDataClass extends ContainerParentDataMixin<RenderSliver>>
     extends RenderBox
-    with ContainerRenderObjectMixin<RenderSliver, ParentDataClass>{
+    with ContainerRenderObjectMixin<RenderSliver, ParentDataClass> {
   _RenderViewportBase({
-    AxisDirection axisDirection = AxisDirection.down,
-    required AxisDirection crossAxisDirection,
     required ViewportOffset offset,
     double? cacheExtent,
-    CacheExtentStyle cacheExtentStyle = CacheExtentStyle.pixel,
-    Clip clipBehavior = Clip.hardEdge,
-  })  : assert(axisDirectionToAxis(axisDirection) !=
-            axisDirectionToAxis(crossAxisDirection)),
-        assert(
-            cacheExtent != null || cacheExtentStyle == CacheExtentStyle.pixel),
-        _axisDirection = axisDirection,
-        _crossAxisDirection = crossAxisDirection,
-        _offset = offset,
-        _cacheExtent = cacheExtent ?? defaultCacheExtent,
-        _cacheExtentStyle = cacheExtentStyle,
-        _clipBehavior = clipBehavior;
+  })  : _offset = offset,
+        _cacheExtent = cacheExtent ?? defaultCacheExtent;
 
   static const double defaultCacheExtent = 250.0;
 
@@ -40,34 +30,15 @@ abstract class _RenderViewportBase<
   @override
   void visitChildrenForSemantics(RenderObjectVisitor visitor) {
     childrenInPaintOrder
-        .where((RenderSliver sliver) =>
+        .where((sliver) =>
             sliver.geometry!.visible || sliver.geometry!.cacheExtent > 0.0)
         .forEach(visitor);
   }
 
-  AxisDirection get axisDirection => _axisDirection;
-  AxisDirection _axisDirection;
+  final AxisDirection _axisDirection = AxisDirection.right;
+  final AxisDirection _crossAxisDirection = AxisDirection.down;
 
-  set axisDirection(AxisDirection value) {
-    if (value == _axisDirection) {
-      return;
-    }
-    _axisDirection = value;
-    markNeedsLayout();
-  }
-
-  AxisDirection get crossAxisDirection => _crossAxisDirection;
-  AxisDirection _crossAxisDirection;
-
-  set crossAxisDirection(AxisDirection value) {
-    if (value == _crossAxisDirection) {
-      return;
-    }
-    _crossAxisDirection = value;
-    markNeedsLayout();
-  }
-
-  Axis get axis => axisDirectionToAxis(axisDirection);
+  Axis get axis => axisDirectionToAxis(_axisDirection);
 
   ViewportOffset get offset => _offset;
   ViewportOffset _offset;
@@ -103,17 +74,6 @@ abstract class _RenderViewportBase<
 
   double? _calculatedCacheExtent;
 
-  CacheExtentStyle get cacheExtentStyle => _cacheExtentStyle;
-  CacheExtentStyle _cacheExtentStyle;
-
-  set cacheExtentStyle(CacheExtentStyle value) {
-    if (value == _cacheExtentStyle) {
-      return;
-    }
-    _cacheExtentStyle = value;
-    markNeedsLayout();
-  }
-
   Clip get clipBehavior => _clipBehavior;
   Clip _clipBehavior = Clip.hardEdge;
 
@@ -137,52 +97,17 @@ abstract class _RenderViewportBase<
     super.detach();
   }
 
-  @protected
-  bool debugThrowIfNotCheckingIntrinsics() {
-    assert(() {
-      if (!RenderObject.debugCheckingIntrinsics) {
-        throw FlutterError.fromParts(<DiagnosticsNode>[
-          ErrorSummary(
-              '$runtimeType does not support returning intrinsic dimensions.'),
-          ErrorDescription(
-            'Calculating the intrinsic dimensions would require instantiating every child of '
-            'the viewport, which defeats the point of viewports being lazy.',
-          ),
-          ErrorHint(
-            'If you are merely trying to shrink-wrap the viewport in the main axis direction, '
-            'consider a RenderShrinkWrappingViewport render object (ShrinkWrappingViewport widget), '
-            'which achieves that effect without implementing the intrinsic dimension API.',
-          ),
-        ]);
-      }
-      return true;
-    }());
-    return true;
-  }
+  @override
+  double computeMinIntrinsicWidth(double height) => 0.0;
 
   @override
-  double computeMinIntrinsicWidth(double height) {
-    assert(debugThrowIfNotCheckingIntrinsics());
-    return 0.0;
-  }
+  double computeMaxIntrinsicWidth(double height) => 0.0;
 
   @override
-  double computeMaxIntrinsicWidth(double height) {
-    assert(debugThrowIfNotCheckingIntrinsics());
-    return 0.0;
-  }
+  double computeMinIntrinsicHeight(double width) => 0.0;
 
   @override
-  double computeMinIntrinsicHeight(double width) {
-    assert(debugThrowIfNotCheckingIntrinsics());
-    return 0.0;
-  }
-
-  @override
-  double computeMaxIntrinsicHeight(double width) {
-    assert(debugThrowIfNotCheckingIntrinsics());
-    return 0.0;
-  }
+  double computeMaxIntrinsicHeight(double width) => 0.0;
 
   @override
   bool get isRepaintBoundary => true;
@@ -227,7 +152,7 @@ abstract class _RenderViewportBase<
 
       child.layout(
           SliverConstraints(
-            axisDirection: axisDirection,
+            axisDirection: _axisDirection,
             growthDirection: growthDirection,
             userScrollDirection: adjustedUserScrollDirection,
             scrollOffset: sliverScrollOffset,
@@ -236,7 +161,7 @@ abstract class _RenderViewportBase<
             remainingPaintExtent: math.max(
                 0.0, remainingPaintExtent - layoutOffset + initialLayoutOffset),
             crossAxisExtent: crossAxisExtent,
-            crossAxisDirection: crossAxisDirection,
+            crossAxisDirection: _crossAxisDirection,
             viewportMainAxisExtent: mainAxisExtent,
             remainingCacheExtent:
                 math.max(0.0, remainingCacheExtent + cacheExtentCorrection),
@@ -325,7 +250,7 @@ abstract class _RenderViewportBase<
         child.constraints.remainingPaintExtent;
     final double overlapCorrection = startOfOverlap + child.constraints.overlap;
     switch (applyGrowthDirectionToAxisDirection(
-        axisDirection, child.constraints.growthDirection)) {
+        _axisDirection, child.constraints.growthDirection)) {
       case AxisDirection.down:
         top += overlapCorrection;
       case AxisDirection.up:
@@ -439,7 +364,7 @@ abstract class _RenderViewportBase<
       applyPaintTransform(child, transform); // must be invertible
       final bool isHit = result.addWithOutOfBandPosition(
         paintTransform: transform,
-        hitTest: (BoxHitTestResult result) {
+        hitTest: (result) {
           return child.hitTest(
             sliverResult,
             mainAxisPosition:
@@ -455,33 +380,13 @@ abstract class _RenderViewportBase<
     return false;
   }
 
-  @override
-  _RevealedOffset getOffsetToReveal(
+  PhotolineViewportRevealedOffset getOffsetToReveal(
     RenderObject target,
     double alignment, {
     Rect? rect,
     Axis? axis,
   }) {
-    // One dimensional viewport has only one axis, override if it was
-    // provided/may be mismatched.
     axis = this.axis;
-
-    // Steps to convert `rect` (from a RenderBox coordinate system) to its
-    // scroll offset within this viewport (not in the exact order):
-    //
-    // 1. Pick the outermost RenderBox (between which, and the viewport, there
-    // is nothing but RenderSlivers) as an intermediate reference frame
-    // (the `pivot`), convert `rect` to that coordinate space.
-    //
-    // 2. Convert `rect` from the `pivot` coordinate space to its sliver
-    // parent's sliver coordinate system (i.e., to a scroll offset), based on
-    // the axis direction and growth direction of the parent.
-    //
-    // 3. Convert the scroll offset to its sliver parent's coordinate space
-    // using `childScrollOffset`, until we reach the viewport.
-    //
-    // 4. Make the final conversion from the outmost sliver to the viewport
-    // using `scrollOffsetOf`.
 
     double leadingScrollOffset = 0.0;
     // Starting at `target` and walking towards the root:
@@ -517,8 +422,7 @@ abstract class _RenderViewportBase<
       assert(pivot.parent != null);
       assert(pivot.parent != this);
       assert(pivot != this);
-      assert(pivot.parent
-          is RenderSliver); // TODO(abarth): Support other kinds of render objects besides slivers.
+      assert(pivot.parent is RenderSliver);
       final RenderSliver pivotParent = pivot.parent! as RenderSliver;
       growthDirection = pivotParent.constraints.growthDirection;
       pivotExtent = switch (axis) {
@@ -528,12 +432,8 @@ abstract class _RenderViewportBase<
       rect ??= target.paintBounds;
       rectLocal = MatrixUtils.transformRect(target.getTransformTo(pivot), rect);
     } else if (onlySlivers) {
-      // `pivot` does not exist. We'll have to make up one from `target`, the
-      // innermost sliver.
       final RenderSliver targetSliver = target as RenderSliver;
       growthDirection = targetSliver.constraints.growthDirection;
-      // TODO(LongCatIsLooong): make sure this works if `targetSliver` is a
-      // persistent header, when #56413 relands.
       pivotExtent = targetSliver.geometry!.scrollExtent;
       if (rect == null) {
         switch (axis) {
@@ -556,7 +456,8 @@ abstract class _RenderViewportBase<
       rectLocal = rect;
     } else {
       assert(rect != null);
-      return _RevealedOffset(offset: offset.pixels, rect: rect!);
+      return PhotolineViewportRevealedOffset(
+          offset: offset.pixels, rect: rect!);
     }
 
     assert(child.parent == this);
@@ -565,7 +466,7 @@ abstract class _RenderViewportBase<
 
     // The scroll offset of `rect` within `child`.
     leadingScrollOffset += switch (
-        applyGrowthDirectionToAxisDirection(axisDirection, growthDirection)) {
+        applyGrowthDirectionToAxisDirection(_axisDirection, growthDirection)) {
       AxisDirection.up => pivotExtent - rectLocal.bottom,
       AxisDirection.left => pivotExtent - rectLocal.right,
       AxisDirection.right => rectLocal.left,
@@ -595,12 +496,13 @@ abstract class _RenderViewportBase<
     switch (sliver.constraints.growthDirection) {
       case GrowthDirection.forward:
         if (isPinned && alignment <= 0) {
-          return _RevealedOffset(offset: double.infinity, rect: targetRect);
+          return PhotolineViewportRevealedOffset(
+              offset: double.infinity, rect: targetRect);
         }
         leadingScrollOffset -= extentOfPinnedSlivers;
       case GrowthDirection.reverse:
         if (isPinned && alignment >= 1) {
-          return _RevealedOffset(
+          return PhotolineViewportRevealedOffset(
               offset: double.negativeInfinity, rect: targetRect);
         }
         // If child's growth direction is reverse, when viewport.offset is
@@ -621,14 +523,15 @@ abstract class _RenderViewportBase<
         leadingScrollOffset - mainAxisExtentDifference * alignment;
     final double offsetDifference = offset.pixels - targetOffset;
 
-    targetRect = switch (axisDirection) {
+    targetRect = switch (_axisDirection) {
       AxisDirection.up => targetRect.translate(0.0, -offsetDifference),
       AxisDirection.down => targetRect.translate(0.0, offsetDifference),
       AxisDirection.left => targetRect.translate(-offsetDifference, 0.0),
       AxisDirection.right => targetRect.translate(offsetDifference, 0.0),
     };
 
-    return _RevealedOffset(offset: targetOffset, rect: targetRect);
+    return PhotolineViewportRevealedOffset(
+        offset: targetOffset, rect: targetRect);
   }
 
   @protected
@@ -637,7 +540,7 @@ abstract class _RenderViewportBase<
     assert(hasSize); // this is only usable once we have a size
     assert(child.geometry != null);
     return switch (
-        applyGrowthDirectionToAxisDirection(axisDirection, growthDirection)) {
+        applyGrowthDirectionToAxisDirection(_axisDirection, growthDirection)) {
       AxisDirection.up =>
         Offset(0.0, size.height - layoutOffset - child.geometry!.paintExtent),
       AxisDirection.left =>
@@ -645,15 +548,6 @@ abstract class _RenderViewportBase<
       AxisDirection.right => Offset(layoutOffset, 0.0),
       AxisDirection.down => Offset(0.0, layoutOffset),
     };
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties.add(EnumProperty<AxisDirection>('axisDirection', axisDirection));
-    properties.add(
-        EnumProperty<AxisDirection>('crossAxisDirection', crossAxisDirection));
-    properties.add(DiagnosticsProperty<ViewportOffset>('offset', offset));
   }
 
   @override
@@ -754,12 +648,13 @@ abstract class _RenderViewportBase<
     if (descendant == null) {
       return rect;
     }
-    final _RevealedOffset leadingEdgeOffset =
+    final PhotolineViewportRevealedOffset leadingEdgeOffset =
         viewport.getOffsetToReveal(descendant, 0.0, rect: rect);
-    final _RevealedOffset trailingEdgeOffset =
+    final PhotolineViewportRevealedOffset trailingEdgeOffset =
         viewport.getOffsetToReveal(descendant, 1.0, rect: rect);
     final double currentOffset = offset.pixels;
-    final _RevealedOffset? targetOffset = _RevealedOffset.clampOffset(
+    final PhotolineViewportRevealedOffset? targetOffset =
+        PhotolineViewportRevealedOffset.clampOffset(
       leadingEdgeOffset: leadingEdgeOffset,
       trailingEdgeOffset: trailingEdgeOffset,
       currentOffset: currentOffset,
@@ -773,7 +668,8 @@ abstract class _RenderViewportBase<
           transform, rect ?? descendant.paintBounds);
     }
 
-    offset.moveTo(targetOffset.offset, duration: duration, curve: curve);
+    unawaited(
+        offset.moveTo(targetOffset.offset, duration: duration, curve: curve));
     return targetOffset.rect;
   }
 }
@@ -781,20 +677,11 @@ abstract class _RenderViewportBase<
 class PhotolineRenderViewport
     extends _RenderViewportBase<SliverPhysicalContainerParentData> {
   PhotolineRenderViewport({
-    super.axisDirection,
-    required super.crossAxisDirection,
     required super.offset,
-    double anchor = 0.0,
     List<RenderSliver>? children,
     RenderSliver? center,
     super.cacheExtent,
-    super.cacheExtentStyle,
-    super.clipBehavior,
-  })  : assert(anchor >= 0.0 && anchor <= 1.0),
-        assert(cacheExtentStyle != CacheExtentStyle.viewport ||
-            cacheExtent != null),
-        _anchor = anchor,
-        _center = center {
+  }) : _center = center {
     addAll(children);
     if (center == null && firstChild != null) {
       _center = firstChild;
@@ -812,18 +699,6 @@ class PhotolineRenderViewport
     if (child.parentData is! SliverPhysicalContainerParentData) {
       child.parentData = SliverPhysicalContainerParentData();
     }
-  }
-
-  double get anchor => _anchor;
-  double _anchor;
-
-  set anchor(double value) {
-    assert(value >= 0.0 && value <= 1.0);
-    if (value == _anchor) {
-      return;
-    }
-    _anchor = value;
-    markNeedsLayout();
   }
 
   RenderSliver? get center => _center;
@@ -891,8 +766,8 @@ class PhotolineRenderViewport
         offset.correctBy(correction);
       } else {
         if (offset.applyContentDimensions(
-          math.min(0.0, _minScrollExtent + mainAxisExtent * anchor),
-          math.max(0.0, _maxScrollExtent - mainAxisExtent * (1.0 - anchor)),
+          math.min(0.0, _minScrollExtent),
+          math.max(0.0, _maxScrollExtent - mainAxisExtent),
         )) {
           break;
         }
@@ -936,19 +811,13 @@ class PhotolineRenderViewport
     _maxScrollExtent = 0.0;
     _hasVisualOverflow = false;
 
-    // centerOffset is the offset from the leading edge of the RenderViewport
-    // to the zero scroll offset (the line between the forward slivers and the
-    // reverse slivers).
-    final double centerOffset = mainAxisExtent * anchor - correctedOffset;
+    final double centerOffset = -correctedOffset;
     final double reverseDirectionRemainingPaintExtent =
         clampDouble(centerOffset, 0.0, mainAxisExtent);
     final double forwardDirectionRemainingPaintExtent =
         clampDouble(mainAxisExtent - centerOffset, 0.0, mainAxisExtent);
 
-    _calculatedCacheExtent = switch (cacheExtentStyle) {
-      CacheExtentStyle.pixel => cacheExtent,
-      CacheExtentStyle.viewport => mainAxisExtent * _cacheExtent,
-    };
+    _calculatedCacheExtent = mainAxisExtent * _cacheExtent;
 
     final double fullCacheExtent = mainAxisExtent + 2 * _calculatedCacheExtent!;
     final double centerCacheOffset = centerOffset + _calculatedCacheExtent!;
@@ -1019,9 +888,7 @@ class PhotolineRenderViewport
   @override
   void updateChildLayoutOffset(RenderSliver child, double layoutOffset,
       GrowthDirection growthDirection) {
-    final SliverPhysicalParentData childParentData =
-        child.parentData! as SliverPhysicalParentData;
-    childParentData.paintOffset =
+    (child.parentData! as SliverPhysicalParentData).paintOffset =
         computeAbsolutePaintOffset(child, layoutOffset, growthDirection);
   }
 
@@ -1082,10 +949,8 @@ class PhotolineRenderViewport
 
   @override
   void applyPaintTransform(RenderObject child, Matrix4 transform) {
-    // Hit test logic relies on this always providing an invertible matrix.
-    final SliverPhysicalParentData childParentData =
-        child.parentData! as SliverPhysicalParentData;
-    childParentData.applyPaintTransform(transform);
+    (child.parentData! as SliverPhysicalParentData)
+        .applyPaintTransform(transform);
   }
 
   @override
@@ -1164,47 +1029,5 @@ class PhotolineRenderViewport
       child = childBefore(child);
     }
     return children;
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties.add(DoubleProperty('anchor', anchor));
-  }
-}
-
-class _RevealedOffset {
-  const _RevealedOffset({
-    required this.offset,
-    required this.rect,
-  });
-
-  final double offset;
-
-  final Rect rect;
-
-  static _RevealedOffset? clampOffset({
-    required _RevealedOffset leadingEdgeOffset,
-    required _RevealedOffset trailingEdgeOffset,
-    required double currentOffset,
-  }) {
-    final bool inverted = leadingEdgeOffset.offset < trailingEdgeOffset.offset;
-    final _RevealedOffset smaller;
-    final _RevealedOffset larger;
-    (smaller, larger) = inverted
-        ? (leadingEdgeOffset, trailingEdgeOffset)
-        : (trailingEdgeOffset, leadingEdgeOffset);
-    if (currentOffset > larger.offset) {
-      return larger;
-    } else if (currentOffset < smaller.offset) {
-      return smaller;
-    } else {
-      return null;
-    }
-  }
-
-  @override
-  String toString() {
-    return '${objectRuntimeType(this, 'RevealedOffset')}(offset: $offset, rect: $rect)';
   }
 }

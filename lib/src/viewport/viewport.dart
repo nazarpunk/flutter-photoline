@@ -22,12 +22,8 @@ class PhotolineViewport extends MultiChildRenderObjectWidget {
   @override
   PhotolineRenderViewport createRenderObject(BuildContext context) {
     return PhotolineRenderViewport(
-      axisDirection: AxisDirection.right,
-      crossAxisDirection: AxisDirection.down,
-      anchor: anchor,
       offset: offset,
       cacheExtent: cacheExtent,
-      cacheExtentStyle: CacheExtentStyle.viewport,
     );
   }
 
@@ -35,13 +31,8 @@ class PhotolineViewport extends MultiChildRenderObjectWidget {
   void updateRenderObject(
       BuildContext context, PhotolineRenderViewport renderObject) {
     renderObject
-      ..axisDirection = AxisDirection.right
-      ..crossAxisDirection = AxisDirection.down
-      ..anchor = anchor
       ..offset = offset
-      ..cacheExtent = cacheExtent
-      ..cacheExtentStyle = CacheExtentStyle.viewport
-      ..clipBehavior = Clip.hardEdge;
+      ..cacheExtent = cacheExtent;
   }
 
   @override
