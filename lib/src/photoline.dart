@@ -2,7 +2,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
-import 'package:flutter/rendering.dart';
 import 'package:photoline/src/backside/backside.dart';
 import 'package:photoline/src/controller.dart';
 import 'package:photoline/src/holder/holder.dart';
@@ -17,6 +16,7 @@ import 'package:photoline/src/sliver/sliver_multi_box_adaptor_widget.dart';
 import 'package:photoline/src/tile/tile.dart';
 import 'package:photoline/src/utils/action.dart';
 import 'package:photoline/src/utils/position.dart';
+import 'package:photoline/src/viewport/viewport.dart';
 
 class Photoline extends StatefulWidget {
   const Photoline({
@@ -646,11 +646,9 @@ class PhotolineState extends State<Photoline>
                         axisDirection: AxisDirection.right,
                         controller: controller,
                         physics: _physics,
-                        viewportBuilder: (context, position) => Viewport(
+                        viewportBuilder: (context, position) =>
+                            PhotolineViewport(
                           cacheExtent: 0.0,
-                          // dont edit this value
-                          cacheExtentStyle: CacheExtentStyle.viewport,
-                          axisDirection: AxisDirection.right,
                           offset: position,
                           slivers: [
                             PhotolineSliverMultiBoxAdaptorWidget(
