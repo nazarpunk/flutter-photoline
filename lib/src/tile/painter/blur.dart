@@ -68,8 +68,7 @@ class BlurPainter extends CustomPainter {
         rb,
         Paint()
           ..color = const Color.fromRGBO(0, 0, 0, 1)
-          ..imageFilter = ui.ImageFilter.blur(
-              sigmaX: sigma, sigmaY: sigma, tileMode: TileMode.mirror),
+          ..imageFilter = ui.ImageFilter.blur(sigmaX: sigma, sigmaY: sigma, tileMode: TileMode.mirror),
       );
   }
 

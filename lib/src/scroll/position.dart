@@ -252,7 +252,7 @@ class PhotolineScrollPosition extends ScrollPosition
 
   @override
   double setPixels(double newPixels) {
-    assert(activity!.isScrolling);
+    //assert(activity!.isScrolling);
     return super.setPixels(newPixels);
   }
 

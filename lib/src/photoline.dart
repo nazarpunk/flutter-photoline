@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/rendering.dart';
@@ -629,27 +628,11 @@ class PhotolineState extends State<Photoline>
   @override
   Widget build(BuildContext context) {
     _updater = !_updater;
-    final count = controller.getPhotoCount();
-
     return LayoutBuilder(builder: (context, constraints) {
       controller.photolineWidth = constraints.maxWidth;
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (kDebugMode && controller.onDebugAdd != null)
-            SizedBox(
-              height: 50,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  for (int i = 0; i < math.max(1, count); i++)
-                    IconButton(
-                      onPressed: () => controller.onDebugAdd!(i),
-                      icon: Text('$i'),
-                    ),
-                ],
-              ),
-            ),
           Expanded(
             child: ClipRect(
               child: Stack(
