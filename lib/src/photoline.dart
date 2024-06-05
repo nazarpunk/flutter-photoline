@@ -649,7 +649,6 @@ class PhotolineState extends State<Photoline>
                         physics: _physics,
                         viewportBuilder: (context, position) =>
                             PhotolineViewport(
-                          cacheExtent: 1.0,
                           offset: position,
                           slivers: [
                             PhotolineSliverMultiBoxAdaptorWidget(

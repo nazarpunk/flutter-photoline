@@ -15,20 +15,11 @@ class PhotolineRenderViewport<
   PhotolineRenderViewport({
     required ViewportOffset offset,
     List<RenderSliver>? children,
-    required double cacheExtent,
-  })  : _offset = offset,
-        _cacheExtent = cacheExtent {
+  }) : _offset = offset {
     addAll(children);
     if (firstChild != null) {
       _center = firstChild;
     }
-  }
-
-  @override
-  void describeSemanticsConfiguration(SemanticsConfiguration config) {
-    super.describeSemanticsConfiguration(config);
-
-    config.addTagForChildren(PhotolineRenderViewport.useTwoPaneSemantics);
   }
 
   @override
@@ -57,28 +48,6 @@ class PhotolineRenderViewport<
       _offset.addListener(markNeedsLayout);
     }
     markNeedsLayout();
-  }
-
-  double get cacheExtent => _cacheExtent;
-  double _cacheExtent;
-
-  set cacheExtent(double value) {
-    if (value == _cacheExtent) return;
-    _cacheExtent = value;
-    markNeedsLayout();
-  }
-
-  double? _calculatedCacheExtent;
-
-  Clip get clipBehavior => _clipBehavior;
-  Clip _clipBehavior = Clip.hardEdge;
-
-  set clipBehavior(Clip value) {
-    if (value != _clipBehavior) {
-      _clipBehavior = value;
-      markNeedsPaint();
-      markNeedsSemanticsUpdate();
-    }
   }
 
   @override
@@ -165,19 +134,13 @@ class PhotolineRenderViewport<
       final SliverGeometry childLayoutGeometry = child.geometry!;
       assert(childLayoutGeometry.debugAssertIsValid());
 
-      // If there is a correction to apply, we'll have to start over.
       if (childLayoutGeometry.scrollOffsetCorrection != null) {
         return childLayoutGeometry.scrollOffsetCorrection!;
       }
 
-      // We use the child's paint origin in our coordinate system as the
-      // layoutOffset we store in the child's parent data.
       final double effectiveLayoutOffset =
           layoutOffset + childLayoutGeometry.paintOrigin;
 
-      // `effectiveLayoutOffset` becomes meaningless once we moved past the trailing edge
-      // because `childLayoutGeometry.layoutExtent` is zero. Using the still increasing
-      // 'scrollOffset` to roughly position these invisible slivers in the right order.
       if (childLayoutGeometry.visible || scrollOffset > 0) {
         updateChildLayoutOffset(child, effectiveLayoutOffset, growthDirection);
       } else {
@@ -200,35 +163,16 @@ class PhotolineRenderViewport<
 
       updateOutOfBandData(growthDirection, childLayoutGeometry);
 
-      // move on to the next child
       child = advance(child);
     }
 
-    // we made it without a correction, whee!
     return 0.0;
   }
 
   @override
   Rect? describeApproximatePaintClip(RenderSliver child) {
-    switch (clipBehavior) {
-      case Clip.none:
-        return null;
-      case Clip.hardEdge:
-      case Clip.antiAlias:
-      case Clip.antiAliasWithSaveLayer:
-        break;
-    }
-
     final Rect viewportClip = Offset.zero & size;
-    // The child's viewportMainAxisExtent can be infinite when a
-    // RenderShrinkWrappingViewport is given infinite constraints, such as when
-    // it is the child of a Row or Column (depending on orientation).
-    //
-    // For example, a shrink wrapping render sliver may have infinite
-    // constraints along the viewport's main axis but may also have bouncing
-    // scroll physics, which will allow for some scrolling effect to occur.
-    // We should just use the viewportClip - the start of the overlap is at
-    // double.infinity and so it is effectively meaningless.
+
     if (child.constraints.overlap == 0 ||
         !child.constraints.viewportMainAxisExtent.isFinite) {
       return viewportClip;
@@ -257,31 +201,22 @@ class PhotolineRenderViewport<
   }
 
   @override
-  Rect describeSemanticsClip(RenderSliver? child) {
-    if (_calculatedCacheExtent == null) {
-      return semanticBounds;
-    }
-
-    return Rect.fromLTRB(
-      semanticBounds.left - _calculatedCacheExtent!,
-      semanticBounds.top,
-      semanticBounds.right + _calculatedCacheExtent!,
-      semanticBounds.bottom,
-    );
-  }
+  Rect describeSemanticsClip(RenderSliver? child) => Rect.fromLTRB(
+        semanticBounds.left,
+        semanticBounds.top,
+        semanticBounds.right,
+        semanticBounds.bottom,
+      );
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    if (firstChild == null) {
-      return;
-    }
-    if (hasVisualOverflow && clipBehavior != Clip.none) {
+    if (firstChild == null) return;
+    if (hasVisualOverflow) {
       _clipRectLayer.layer = context.pushClipRect(
         needsCompositing,
         offset,
         Offset.zero & size,
         _paintContents,
-        clipBehavior: clipBehavior,
         oldLayer: _clipRectLayer.layer,
       );
     } else {
@@ -336,7 +271,6 @@ class PhotolineRenderViewport<
     return false;
   }
 
-  //-------------------------------------------------------------------------------------------------------------------------
   PhotolineViewportRevealedOffset getOffsetToReveal(
     RenderObject target,
     double alignment, {
@@ -412,21 +346,11 @@ class PhotolineRenderViewport<
       AxisDirection.down => rectLocal.top,
     };
 
-    // So far leadingScrollOffset is the scroll offset of `rect` in the `child`
-    // sliver's sliver coordinate system. The sign of this value indicates
-    // whether the `rect` protrudes the leading edge of the `child` sliver. When
-    // this value is non-negative and `child`'s `maxScrollObstructionExtent` is
-    // greater than 0, we assume `rect` can't be obstructed by the leading edge
-    // of the viewport (i.e. its pinned to the leading edge).
     final bool isPinned = sliver.geometry!.maxScrollObstructionExtent > 0 &&
         leadingScrollOffset >= 0;
 
-    // The scroll offset in the viewport to `rect`.
     leadingScrollOffset = scrollOffsetOf(sliver, leadingScrollOffset);
 
-    // This step assumes the viewport's layout is up-to-date, i.e., if
-    // offset.pixels is changed after the last performLayout, the new scroll
-    // position will not be accounted for.
     final Matrix4 transform = target.getTransformTo(this);
     Rect targetRect = MatrixUtils.transformRect(transform, rect);
     final double extentOfPinnedSlivers =
@@ -519,9 +443,7 @@ class PhotolineRenderViewport<
     Duration duration = Duration.zero,
     Curve curve = Curves.ease,
   }) {
-    if (descendant == null) {
-      return rect;
-    }
+    if (descendant == null) return rect;
     final PhotolineViewportRevealedOffset leadingEdgeOffset =
         viewport.getOffsetToReveal(descendant, 0.0, rect: rect);
     final PhotolineViewportRevealedOffset trailingEdgeOffset =
@@ -534,8 +456,6 @@ class PhotolineRenderViewport<
       currentOffset: currentOffset,
     );
     if (targetOffset == null) {
-      // `descendant` is between leading and trailing edge and hence already
-      //  fully shown on screen. No action necessary.
       assert(viewport.parent != null);
       final Matrix4 transform = descendant.getTransformTo(viewport.parent);
       return MatrixUtils.transformRect(
@@ -546,14 +466,6 @@ class PhotolineRenderViewport<
         offset.moveTo(targetOffset.offset, duration: duration, curve: curve));
     return targetOffset.rect;
   }
-
-  //-------------------------------------------------------------------------------------------------------------------------
-
-  static const SemanticsTag useTwoPaneSemantics =
-      SemanticsTag('RenderViewport.twoPane');
-
-  static const SemanticsTag excludeFromScrolling =
-      SemanticsTag('RenderViewport.excludeFromScrolling');
 
   @override
   void setupParentData(RenderObject child) {
@@ -668,12 +580,8 @@ class PhotolineRenderViewport<
     final double forwardDirectionRemainingPaintExtent =
         clampDouble(mainAxisExtent - centerOffset, 0.0, mainAxisExtent);
 
-    _calculatedCacheExtent = mainAxisExtent * _cacheExtent;
-
-    _calculatedCacheExtent = 0;
-
-    final double fullCacheExtent = mainAxisExtent + 2 * _calculatedCacheExtent!;
-    final double centerCacheOffset = centerOffset + _calculatedCacheExtent!;
+    final double fullCacheExtent = mainAxisExtent;
+    final double centerCacheOffset = centerOffset;
     final double reverseDirectionRemainingCacheExtent =
         clampDouble(centerCacheOffset, 0.0, fullCacheExtent);
     final double forwardDirectionRemainingCacheExtent =
@@ -694,8 +602,7 @@ class PhotolineRenderViewport<
         growthDirection: GrowthDirection.reverse,
         advance: childBefore,
         remainingCacheExtent: reverseDirectionRemainingCacheExtent,
-        cacheOrigin: clampDouble(
-            mainAxisExtent - centerOffset, -_calculatedCacheExtent!, 0.0),
+        cacheOrigin: clampDouble(mainAxisExtent - centerOffset, 0, 0.0),
       );
       if (result != 0.0) {
         return -result;
@@ -717,7 +624,7 @@ class PhotolineRenderViewport<
       growthDirection: GrowthDirection.forward,
       advance: childAfter,
       remainingCacheExtent: forwardDirectionRemainingCacheExtent,
-      cacheOrigin: clampDouble(centerOffset, -_calculatedCacheExtent!, 0.0),
+      cacheOrigin: clampDouble(centerOffset, 0, 0.0),
     );
   }
 

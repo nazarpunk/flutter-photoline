@@ -9,7 +9,6 @@ class PhotolineViewport extends MultiChildRenderObjectWidget {
     super.key,
     this.anchor = 0.0,
     required this.offset,
-    required this.cacheExtent,
     List<Widget> slivers = const <Widget>[],
   }) : super(children: slivers);
 
@@ -17,13 +16,10 @@ class PhotolineViewport extends MultiChildRenderObjectWidget {
 
   final ViewportOffset offset;
 
-  final double cacheExtent;
-
   @override
   PhotolineRenderViewport createRenderObject(BuildContext context) {
     return PhotolineRenderViewport(
       offset: offset,
-      cacheExtent: cacheExtent,
     );
   }
 
@@ -31,8 +27,7 @@ class PhotolineViewport extends MultiChildRenderObjectWidget {
   void updateRenderObject(
       BuildContext context, PhotolineRenderViewport renderObject) {
     renderObject
-      ..offset = offset
-      ..cacheExtent = cacheExtent;
+      .offset = offset;
   }
 
   @override
