@@ -32,14 +32,16 @@ class PhotolineSliverChildBuilderDelegate extends SliverChildDelegate {
   Widget? build(BuildContext context, int index) {
     if (index < 0 || (index >= estimatedChildCount!)) return null;
 
-    final Widget? child = builder(context, index);
+    if (index == 0) return const SizedBox();
+
+    final Widget? child = builder(context, index - 1);
     if (child == null) return null;
     //child = RepaintBoundary(child: child);
     return child;
   }
 
   @override
-  int? get estimatedChildCount => controller.count;
+  int? get estimatedChildCount => controller.count + 1;
 
   @override
   bool shouldRebuild(
