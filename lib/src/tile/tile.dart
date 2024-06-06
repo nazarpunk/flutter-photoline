@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:photoline/src/controller.dart';
@@ -266,6 +267,7 @@ class PhotolineTileState extends State<PhotolineTile>
             ),
             if (persistent != null) ...persistent,
             if (_dragCurrent > 0) Positioned.fill(child: ColoredBox(color: cc)),
+            if (kDebugMode) Center(child: Text('$_index')),
           ],
         );
 
