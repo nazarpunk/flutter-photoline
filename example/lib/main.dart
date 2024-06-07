@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 // ignore: unused_import
 import 'package:photoline_example/nested_scroll/nested_widget.dart';
+
 // ignore: unused_import
 import 'package:photoline_example/photoline/fullscreen.dart';
 
@@ -39,8 +40,11 @@ class MyApp extends StatelessWidget {
           ),
         );
       },
-      //home: const PhotolineTestWidget(),
-      home: const PhotolineTestFullscreenWidget(),
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Photoline')),
+        body: const PhotolineTestWidget(),
+      ),
+      //home: const PhotolineTestFullscreenWidget(),
     );
   }
 }

@@ -11,7 +11,7 @@ class PhotolineTestWidget extends StatefulWidget {
 
 class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
   late final ScrollSnapController _controller;
-  final _photolineHolderDragController = PhotolineHolderDragController();
+  late final PhotolineHolderDragController _photolineHolderDragController;
 
   final List<PhotolineController> _photolines = [];
 
@@ -21,6 +21,10 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
       snapLast: true,
       snapPhotolines: () => _photolines,
     );
+    _photolineHolderDragController = PhotolineHolderDragController(
+      snapController: _controller,
+    );
+
     for (int i = 0; i < 13; i++) {
       _photolines.add(
         PhotolineController(
@@ -30,13 +34,13 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
           getWidget: (index) => const SizedBox(),
           //getPersistentWidgets: (index) => [const Placeholder()],
           getPhotoCount: () => 10,
-          onRemove: (index){
+          onRemove: (index) {
             //print('onRemove|$index');
           },
-          onReorder: (oldIndex, newIndex){
+          onReorder: (oldIndex, newIndex) {
             //print('onReorder|$oldIndex|$newIndex');
           },
-          bottomHeightAddition: () => 30,
+          //bottomHeightAddition: () => 30,
         ),
       );
     }
@@ -60,10 +64,12 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
                 SliverSnapList(
                   controller: _controller,
                   delegate: SliverChildBuilderDelegateWithGap(
-                    (context, index) => _Child(
-                      index: index,
-                      constraints: constraints,
-                      controller: _photolines[index],
+                    (context, index) => AutomaticKeepAlive(
+                      child: _Child(
+                        index: index,
+                        constraints: constraints,
+                        controller: _photolines[index],
+                      ),
                     ),
                     childCount: _photolines.length,
                   ),
@@ -90,9 +96,10 @@ class _Child extends StatefulWidget {
   State<_Child> createState() => _ChildState();
 }
 
-class _ChildState extends State<_Child> {
+class _ChildState extends State<_Child> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Column(
       children: [
         SizedBox(
@@ -104,11 +111,10 @@ class _ChildState extends State<_Child> {
             footer: const SizedBox(child: Placeholder(color: Colors.green)),
           ),
         ),
-        const SizedBox(
-          height: 30,
-          child: Placeholder(color: Colors.red),
-        )
       ],
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

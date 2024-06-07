@@ -5,12 +5,19 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:photoline/src/controller.dart';
 import 'package:photoline/src/holder/holder.dart';
+import 'package:photoline/src/scroll/snap/controller.dart';
 import 'package:photoline/src/tile/tile.dart';
 import 'package:photoline/src/utils/action.dart';
 import 'package:photoline/src/utils/photoline_tile_intersection.dart';
 
 /// Drag controller.
 class PhotolineHolderDragController implements Drag {
+  PhotolineHolderDragController({
+    required this.snapController,
+  });
+
+  final ScrollSnapController snapController;
+
   /// === [Drag]
   PhotolineHolderState? holder;
   OverlayState? _overlayState;
@@ -21,6 +28,7 @@ class PhotolineHolderDragController implements Drag {
 
   late PhotolineController _initialController;
   late PhotolineController _currentController;
+
   late PhotolineTileState _initialTile;
 
   final _recognizerDelay = DelayedMultiDragGestureRecognizer();
@@ -30,6 +38,9 @@ class PhotolineHolderDragController implements Drag {
   late Offset _closeOffsetStart;
   late Offset _closeOffsetEnd;
   late Size _tileSize;
+
+  int _snapDirection = 0;
+  Timer? _snapTimer;
 
   Timer? _scrollTimer;
 
@@ -232,7 +243,6 @@ class PhotolineHolderDragController implements Drag {
 
   void onPointerDown(PhotolineController controller, PhotolineTileState tile,
       PointerDownEvent event) {
-
     if (controller.action.value != PhotolineAction.close) return;
     if (isDrag) {
       _recogniserAbsorb.addPointer(event);
@@ -255,11 +265,17 @@ class PhotolineHolderDragController implements Drag {
   @override
   void end(DragEndDetails details) => _onDragEndStart();
 
+  void _snapTimerRun() {
+    if (_snapDirection == 0 || isDragClose) return;
+    snapController.pos.scrollNextPhotoline(_snapDirection);
+    _snapTimer = Timer(const Duration(milliseconds: 500), _snapTimerRun);
+  }
+
   @override
   void update(DragUpdateDetails details) {
     _tileOffset += details.delta;
     double dx = _tileOffset.dx;
-    double dy = _tileOffset.dy;
+    final double dy = _tileOffset.dy;
 
     final RenderBox overlayBox =
         _overlayState!.context.findRenderObject()! as RenderBox;
@@ -268,9 +284,22 @@ class PhotolineHolderDragController implements Drag {
     if (dx + _tileSize.width > overlayBox.size.width) {
       dx = overlayBox.size.width - _tileSize.width;
     }
-    if (dy < 0) dy = 0;
+
+    int snapDir = 0;
+
+    if (dy < 0) {
+      //dy = 0;
+      snapDir = -1;
+    }
     if (dy + _tileSize.height > overlayBox.size.height) {
-      dy = overlayBox.size.height - _tileSize.height;
+      //dy = overlayBox.size.height - _tileSize.height;
+      snapDir = 1;
+    }
+
+    if (_snapDirection != snapDir) {
+      _snapDirection = snapDir;
+      _snapTimer?.cancel();
+      _snapTimerRun();
     }
 
     _tileOffsetVisible = Offset(dx, dy);

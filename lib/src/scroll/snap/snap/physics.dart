@@ -145,10 +145,10 @@ class ScrollSnapPhysics extends ScrollPhysics {
             target = so;
           }
           switch (p.action.value) {
-            case PhotolineAction.drag:
             case PhotolineAction.open:
             case PhotolineAction.opening:
               so += heightOpen;
+            case PhotolineAction.drag:
             case PhotolineAction.closing:
             case PhotolineAction.close:
               so += heightClose + p.bottomHeightAddition();
@@ -204,10 +204,10 @@ class ScrollSnapPhysics extends ScrollPhysics {
           for (final p in position.controller.snapPhotolines!()) {
             offsets.add(so);
             switch (p.action.value) {
-              case PhotolineAction.drag:
               case PhotolineAction.open:
               case PhotolineAction.opening:
                 so += heightOpen;
+              case PhotolineAction.drag:
               case PhotolineAction.closing:
               case PhotolineAction.close:
                 so += heightClose + p.bottomHeightAddition();

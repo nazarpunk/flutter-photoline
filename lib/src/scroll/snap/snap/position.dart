@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:math' as math;
 import 'dart:ui';
@@ -61,10 +62,10 @@ class ScrollSnapPosition extends ScrollPositionWithSingleContext {
       for (int i = 0; i < list.length - 1; i++) {
         final p = list[i];
         switch (p.action.value) {
-          case PhotolineAction.drag:
           case PhotolineAction.open:
           case PhotolineAction.opening:
             so += heightOpen;
+          case PhotolineAction.drag:
           case PhotolineAction.closing:
           case PhotolineAction.close:
             so += heightClose + p.bottomHeightAddition();
@@ -82,6 +83,42 @@ class ScrollSnapPosition extends ScrollPositionWithSingleContext {
     }
 
     return super.applyContentDimensions(minScrollExtent, maxScrollExtent);
+  }
+
+  void scrollNextPhotoline(int direction) {
+    double dist = double.infinity;
+    double so = 0;
+    int current = -1;
+    final List<double> offsets = [];
+
+    final (heightClose, heightOpen) =
+        (physics as ScrollSnapPhysics).photolineHeights(this);
+
+    for (final p in controller.snapPhotolines!()) {
+      final d = so - pixels;
+      offsets.add(so);
+      if (dist.isInfinite || d.abs() < dist.abs()) {
+        dist = d;
+        current = offsets.length - 1;
+      }
+      switch (p.action.value) {
+        case PhotolineAction.open:
+        case PhotolineAction.opening:
+          so += heightOpen;
+        case PhotolineAction.drag:
+        case PhotolineAction.closing:
+        case PhotolineAction.close:
+          so += heightClose + p.bottomHeightAddition();
+      }
+      so += controller.photolineGap;
+    }
+
+    current += direction;
+
+    if (current < 0 || current >= offsets.length) return;
+
+    unawaited(animateTo(offsets[current],
+        duration: const Duration(milliseconds: 300), curve: Curves.linear));
   }
 
   @override
