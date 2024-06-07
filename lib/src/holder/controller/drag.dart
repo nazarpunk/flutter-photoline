@@ -232,6 +232,7 @@ class PhotolineHolderDragController implements Drag {
 
   void onPointerDown(PhotolineController controller, PhotolineTileState tile,
       PointerDownEvent event) {
+
     if (controller.action.value != PhotolineAction.close) return;
     if (isDrag) {
       _recogniserAbsorb.addPointer(event);

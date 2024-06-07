@@ -74,8 +74,7 @@ class _PhotolineBacksideState extends State<PhotolineBackside>
           o[1] = v * _controller.openRatio;
         case PhotolineAction.drag:
           final List<PhotolineDrag> pd = _controller.positionDrag;
-          if (pd.isEmpty) break;
-          final p = pd.first.page;
+          final p = pd.isEmpty ? 0 : pd.first.page;
           for (int i = 0; i < viewCount; i++) {
             w[i] = close;
             o[i] = (p + i) * close;

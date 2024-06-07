@@ -39,7 +39,8 @@ class MyApp extends StatelessWidget {
           ),
         );
       },
-      home: const PhotolineTestWidget(),
+      //home: const PhotolineTestWidget(),
+      home: const PhotolineTestFullscreenWidget(),
     );
   }
 }

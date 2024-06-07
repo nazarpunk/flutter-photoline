@@ -78,7 +78,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
             canPaint = false;
           }
         case PhotolineAction.drag:
-          if (indexOf(child) == controller.pageDragInitial) {
+          if (indexOf(child) - 1 == controller.pageDragInitial) {
             canPaint = false;
             dragBox = child;
             dragOffset = childOffset;
@@ -115,7 +115,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
       required double width}) {
     final c = constraints.asBoxConstraints(minExtent: width, maxExtent: width);
 
-    if (child == null || indexOf(child) != index + 1) {
+    if (child == null || indexOf(child) != index - 1) {
       child = insertAndLayoutChild(c, after: prev);
     } else {
       child.layout(c);
@@ -300,8 +300,6 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
   void _performDrag() {
     final constraints = this.constraints;
-    BoxConstraints bc(double width) =>
-        constraints.asBoxConstraints(minExtent: width, maxExtent: width);
     final count = _count;
     final size = controller.size;
 
@@ -317,48 +315,29 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
       return;
     }
 
-    final fp = controller.positionDrag[0];
-    if (firstChild == null) addInitialChild();
-    firstChild!.layout(bc(size.close));
-    (firstChild!.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset =
-        fp.offset + scrollOffset;
+    RenderBox prev = _firstChild;
 
-    RenderBox curBox = firstChild!;
+    for (int index = 0; index < count; index++) {
+      final RenderBox? child = childAfter(prev);
 
-    for (int i = 1; i < count; i++) {
-      RenderBox? child = childAfter(curBox);
-
-      final p = controller.positionDrag[i];
-
-      if (child == null || indexOf(child) != i) {
-        child = insertAndLayoutChild(bc(size.close), after: curBox);
-      } else {
-        child.layout(bc(size.close));
-      }
-
-      curBox = child!;
-      double offset = p.offset;
-      if (i == controller.pageDragInitial) {
+      double offset = controller.positionDrag[index].offset;
+      if (index == controller.pageDragInitial) {
         offset =
             offset.clamp(0, constraints.viewportMainAxisExtent - size.close);
       }
 
-      (child.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset =
-          offset + scrollOffset;
+      prev = _childLayout(
+        constraints: constraints,
+        index: index,
+        prev: prev,
+        child: child,
+        offset: offset + scrollOffset,
+        width: size.close,
+      );
     }
 
-    geometry = SliverGeometry(
-      //scrollExtent: widthOpen * count,
-      scrollExtent: double.infinity,
-      paintExtent: calculatePaintOffset(
-        constraints,
-        from: 0,
-        to: double.infinity,
-      ),
-      maxPaintExtent: double.infinity,
-      hasVisualOverflow: true,
-    );
-
+    //scrollExtent: widthOpen * count,
+    geometry = _geometry(double.infinity);
     childManager.didFinishLayout();
   }
 }

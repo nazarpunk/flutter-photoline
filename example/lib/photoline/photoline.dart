@@ -11,6 +11,7 @@ class PhotolineTestWidget extends StatefulWidget {
 
 class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
   late final ScrollSnapController _controller;
+  final _photolineHolderDragController = PhotolineHolderDragController();
 
   final List<PhotolineController> _photolines = [];
 
@@ -29,6 +30,12 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
           getWidget: (index) => const SizedBox(),
           //getPersistentWidgets: (index) => [const Placeholder()],
           getPhotoCount: () => 10,
+          onRemove: (index){
+            //print('onRemove|$index');
+          },
+          onReorder: (oldIndex, newIndex){
+            //print('onReorder|$oldIndex|$newIndex');
+          },
           bottomHeightAddition: () => 30,
         ),
       );
@@ -42,6 +49,7 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
         builder: (context, constraints) {
           _controller.boxConstraints = constraints;
           return PhotolineHolder(
+            dragController: _photolineHolderDragController,
             child: ScrollSnap(
               controller: _controller,
               cacheExtent: .1,

@@ -589,6 +589,7 @@ class PhotolineState extends State<Photoline>
     controller.photoline = this;
 
     holder = context.findAncestorStateOfType<PhotolineHolderState>();
+
     holder?.photolines.add(this);
     controller.dragController = holder?.dragController;
 

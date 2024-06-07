@@ -24,6 +24,7 @@ class _PhotolineTestFullscreenWidgetState
       //getPersistentWidgets: (index) => [const Placeholder()],
       getPhotoCount: () => 10,
       bottomHeightAddition: () => 30,
+      getViewCount: _minPhotoLength,
     );
 
     super.initState();
@@ -35,3 +36,6 @@ class _PhotolineTestFullscreenWidgetState
         return Photoline(controller: _photoline);
       });
 }
+
+
+int _minPhotoLength(double? width) => width == null ? 3 : (width < 0 ? 3 : (width < 600 ? 3 : (width < 1200 ? 4 : 5)));

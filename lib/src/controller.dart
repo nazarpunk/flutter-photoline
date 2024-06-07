@@ -94,6 +94,18 @@ class PhotolineController extends ScrollController {
   final aspectRatio = ValueNotifier<double>(0);
 
   @override
+  void attach(ScrollPosition position) {
+    //print('attahc');
+    super.attach(position);
+  }
+
+  @override
+  void detach(ScrollPosition position) {
+    //print('detach');
+    super.detach(position);
+  }
+
+  @override
   void dispose() {
     fullScreenExpander.dispose();
     action.dispose();
