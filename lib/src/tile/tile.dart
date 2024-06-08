@@ -199,11 +199,7 @@ class PhotolineTileState extends State<PhotolineTile>
     _data = MediaQuery.of(context);
     return LayoutBuilder(
       builder: (context, constraints) {
-        final sc =
-            Color.fromRGBO(0, 0, 200, ui.lerpDouble(0, .4, _dragCurrent)!);
-        final rc =
-            Color.fromRGBO(200, 0, 0, ui.lerpDouble(0, .4, _dragCurrent)!);
-        final cc = Color.lerp(sc, rc, _drag?.removeDx ?? 0)!;
+
 
         final size = _controller.size;
 
@@ -219,6 +215,8 @@ class PhotolineTileState extends State<PhotolineTile>
           closeDw: (cdwa / (size.close - size.side2)).clamp(0, 1),
           openDw: (constraints.maxWidth - size.close) /
               (size.open - size.close).clamp(-1, 1),
+          dragging: _dragCurrent > 0,
+          removing: (_drag?.removeDx ?? 0) == 1
         );
 
         final List<Widget>? persistent =
@@ -265,7 +263,6 @@ class PhotolineTileState extends State<PhotolineTile>
                   : const SizedBox(),
             ),
             if (persistent != null) ...persistent,
-            if (_dragCurrent > 0) Positioned.fill(child: ColoredBox(color: cc)),
           ],
         );
 

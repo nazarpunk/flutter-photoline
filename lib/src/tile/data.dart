@@ -7,10 +7,14 @@ class PhotolineTileData {
     required this.loading,
     required this.closeDw,
     required this.openDw,
+    required this.dragging,
+    required this.removing,
   });
 
   final int index;
   final double loading;
   final double closeDw;
   final double openDw;
+  final bool dragging;
+  final bool removing;
 }
