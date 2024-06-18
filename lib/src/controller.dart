@@ -95,7 +95,7 @@ class PhotolineController extends ScrollController {
 
   @override
   void attach(ScrollPosition position) {
-    //print('attahc');
+    //print('attach');
     super.attach(position);
   }
 

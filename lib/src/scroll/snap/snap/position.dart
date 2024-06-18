@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:collection';
 import 'dart:math' as math;
 import 'dart:ui';
@@ -86,6 +85,9 @@ class ScrollSnapPosition extends ScrollPositionWithSingleContext {
   }
 
   void scrollNextPhotoline(int direction) {
+    final photolines = controller.snapPhotolines;
+    if (photolines == null) return;
+
     double dist = double.infinity;
     double so = 0;
     int current = -1;
@@ -94,7 +96,7 @@ class ScrollSnapPosition extends ScrollPositionWithSingleContext {
     final (heightClose, heightOpen) =
         (physics as ScrollSnapPhysics).photolineHeights(this);
 
-    for (final p in controller.snapPhotolines!()) {
+    for (final p in photolines()) {
       final d = so - pixels;
       offsets.add(so);
       if (dist.isInfinite || d.abs() < dist.abs()) {
@@ -117,8 +119,23 @@ class ScrollSnapPosition extends ScrollPositionWithSingleContext {
 
     if (current < 0 || current >= offsets.length) return;
 
-    unawaited(animateTo(offsets[current],
-        duration: const Duration(milliseconds: 300), curve: Curves.linear));
+    //unawaited(animateTo(offsets[current],duration: const Duration(milliseconds: 300), curve: Curves.linear));
+    beginActivity(BallisticScrollActivity(
+      this,
+      ScrollSpringSimulation(
+        SpringDescription.withDampingRatio(
+          mass: 1.2,
+          stiffness: 80.0,
+          ratio: 1.2,
+        ),
+        pixels,
+        offsets[current],
+        0,
+        tolerance: physics.toleranceFor(this),
+      ),
+      context.vsync,
+      activity?.shouldIgnorePointer ?? true,
+    ));
   }
 
   @override

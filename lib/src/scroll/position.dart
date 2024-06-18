@@ -33,8 +33,6 @@ class PhotolineScrollPosition extends ScrollPosition
   double? cachedPage;
   final PhotolineController controller;
 
-
-
   @override
   Future<void> ensureVisible(
     RenderObject object, {
@@ -172,10 +170,21 @@ class PhotolineScrollPosition extends ScrollPosition
   bool applyViewportDimension(double viewportDimension) {
     final double? oldViewportDimensions =
         hasViewportDimension ? this.viewportDimension : null;
-    if (viewportDimension == oldViewportDimensions) {
-      return true;
-    }
+
+    if (viewportDimension == oldViewportDimensions) return true;
+
     final bool result = super.applyViewportDimension(viewportDimension);
+
+    print('$viewportDimension == $oldViewportDimensions | ☢️ ${controller.action.value}');
+
+
+
+    if (kDebugMode) {
+      goIdle();
+      correctPixels(0);
+      return result;
+    }
+
     final double? oldPixels = hasPixels ? pixels : null;
     double page;
     if (oldPixels == null) {
@@ -194,6 +203,7 @@ class PhotolineScrollPosition extends ScrollPosition
       return false;
     }
     return result;
+
   }
 
   @override

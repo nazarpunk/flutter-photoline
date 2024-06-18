@@ -37,6 +37,12 @@ class ScrollableExState extends ScrollableState {
   bool isPointerPrevent = false;
 
   @override
+  void didChangeDependencies() {
+    //print('☢️ didChangeDependencies');
+    super.didChangeDependencies();
+  }
+
+  @override
   Widget build(BuildContext context) => Listener(
         onPointerSignal: _onPointerSignal,
         child: super.build(context),

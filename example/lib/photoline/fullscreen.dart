@@ -21,9 +21,8 @@ class _PhotolineTestFullscreenWidgetState
       getKey: ValueKey.new,
       //getWidget: (index) => const Placeholder(),
       getWidget: (index) => const SizedBox(),
-      //getPersistentWidgets: (index) => [const Placeholder()],
+      //getBackside: (index) => const Placeholder(),
       getPhotoCount: () => 10,
-      bottomHeightAddition: () => 30,
       getViewCount: _minPhotoLength,
     );
 
@@ -31,11 +30,11 @@ class _PhotolineTestFullscreenWidgetState
   }
 
   @override
-  Widget build(BuildContext context) =>
-      LayoutBuilder(builder: (context, constraints) {
-        return Photoline(controller: _photoline);
-      });
+  Widget build(BuildContext context) => LayoutBuilder(builder: (context, constraints) {
+      return Photoline(controller: _photoline);
+    });
 }
 
-
-int _minPhotoLength(double? width) => width == null ? 3 : (width < 0 ? 3 : (width < 600 ? 3 : (width < 1200 ? 4 : 5)));
+int _minPhotoLength(double? width) => width == null
+    ? 3
+    : (width < 0 ? 3 : (width < 600 ? 3 : (width < 1200 ? 4 : 5)));
