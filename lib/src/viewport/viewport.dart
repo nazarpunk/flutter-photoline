@@ -7,12 +7,9 @@ export 'package:flutter/rendering.dart' show AxisDirection, GrowthDirection;
 class PhotolineViewport extends MultiChildRenderObjectWidget {
   const PhotolineViewport({
     super.key,
-    this.anchor = 0.0,
     required this.offset,
     List<Widget> slivers = const <Widget>[],
   }) : super(children: slivers);
-
-  final double anchor;
 
   final ViewportOffset offset;
 
@@ -26,8 +23,7 @@ class PhotolineViewport extends MultiChildRenderObjectWidget {
   @override
   void updateRenderObject(
       BuildContext context, PhotolineRenderViewport renderObject) {
-    renderObject
-      .offset = offset;
+    renderObject.offset = offset;
   }
 
   @override
@@ -61,7 +57,6 @@ class _ViewportElement extends MultiChildRenderObjectElement
     assert(_doingMountOrUpdate);
     _doingMountOrUpdate = false;
   }
-
 
   @override
   void moveRenderObjectChild(RenderObject child, IndexedSlot<Element?> oldSlot,

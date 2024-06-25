@@ -22,6 +22,17 @@ class _PhotolineTestFullscreenWidgetState
       //getWidget: (index) => const Placeholder(),
       getWidget: (index) => const SizedBox(),
       //getBackside: (index) => const Placeholder(),
+      getPersistentWidgets: (data) => [
+        Center(
+          child: CircleAvatar(
+            backgroundColor: Colors.purple,
+            child: Text(
+              '${data.index}',
+              style: const TextStyle(color: Colors.white),
+            ),
+          ),
+        ),
+      ],
       getPhotoCount: () => 10,
       getViewCount: _minPhotoLength,
     );
@@ -30,9 +41,10 @@ class _PhotolineTestFullscreenWidgetState
   }
 
   @override
-  Widget build(BuildContext context) => LayoutBuilder(builder: (context, constraints) {
-      return Photoline(controller: _photoline);
-    });
+  Widget build(BuildContext context) =>
+      LayoutBuilder(builder: (context, constraints) {
+        return Photoline(controller: _photoline);
+      });
 }
 
 int _minPhotoLength(double? width) => width == null

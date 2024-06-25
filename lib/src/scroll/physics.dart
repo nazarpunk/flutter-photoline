@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:photoline/src/scroll/position.dart';
+import 'package:photoline/src/scroll/photoline/position.dart';
 import 'package:photoline/src/utils/action.dart';
 
 class PhotolineScrollPhysics extends ScrollPhysics {

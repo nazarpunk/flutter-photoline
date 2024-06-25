@@ -1,3 +1,5 @@
+// ignore_for_file: must_call_super
+
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -6,6 +8,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:photoline/src/controller.dart';
 import 'package:photoline/src/scroll/activity/ballistic.dart';
 import 'package:photoline/src/scroll/activity/drag.dart';
@@ -14,24 +17,20 @@ import 'package:photoline/src/scroll/activity/mixin.dart';
 import 'package:photoline/src/scroll/metrics.dart';
 import 'package:photoline/src/utils/action.dart';
 
-class PhotolineScrollPosition extends ScrollPosition
-    implements ScrollActivityDelegate, PhotolineScrollMetrics {
+part 'override.dart';
+
+class PhotolineScrollPosition extends PhotolineScrollPositionOverride {
   PhotolineScrollPosition({
-    required this.controller,
+    required super.controller,
     required super.physics,
     required super.context,
-    this.initialPage = 0,
     super.oldPosition,
-  }) : _pageToUseOnStartup = initialPage.toDouble() {
+  }) {
     if (activity == null) goIdle();
     assert(activity != null);
   }
 
-  final int initialPage;
-  double _pageToUseOnStartup;
-
-  double? cachedPage;
-  final PhotolineController controller;
+  double? _cachedPage;
 
   @override
   Future<void> ensureVisible(
@@ -102,8 +101,8 @@ class PhotolineScrollPosition extends ScrollPosition
     return _getPageFromPixelsOpen(pixels, vd);
   }
 
-  double getPixelsFromPage(double page) {
-    final vd = viewportDimension;
+  double getPixelsFromPage(double page, [double? vd]) {
+    vd ??= viewportDimension;
 
     if (controller.action.value == PhotolineAction.close) {
       final base = vd * controller.closeRatio;
@@ -127,10 +126,9 @@ class PhotolineScrollPosition extends ScrollPosition
         'Page value is only available after content dimensions are established.');
     return !hasPixels || !hasContentDimensions
         ? null
-        : cachedPage ??
-            getPageFromPixels(
-                clampDouble(pixels, minScrollExtent, maxScrollExtent),
-                viewportDimension);
+        : getPageFromPixels(
+            clampDouble(pixels, minScrollExtent, maxScrollExtent),
+            viewportDimension);
   }
 
   double get pageOpen {
@@ -138,86 +136,69 @@ class PhotolineScrollPosition extends ScrollPosition
   }
 
   @override
-  void saveScrollOffset() {
-    PageStorage.maybeOf(context.storageContext)?.writeState(
-        context.storageContext, cachedPage ?? getPageFromPixels(pixels));
-  }
-
-  @override
-  void restoreScrollOffset() {
-    if (!hasPixels) {
-      final double? value = PageStorage.maybeOf(context.storageContext)
-          ?.readState(context.storageContext) as double?;
-      if (value != null) _pageToUseOnStartup = value;
-    }
-  }
-
-  @override
-  void saveOffset() {
-    context.saveOffset(cachedPage ?? getPageFromPixels(pixels));
-  }
-
-  @override
-  void restoreOffset(double offset, {bool initialRestore = false}) {
-    if (initialRestore) {
-      _pageToUseOnStartup = offset;
-    } else {
-      jumpTo(getPixelsFromPage(offset));
-    }
-  }
-
-  @override
   bool applyViewportDimension(double viewportDimension) {
     final double? oldViewportDimensions =
-        hasViewportDimension ? this.viewportDimension : null;
-
-    if (viewportDimension == oldViewportDimensions) return true;
-
-    final bool result = super.applyViewportDimension(viewportDimension);
-
-    print('$viewportDimension == $oldViewportDimensions | ☢️ ${controller.action.value}');
-
-
-
-    if (kDebugMode) {
-      goIdle();
-      correctPixels(0);
-      return result;
+        hasViewportDimension ? _viewportDimension : null;
+    if (viewportDimension == oldViewportDimensions) {
+      return true;
     }
 
     final double? oldPixels = hasPixels ? pixels : null;
     double page;
-    if (oldPixels == null) {
-      page = _pageToUseOnStartup;
-    } else if (oldViewportDimensions == 0.0) {
-      page = cachedPage!;
-    } else {
-      page = getPageFromPixels(oldPixels, oldViewportDimensions);
-    }
-    final double newPixels = getPixelsFromPage(page);
 
-    cachedPage = (viewportDimension == 0.0) ? page : null;
+    final co = controller.getViewCount(_viewportDimension);
+    final cn = controller.getViewCount(viewportDimension);
+
+    if (oldPixels == null) {
+      page = 0;
+    } else if (oldViewportDimensions == 0.0) {
+      page = _cachedPage!;
+    } else {
+      switch (controller.action.value) {
+        case PhotolineAction.closing:
+        case PhotolineAction.close:
+          final base = _viewportDimension! / co;
+          page = math.min((controller.getPhotoCount() - cn).toDouble(),
+              (oldPixels / base).roundToDouble());
+        case PhotolineAction.open:
+        case PhotolineAction.opening:
+          page = _getPageFromPixelsOpen(oldPixels, _viewportDimension)
+              .roundToDouble();
+        case PhotolineAction.drag:
+          page =
+              getPageFromPixels(oldPixels, _viewportDimension).roundToDouble();
+      }
+    }
+    final double newPixels;
+
+    switch (controller.action.value) {
+      case PhotolineAction.closing:
+      case PhotolineAction.close:
+        newPixels = page * (viewportDimension / cn);
+      case PhotolineAction.drag:
+      case PhotolineAction.open:
+      case PhotolineAction.opening:
+        newPixels = getPixelsFromPage(page, viewportDimension);
+    }
+
+    if (_viewportDimension != viewportDimension) {
+      _viewportDimension = viewportDimension;
+      _didChangeViewportDimensionOrReceiveCorrection = true;
+    }
+
+    _cachedPage = (viewportDimension == 0.0) ? page : null;
 
     if (newPixels != oldPixels) {
-      correctPixels(newPixels);
+      _pixels = newPixels;
       return false;
     }
-    return result;
-
-  }
-
-  @override
-  void absorb(ScrollPosition other) {
-    super.absorb(other);
-    assert(cachedPage == null);
-
-    if (other is! PhotolineScrollPosition) return;
-
-    if (other.cachedPage != null) cachedPage = other.cachedPage;
+    return true;
   }
 
   @override
   bool applyContentDimensions(double minScrollExtent, double maxScrollExtent) {
+    //print('🍒 applyContentDimensions');
+
     switch (controller.action.value) {
       case PhotolineAction.open:
         if (controller.pageOpenInitial != 0 &&
@@ -230,8 +211,85 @@ class PhotolineScrollPosition extends ScrollPosition
       case PhotolineAction.drag:
     }
 
-    return super.applyContentDimensions(
-        minScrollExtent, math.max(minScrollExtent, maxScrollExtent));
+    assert(haveDimensions == (_lastMetrics != null));
+    if (!nearEqual(_minScrollExtent, minScrollExtent,
+            Tolerance.defaultTolerance.distance) ||
+        !nearEqual(_maxScrollExtent, maxScrollExtent,
+            Tolerance.defaultTolerance.distance) ||
+        _didChangeViewportDimensionOrReceiveCorrection ||
+        _lastAxis != axis) {
+      assert(minScrollExtent <= maxScrollExtent);
+      _minScrollExtent = minScrollExtent;
+      _maxScrollExtent = maxScrollExtent;
+      _lastAxis = axis;
+      final ScrollMetrics? currentMetrics = haveDimensions ? copyWith() : null;
+      _didChangeViewportDimensionOrReceiveCorrection = false;
+      _pendingDimensions = true;
+      if (haveDimensions &&
+          !correctForNewDimensions(_lastMetrics!, currentMetrics!)) {
+        return false;
+      }
+      _haveDimensions = true;
+    }
+    assert(haveDimensions);
+    if (_pendingDimensions) {
+      applyNewDimensions();
+      _pendingDimensions = false;
+    }
+    assert(!_didChangeViewportDimensionOrReceiveCorrection,
+        'Use correctForNewDimensions() (and return true) to change the scroll offset during applyContentDimensions().');
+
+    if (_isMetricsChanged()) {
+      // It is too late to send useful notifications, because the potential
+      // listeners have, by definition, already been built this frame. To make
+      // sure the notification is sent at all, we delay it until after the frame
+      // is complete.
+      if (!_haveScheduledUpdateNotification) {
+        scheduleMicrotask(didUpdateScrollMetrics);
+        _haveScheduledUpdateNotification = true;
+      }
+      _lastMetrics = copyWith();
+    }
+    return true;
+  }
+
+  @override
+  void absorb(ScrollPosition other) {
+    assert(other.context == context);
+    assert(_pixels == null);
+    if (other.hasContentDimensions) {
+      _minScrollExtent = other.minScrollExtent;
+      _maxScrollExtent = other.maxScrollExtent;
+    }
+    if (other.hasPixels) {
+      _pixels = other.pixels;
+    }
+    if (other.hasViewportDimension) {
+      _viewportDimension = other.viewportDimension;
+    }
+
+    assert(activity == null);
+    assert(other.activity != null);
+    _activity = other.activity;
+    (other as PhotolineScrollPositionOverride)._activity = null;
+    if (other.runtimeType != runtimeType) {
+      activity!.resetActivity();
+    }
+    context.setIgnorePointer(activity!.shouldIgnorePointer);
+    isScrollingNotifier.value = activity!.isScrolling;
+
+    assert(_cachedPage == null);
+
+    if (other is! PhotolineScrollPosition) return;
+    if (other._cachedPage != null) {
+      _cachedPage = other._cachedPage;
+    }
+  }
+
+  @override
+  bool correctForNewDimensions(
+      ScrollMetrics oldPosition, ScrollMetrics newPosition) {
+    return true;
   }
 
   @override
@@ -264,13 +322,49 @@ class PhotolineScrollPosition extends ScrollPosition
 
   @override
   double setPixels(double newPixels) {
-    //assert(activity!.isScrolling);
-    return super.setPixels(newPixels);
+    assert(activity!.isScrolling);
+    assert(hasPixels);
+    assert(
+        SchedulerBinding.instance.schedulerPhase !=
+            SchedulerPhase.persistentCallbacks,
+        "A scrollable's position should not change during the build, layout, and paint phases, otherwise the rendering will be confused.");
+
+    if (newPixels != pixels) {
+      final double overscroll = applyBoundaryConditions(newPixels);
+
+      assert(() {
+        final double delta = newPixels - pixels;
+        if (overscroll.abs() > delta.abs()) {
+          throw FlutterError(
+            '$runtimeType.applyBoundaryConditions returned invalid overscroll value.\n'
+            'setPixels() was called to change the scroll offset from $pixels to $newPixels.\n'
+            'That is a delta of $delta units.\n'
+            '$runtimeType.applyBoundaryConditions reported an overscroll of $overscroll units.',
+          );
+        }
+        return true;
+      }());
+
+      final double oldPixels = pixels;
+      _pixels = newPixels - overscroll;
+      if (_pixels != oldPixels) {
+        notifyListeners();
+        didUpdateScrollPositionBy(pixels - oldPixels);
+      }
+      if (overscroll.abs() > precisionErrorTolerance) {
+        didOverscrollBy(overscroll);
+        return overscroll;
+      }
+    }
+    return 0.0;
   }
 
   @override
   void applyNewDimensions() {
-    super.applyNewDimensions();
+    assert(hasPixels);
+    assert(_pendingDimensions);
+    activity!.applyNewDimensions();
+    _updateSemanticActions();
     context.setCanDrag(physics.shouldAcceptUserOffset(this));
   }
 
@@ -354,11 +448,6 @@ class PhotolineScrollPosition extends ScrollPosition
 
   @override
   void jumpTo(double value) {
-    if (cachedPage != null) {
-      cachedPage = page;
-      return;
-    }
-
     goIdle();
     if (pixels != value) {
       final double oldPixels = pixels;
@@ -371,11 +460,6 @@ class PhotolineScrollPosition extends ScrollPosition
   }
 
   void toPageSlide(double current, double target) {
-    if (cachedPage != null) {
-      cachedPage = target;
-      return;
-    }
-
     forcePixels(getPixelsFromPage(current));
 
     beginActivity(BallisticScrollActivity(
@@ -420,9 +504,6 @@ class PhotolineScrollPosition extends ScrollPosition
   }
 
   @override
-  void jumpToWithoutSettling(double value) {}
-
-  @override
   ScrollHoldController hold(VoidCallback holdCancelCallback) {
     final double previousVelocity = activity!.velocity;
     final HoldScrollActivity holdActivity = HoldScrollActivity(
@@ -457,4 +538,7 @@ class PhotolineScrollPosition extends ScrollPosition
     _currentDrag = null;
     super.dispose();
   }
+
+  @override
+  void jumpToWithoutSettling(double value) {}
 }

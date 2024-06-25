@@ -199,8 +199,6 @@ class PhotolineTileState extends State<PhotolineTile>
     _data = MediaQuery.of(context);
     return LayoutBuilder(
       builder: (context, constraints) {
-
-
         final size = _controller.size;
 
         final (double, double) limit = size.close > size.side2

@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:photoline/src/holder/controller/drag.dart';
 import 'package:photoline/src/photoline.dart';
-import 'package:photoline/src/scroll/position.dart';
+import 'package:photoline/src/scroll/photoline/position.dart';
 import 'package:photoline/src/tile/data.dart';
 import 'package:photoline/src/tile/tile.dart';
 import 'package:photoline/src/utils/action.dart';
@@ -89,21 +89,10 @@ class PhotolineController extends ScrollController {
   final pageActiveOpen = ValueNotifier<int>(-1);
   final pageActiveOpenComplete = ValueNotifier<int>(-1);
   final pageTargetOpen = ValueNotifier<int>(-1);
+
   int pageOpenInitial = -1;
 
   final aspectRatio = ValueNotifier<double>(0);
-
-  @override
-  void attach(ScrollPosition position) {
-    //print('attach');
-    super.attach(position);
-  }
-
-  @override
-  void detach(ScrollPosition position) {
-    //print('detach');
-    super.detach(position);
-  }
 
   @override
   void dispose() {

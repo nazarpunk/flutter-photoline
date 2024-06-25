@@ -461,20 +461,16 @@ class PhotolineRenderViewport<
     final double centerOffsetAdjustment = firstChild!.centerOffsetAdjustment;
     final int maxLayoutCycles = _maxLayoutCyclesPerChild * childCount;
 
-    double correction;
     int count = 0;
     do {
-      correction = _attemptLayout(mainAxisExtent, crossAxisExtent,
+      _attemptLayout(mainAxisExtent, crossAxisExtent,
           offset.pixels + centerOffsetAdjustment);
-      if (correction != 0.0) {
-        offset.correctBy(correction);
-      } else {
-        if (offset.applyContentDimensions(
-          math.min(0.0, _minScrollExtent),
-          math.max(0.0, _maxScrollExtent - mainAxisExtent),
-        )) {
-          break;
-        }
+
+      if (offset.applyContentDimensions(
+        math.min(0.0, _minScrollExtent),
+        math.max(0.0, _maxScrollExtent - mainAxisExtent),
+      )) {
+        break;
       }
       count += 1;
     } while (count < maxLayoutCycles);

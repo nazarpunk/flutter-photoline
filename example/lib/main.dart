@@ -1,13 +1,11 @@
+// ignore_for_file: unused_import
+
 import 'package:flutter/material.dart';
 
-// ignore: unused_import
 import 'package:photoline_example/nested_scroll/nested_widget.dart';
-
-// ignore: unused_import
 import 'package:photoline_example/photoline/fullscreen.dart';
-
-// ignore: unused_import
 import 'package:photoline_example/photoline/photoline.dart';
+import 'package:photoline_example/widget/page_view.dart';
 import 'package:photoline_example/widget/scroll.dart';
 
 void main() => runApp(const MyApp());
@@ -43,8 +41,9 @@ class MyApp extends StatelessWidget {
       home: Scaffold(
         appBar: AppBar(title: const Text('Photoline')),
         body:
-        //const PhotolineTestWidget(),
-        const PhotolineTestFullscreenWidget(),
+            //const PhotolineTestWidget(),
+            const PhotolineTestFullscreenWidget(),
+            //const PageViewExample(),
       ),
     );
   }
