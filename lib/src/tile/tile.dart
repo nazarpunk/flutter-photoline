@@ -214,7 +214,8 @@ class PhotolineTileState extends State<PhotolineTile>
           openDw: (constraints.maxWidth - size.close) /
               (size.open - size.close).clamp(-1, 1),
           dragging: _dragCurrent > 0,
-          removing: (_drag?.removeDx ?? 0) == 1
+          dragCurrent: _dragCurrent,
+          isRemove: _drag?.isRemove ?? false,
         );
 
         final List<Widget>? persistent =

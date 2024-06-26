@@ -8,7 +8,8 @@ class PhotolineTileData {
     required this.closeDw,
     required this.openDw,
     required this.dragging,
-    required this.removing,
+    required this.dragCurrent,
+    required this.isRemove,
   });
 
   final int index;
@@ -16,5 +17,6 @@ class PhotolineTileData {
   final double closeDw;
   final double openDw;
   final bool dragging;
-  final bool removing;
+  final double dragCurrent;
+  final bool isRemove;
 }
