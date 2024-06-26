@@ -116,7 +116,7 @@ class PhotolineScrollPosition extends PhotolineScrollPositionOverride {
 
     final side = (vd - open) * .5;
     if (page < 1) return page * (open - side);
-    if (page == pageLast) return page * open - side * 2;
+    if (page == controller.getPhotoCount() - 1) return page * open - side * 2;
     return page * open - side;
   }
 
@@ -197,7 +197,7 @@ class PhotolineScrollPosition extends PhotolineScrollPositionOverride {
 
   @override
   bool applyContentDimensions(double minScrollExtent, double maxScrollExtent) {
-    //print('🍒 applyContentDimensions');
+    //print('🍒 applyContentDimensions $maxScrollExtent');
 
     switch (controller.action.value) {
       case PhotolineAction.open:
@@ -240,10 +240,6 @@ class PhotolineScrollPosition extends PhotolineScrollPositionOverride {
         'Use correctForNewDimensions() (and return true) to change the scroll offset during applyContentDimensions().');
 
     if (_isMetricsChanged()) {
-      // It is too late to send useful notifications, because the potential
-      // listeners have, by definition, already been built this frame. To make
-      // sure the notification is sent at all, we delay it until after the frame
-      // is complete.
       if (!_haveScheduledUpdateNotification) {
         scheduleMicrotask(didUpdateScrollMetrics);
         _haveScheduledUpdateNotification = true;

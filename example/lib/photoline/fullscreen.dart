@@ -33,7 +33,7 @@ class _PhotolineTestFullscreenWidgetState
           ),
         ),
       ],
-      getPhotoCount: () => 10,
+      getPhotoCount: () => 3,
       getViewCount: _minPhotoLength,
     );
 
