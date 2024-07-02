@@ -190,8 +190,6 @@ class PhotolineController extends ScrollController {
   bool addItem(int index, Object data) {
     if (action.value != PhotolineAction.close) return false;
     onAdd?.call(index, data);
-    //final size = PhotolineSize(this);
-    //pos.forceExtent(size.close);
     while (index >= mod.length) {
       mod.add(null);
     }

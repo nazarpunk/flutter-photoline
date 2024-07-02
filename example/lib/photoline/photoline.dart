@@ -108,7 +108,13 @@ class _ChildState extends State<_Child> with AutomaticKeepAliveClientMixin {
             controller: widget.controller,
             constraints: widget.constraints,
             header: Photoline(controller: widget.controller),
-            footer: const SizedBox(child: Placeholder(color: Colors.green)),
+            footer: ElevatedButton(
+              onPressed: () {
+                widget.controller.photoline?.toPage(0);
+                //print();
+              },
+              child: const Center(child: Text('Add')),
+            ),
           ),
         ),
       ],

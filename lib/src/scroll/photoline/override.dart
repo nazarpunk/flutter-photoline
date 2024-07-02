@@ -646,7 +646,6 @@ abstract class PhotolineScrollPositionOverride extends ScrollPosition
     activity?.dispose();
     _activity = null;
     isScrollingNotifier.dispose();
-    super.dispose();
   }
 
   @override

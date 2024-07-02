@@ -43,7 +43,22 @@ class _PhotolineTestFullscreenWidgetState
   @override
   Widget build(BuildContext context) =>
       LayoutBuilder(builder: (context, constraints) {
-        return Photoline(controller: _photoline);
+        return Column(
+          children: [
+            Expanded(
+              child: Photoline(controller: _photoline),
+            ),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  print(_photoline.pos);
+                },
+                child: const Text('Add'),
+              ),
+            )
+          ],
+        );
       });
 }
 

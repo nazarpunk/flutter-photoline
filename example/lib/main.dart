@@ -41,8 +41,8 @@ class MyApp extends StatelessWidget {
       home: Scaffold(
         appBar: AppBar(title: const Text('Photoline')),
         body:
-            //const PhotolineTestWidget(),
-            const PhotolineTestFullscreenWidget(),
+            const PhotolineTestWidget(),
+            //const PhotolineTestFullscreenWidget(),
             //const PageViewExample(),
       ),
     );
