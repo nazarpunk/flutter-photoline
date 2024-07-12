@@ -187,6 +187,7 @@ class PhotolineTileState extends State<PhotolineTile>
     } else {
       _animationImage.value = 1;
     }
+    rebuild();
   }
 
   PhotolineHolderDragController? get _drag =>

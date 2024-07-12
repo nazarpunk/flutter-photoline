@@ -67,6 +67,7 @@ class ScrollSnapPosition extends ScrollPositionWithSingleContext {
           case PhotolineAction.drag:
           case PhotolineAction.closing:
           case PhotolineAction.close:
+          case PhotolineAction.upload:
             so += heightClose + p.bottomHeightAddition();
         }
         so += controller.photolineGap;
@@ -110,6 +111,7 @@ class ScrollSnapPosition extends ScrollPositionWithSingleContext {
         case PhotolineAction.drag:
         case PhotolineAction.closing:
         case PhotolineAction.close:
+        case PhotolineAction.upload:
           so += heightClose + p.bottomHeightAddition();
       }
       so += controller.photolineGap;

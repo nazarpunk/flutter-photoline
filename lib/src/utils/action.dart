@@ -4,4 +4,5 @@ enum PhotolineAction {
   close,
   closing,
   drag,
+  upload,
 }

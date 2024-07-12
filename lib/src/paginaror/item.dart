@@ -64,6 +64,7 @@ class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem>
     switch (_controller.action.value) {
       case PhotolineAction.closing:
       case PhotolineAction.close:
+      case PhotolineAction.upload:
         value = 0;
       case PhotolineAction.open:
       case PhotolineAction.opening:

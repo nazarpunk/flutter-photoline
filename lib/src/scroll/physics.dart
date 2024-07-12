@@ -156,6 +156,7 @@ class PhotolineScrollPhysics extends ScrollPhysics {
       case PhotolineAction.opening:
       case PhotolineAction.closing:
       case PhotolineAction.drag:
+      case PhotolineAction.upload:
     }
 
     final double target = _getPixels(position, pageNew.roundToDouble());

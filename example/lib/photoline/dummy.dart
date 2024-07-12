@@ -5,9 +5,43 @@ class PhotolineDummys {
     final la = _dummys[a % _dummys.length];
     return Uri.parse(la[b % la.length]);
   }
+
+  static int _a = 1;
+  static int _b = -1;
+
+  static Uri next() {
+    if (_b >= _dummys[_a].length - 1) {
+      _a++;
+      _b = -1;
+    }
+    _b++;
+    return Uri.parse(_dummys[_a][_b]);
+  }
 }
 
 final _dummys = [
+  [
+    'https://cdn.elitebabes.com/content/190267/0004-01.jpg',
+    'https://cdn.elitebabes.com/content/190267/0004-02.jpg',
+    'https://cdn.elitebabes.com/content/190267/0004-03.jpg',
+    'https://cdn.elitebabes.com/content/190267/0004-04.jpg',
+    'https://cdn.elitebabes.com/content/190267/0004-05.jpg',
+    'https://cdn.elitebabes.com/content/190267/0004-06.jpg',
+    'https://cdn.elitebabes.com/content/190267/0004-07.jpg',
+    'https://cdn.elitebabes.com/content/190267/0004-08.jpg',
+    'https://cdn.elitebabes.com/content/190267/0004-09.jpg',
+    'https://cdn.elitebabes.com/content/190267/0004-10.jpg',
+    'https://cdn.elitebabes.com/content/190267/0004-11.jpg',
+    'https://cdn.elitebabes.com/content/190267/0004-12.jpg',
+    'https://cdn.elitebabes.com/content/190267/0004-13.jpg',
+    'https://cdn.elitebabes.com/content/190267/0004-14.jpg',
+    'https://cdn.elitebabes.com/content/190267/0004-15.jpg',
+    'https://cdn.elitebabes.com/content/190267/0004-16.jpg',
+    'https://cdn.elitebabes.com/content/190267/0004-17.jpg',
+    'https://cdn.elitebabes.com/content/190267/0004-18.jpg',
+    'https://cdn.elitebabes.com/content/190267/0004-19.jpg',
+    'https://cdn.elitebabes.com/content/190267/0004-20.jpg',
+  ],
   [
     'https://cdn.elitebabes.com/content/190922/0005-06.jpg',
     'https://cdn.elitebabes.com/content/190922/0005-07.jpg',

@@ -155,6 +155,8 @@ class PhotolineScrollPosition extends PhotolineScrollPositionOverride {
       page = _cachedPage!;
     } else {
       switch (controller.action.value) {
+
+        case PhotolineAction.upload:
         case PhotolineAction.closing:
         case PhotolineAction.close:
           final base = _viewportDimension! / co;
@@ -174,6 +176,7 @@ class PhotolineScrollPosition extends PhotolineScrollPositionOverride {
     switch (controller.action.value) {
       case PhotolineAction.closing:
       case PhotolineAction.close:
+      case PhotolineAction.upload:
         newPixels = page * (viewportDimension / cn);
       case PhotolineAction.drag:
       case PhotolineAction.open:
@@ -209,6 +212,7 @@ class PhotolineScrollPosition extends PhotolineScrollPositionOverride {
       case PhotolineAction.close:
       case PhotolineAction.closing:
       case PhotolineAction.drag:
+      case PhotolineAction.upload:
     }
 
     assert(haveDimensions == (_lastMetrics != null));

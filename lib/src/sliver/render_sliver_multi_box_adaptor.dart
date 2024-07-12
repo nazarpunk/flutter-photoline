@@ -74,7 +74,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
       switch (controller.action.value) {
         case PhotolineAction.close:
           if (childOffset.dx + child.size.width <= precisionErrorTolerance ||
-              childOffset.dx >= vp - precisionErrorTolerance) {
+              childOffset.dx > vp + precisionErrorTolerance) {
             canPaint = false;
           }
         case PhotolineAction.drag:
@@ -88,7 +88,10 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
         case PhotolineAction.closing:
           canPaint = mainAxisDelta < constraints.remainingPaintExtent &&
               mainAxisDelta + paintExtentOf(child) > 0;
+        case PhotolineAction.upload:
       }
+      //if (child.size.width == 0) canPaint = false;
+
       if (canPaint) context.paintChild(child, childOffset);
       controller.canPaint(index, canPaint);
       child = childAfter(child);
@@ -137,12 +140,15 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
   /// [RenderSliverFillViewport.performLayout]
   @override
   void performLayout() {
-    if (photoline.positionOpen.isNotEmpty) return _performWidth();
+    //if (photoline.positionWidth.isNotEmpty) return _performWidth();
     return switch (controller.action.value) {
       PhotolineAction.open => _performOpen(),
-      PhotolineAction.opening || PhotolineAction.closing => _performWidth(),
       PhotolineAction.close => _performClose(),
       PhotolineAction.drag => _performDrag(),
+      PhotolineAction.opening ||
+      PhotolineAction.closing ||
+      PhotolineAction.upload =>
+        _performWidth(),
     };
   }
 
@@ -161,7 +167,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
     for (int index = 0; index < count; index++) {
       final RenderBox? child = childAfter(prev);
 
-      final p = photoline.positionOpen[index];
+      final p = photoline.positionWidth[index];
 
       prev = _childLayout(
         constraints: constraints,

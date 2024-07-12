@@ -187,7 +187,7 @@ class PhotolineController extends ScrollController {
     }
   }
 
-  bool addItem(int index, Object data) {
+  bool addItemPhotoline(int index, Object data) {
     if (action.value != PhotolineAction.close) return false;
     onAdd?.call(index, data);
     while (index >= mod.length) {
@@ -196,6 +196,10 @@ class PhotolineController extends ScrollController {
     mod.insert(index, PhotolineMod(0, 1));
     photoline?.rebuild();
     return true;
+  }
+
+  void addItemUpload(int index, Object data) {
+    photoline?.toUpload(index, data);
   }
 
   bool get canStartAdd {

@@ -47,7 +47,7 @@ class PhotolineState extends State<Photoline>
   final _physics =
       const PhotolineScrollPhysics(parent: AlwaysScrollableScrollPhysics());
 
-  final List<PhotolinePosition> positionOpen = [];
+  final List<PhotolinePosition> positionWidth = [];
 
   late final PhotolineHolderState? holder;
 
@@ -64,26 +64,38 @@ class PhotolineState extends State<Photoline>
         math.min(controller.fullScreenExpander.value, 1 - t);
 
     // center
-    positionOpen[controller.pageTargetOpen.value].lerp(t);
+    positionWidth[controller.pageTargetOpen.value].lerp(t);
 
     // left
     if (controller.pageTargetOpen.value > 0) {
       for (int i = controller.pageTargetOpen.value - 1; i >= 0; i--) {
-        positionOpen[i]
+        positionWidth[i]
           ..lerp(t)
-          ..offset.current = positionOpen[i + 1].offset.current -
-              positionOpen[i].width.current;
+          ..offset.current = positionWidth[i + 1].offset.current -
+              positionWidth[i].width.current;
       }
     }
 
     // right
     if (controller.pageTargetOpen.value < count - 1) {
       for (int i = controller.pageTargetOpen.value + 1; i < count; i++) {
-        positionOpen[i]
+        positionWidth[i]
           ..lerp(t)
-          ..offset.current = positionOpen[i - 1].offset.current +
-              positionOpen[i - 1].width.current;
+          ..offset.current = positionWidth[i - 1].offset.current +
+              positionWidth[i - 1].width.current;
       }
+    }
+  }
+
+  void _listenerPositionUpload() {
+    final t = Curves.easeInOut.transform(animationPosition.value);
+    final count = controller.count;
+
+    controller.fullScreenExpander.value =
+        math.min(controller.fullScreenExpander.value, 1 - t);
+
+    for (int i = 0; i < count; i++) {
+      positionWidth[i].lerp(t);
     }
   }
 
@@ -97,7 +109,7 @@ class PhotolineState extends State<Photoline>
         math.max(controller.fullScreenExpander.value, t);
 
     // center
-    final c = positionOpen[pto]..lerp(t);
+    final c = positionWidth[pto]..lerp(t);
 
     if (nearEqual(c.offset.current, c.offset.end, .2) &&
         nearEqual(c.width.current, c.width.end, .4)) {
@@ -106,10 +118,11 @@ class PhotolineState extends State<Photoline>
 
     // left
     if (pto > 0) {
-      positionOpen[pto - 1].lerp(t);
+      positionWidth[pto - 1].lerp(t);
       for (int i = pto - 1; i >= 0; i--) {
-        final c = positionOpen[i];
-        c.offset.current = positionOpen[i + 1].offset.current - c.width.current;
+        final c = positionWidth[i];
+        c.offset.current =
+            positionWidth[i + 1].offset.current - c.width.current;
         if (controller.useOpenSideResize) {
           if (c.offsetL != null && c.offset.current < c.offsetL!) {
             final diff = c.offsetL! - c.offset.current;
@@ -122,10 +135,10 @@ class PhotolineState extends State<Photoline>
 
     // right
     if (pto < count - 1) {
-      positionOpen[pto + 1].lerp(t);
+      positionWidth[pto + 1].lerp(t);
       for (int i = pto + 1; i < count; i++) {
-        final c = positionOpen[i];
-        final s = positionOpen[i - 1];
+        final c = positionWidth[i];
+        final s = positionWidth[i - 1];
         c.offset.current = s.offset.current + s.width.current;
         final r = c.offset.current + c.width.current;
         if (controller.useOpenSideResize) {
@@ -142,6 +155,8 @@ class PhotolineState extends State<Photoline>
     switch (controller.action.value) {
       case PhotolineAction.opening:
         _listenerPositionOpening();
+      case PhotolineAction.upload:
+        _listenerPositionUpload();
       case PhotolineAction.closing:
         _listenerPositionClosing();
       case PhotolineAction.open ||
@@ -158,7 +173,8 @@ class PhotolineState extends State<Photoline>
         _aspectRatio = dx;
       case PhotolineAction.closing ||
             PhotolineAction.close ||
-            PhotolineAction.drag:
+            PhotolineAction.drag ||
+            PhotolineAction.upload:
         _aspectRatio = -dx;
     }
   }
@@ -173,7 +189,7 @@ class PhotolineState extends State<Photoline>
         case PhotolineAction.opening:
           controller.action.value = PhotolineAction.open;
           _position.jumpToPage(controller.pageTargetOpen.value);
-          positionOpen.clear();
+          positionWidth.clear();
           controller
             ..pageActiveOpen.value = controller.pageTargetOpen.value
             ..pageActiveOpenComplete.value = controller.pageTargetOpen.value
@@ -183,9 +199,166 @@ class PhotolineState extends State<Photoline>
           controller.action.value = PhotolineAction.close;
           _position.jumpToPage(_pageTargetClose);
           controller.pageTargetOpen.value = -1;
-          positionOpen.clear();
+          positionWidth.clear();
+        case PhotolineAction.upload:
+          controller.action.value = PhotolineAction.close;
+          _position.jumpToPage(0);
+          controller.pageTargetOpen.value = -1;
+          positionWidth.clear();
       }
       rebuild();
+    }
+  }
+
+  void _toUploadFromClose(int index, Object data) {
+    final size = controller.size;
+
+    final List<int> visible = [];
+    positionWidth.clear();
+
+    for (int i = 0; i < controller.count; i++) {
+      final double o = -size.pixels + (size.close * i);
+      if (o + size.close > 0 && o < size.viewport) {
+        visible.add(i + 1);
+      }
+
+      positionWidth.add(PhotolinePosition(size.close, o));
+    }
+
+    controller.action.value = PhotolineAction.upload;
+    positionWidth.insert(0, PhotolinePosition(size.close, -size.close));
+    controller.onAdd?.call(index, data);
+
+    if (visible.isNotEmpty) {
+      for (int i = visible.first; i >= 0; i--) {
+        if (i <= 2 && !visible.contains(i)) {
+          visible.insert(0, i);
+        }
+      }
+    }
+
+    for (int i = 0; i < controller.count; i++) {
+      if (!visible.contains(i)) {
+        positionWidth[i].width.all = 0;
+      }
+    }
+
+    for (int i = visible.length - 2; i >= 0; i--) {
+      positionWidth[visible[i]].offset.start =
+          positionWidth[visible[i + 1]].offset.start - size.close;
+    }
+
+    for (int i = 0; i < visible.length; i++) {
+      final c = positionWidth[visible[i]];
+      c.offset.end =
+          i == 0 ? 0 : positionWidth[visible[i - 1]].offset.end + size.close;
+    }
+
+    //final double dx = positionWidth[0].offset.start.abs();
+    //final int ms = ((dx / 300) * 1000).toInt();
+
+    animationPosition
+      ..stop()
+      ..duration = const Duration(milliseconds: 400)
+      ..forward(from: 0);
+  }
+
+  void _toUploadFromWidth(int index, Object data) {
+    final List<int> visible = [];
+    controller.action.value = PhotolineAction.upload;
+    final size = controller.size;
+
+    for (int i = 0; i < controller.count; i++) {
+      final p = positionWidth[i];
+
+      final double o = p.offset.current;
+      if (p.width.current > 0 &&
+          o + p.width.current >= 0 &&
+          o <= size.viewport) {
+        visible.add(i + 1);
+        p.offset.start = o;
+      } else {
+        p.width.all = 0;
+        p.offset.all = size.viewport * 2;
+      }
+    }
+
+    for (int i = visible.first; i >= 0; i--) {
+      if (i <= 2 && !visible.contains(i)) {
+        visible.insert(0, i);
+      }
+    }
+
+    controller.action.value = PhotolineAction.upload;
+    positionWidth.insert(0, PhotolinePosition(size.close, -size.close));
+    controller.onAdd?.call(index, data);
+
+    for (int i = 0; i < visible.length; i++) {
+      final c = positionWidth[visible[i]];
+      c.width.start = c.width.current;
+      c.width.end = size.close;
+    }
+
+    for (int i = visible.length - 2; i >= 0; i--) {
+      final c = positionWidth[visible[i]];
+      final r = positionWidth[visible[i + 1]];
+      c.offset.all = r.offset.current - c.width.current;
+    }
+
+    for (int i = 0; i < visible.length; i++) {
+      final c = positionWidth[visible[i]];
+      c.offset.end =
+          i == 0 ? 0 : positionWidth[visible[i - 1]].offset.end + size.close;
+    }
+
+    animationPosition
+      ..stop()
+      ..duration = const Duration(milliseconds: 400)
+      ..forward(from: 0);
+  }
+
+  void _toUploadFromOpen(int index, Object data) {
+    _toPageClose();
+    _toUploadFromWidth(index, data);
+  }
+
+  void toUpload(int index, Object data) {
+    switch (controller.action.value) {
+      case PhotolineAction.close:
+        return _toUploadFromClose(index, data);
+      case PhotolineAction.upload:
+      case PhotolineAction.opening:
+      case PhotolineAction.closing:
+        return _toUploadFromWidth(index, data);
+      case PhotolineAction.open:
+        return _toUploadFromOpen(index, data);
+      case PhotolineAction.drag:
+    }
+  }
+
+  void toPage(int target) {
+    if (controller.action.value == PhotolineAction.upload) return;
+
+    if (controller.dragController?.isDrag ?? false) return;
+    if (target >= controller.getPhotoCount()) return;
+
+    final pto = controller.pageTargetOpen.value;
+    controller.pageTargetOpen.value = target;
+    controller.pageActivePaginator.value = target;
+    controller.pageActiveOpenComplete.value = -1;
+
+    switch (controller.action.value) {
+      case PhotolineAction.close:
+        controller.pageOpenInitial = target;
+        return _toPageOpenFromClose();
+      case PhotolineAction.open:
+        return pto == target ? _toPageClose() : _toPageOpenFromOpen();
+      case PhotolineAction.opening:
+        return pto == target ? _toPageClose() : _toPageOpenFromOpening();
+      case PhotolineAction.closing:
+      case PhotolineAction.upload:
+        return _toPageOpenFromOpening();
+      case PhotolineAction.drag:
     }
   }
 
@@ -196,10 +369,10 @@ class PhotolineState extends State<Photoline>
 
     final List<int> visible = [];
 
-    assert(positionOpen.isNotEmpty);
+    assert(positionWidth.isNotEmpty);
 
     for (int i = 0; i < count; i++) {
-      final c = positionOpen[i];
+      final c = positionWidth[i];
       final double offset = c.offset.current;
       c.width.all = c.width.current;
       c.offset.all = c.offset.current;
@@ -217,20 +390,20 @@ class PhotolineState extends State<Photoline>
     final rend = isFirst ? size.side2 : size.side;
 
     if (pto > 0) {
-      positionOpen[pto - 1].width.end =
+      positionWidth[pto - 1].width.end =
           controller.useOpenSideResize ? lend : size.open;
     }
     if (pto < count - 1) {
-      positionOpen[pto + 1].width.end =
+      positionWidth[pto + 1].width.end =
           controller.useOpenSideResize ? rend : size.open;
     }
 
     // <->
-    final c = positionOpen[pto]..end(size.open, isFirst ? 0 : lend);
+    final c = positionWidth[pto]..end(size.open, isFirst ? 0 : lend);
 
     for (int i = 0; i < count; i++) {
       if ((i - pto).abs() <= 1) continue;
-      final p = positionOpen[i];
+      final p = positionWidth[i];
       p.width.start = p.width.current;
       p.width.end = 0;
     }
@@ -263,7 +436,7 @@ class PhotolineState extends State<Photoline>
       }
       os.add(o);
       ws.add(w);
-      positionOpen.add(PhotolinePosition(w, o));
+      positionWidth.add(PhotolinePosition(w, o));
     }
     controller.mod.clear();
 
@@ -272,42 +445,38 @@ class PhotolineState extends State<Photoline>
     final isFirst =
         pto == 0 || (pto == 1 && controller.getPagerIndexOffset() > 0);
 
+    final lend = pto == count - 1 ? size.side2 : size.side;
+    late final PhotolinePosition c;
+
     if (controller.useOpenSideResize) {
-      final lend = pto == count - 1 ? size.side2 : size.side;
       final rend = isFirst ? size.side2 : size.side;
 
-      if (pto > 0) positionOpen[pto - 1].width.end = lend;
-      if (pto < count - 1) positionOpen[pto + 1].width.end = rend;
+      if (pto > 0) positionWidth[pto - 1].width.end = lend;
+      if (pto < count - 1) positionWidth[pto + 1].width.end = rend;
 
       // <->
-      final c = positionOpen[pto]..end(size.open, isFirst ? 0 : lend);
+      c = positionWidth[pto]..end(size.open, isFirst ? 0 : lend);
       for (int i = 0; i < count; i++) {
         if ((i - pto).abs() <= 1) continue;
-        final p = positionOpen[i];
+        final p = positionWidth[i];
         p.width.start = p.width.current;
         p.width.end = 0;
       }
-
-      controller.action.value = PhotolineAction.opening;
-      _animationStart(c);
     } else {
-      final lend = pto == count - 1 ? size.side2 : size.side;
-
-      if (pto > 0) positionOpen[pto - 1].width.end = size.open;
-      if (pto < count - 1) positionOpen[pto + 1].width.end = size.open;
+      if (pto > 0) positionWidth[pto - 1].width.end = size.open;
+      if (pto < count - 1) positionWidth[pto + 1].width.end = size.open;
 
       // <->
-      final c = positionOpen[pto]..end(size.open, isFirst ? 0 : lend);
+      c = positionWidth[pto]..end(size.open, isFirst ? 0 : lend);
       for (int i = 0; i < count; i++) {
         if ((i - pto).abs() <= 1) continue;
-        final p = positionOpen[i];
+        final p = positionWidth[i];
         p.width.start = p.width.current;
         p.width.end = 0;
       }
-
-      controller.action.value = PhotolineAction.opening;
-      _animationStart(c);
     }
+    controller.action.value = PhotolineAction.opening;
+    _animationStart(c);
   }
 
   void _toPageOpenFromOpen() {
@@ -315,11 +484,11 @@ class PhotolineState extends State<Photoline>
     final List<int> visible = _positionOpenAddOpen();
     final count = controller.count;
     final pto = controller.pageTargetOpen.value;
-    final c = positionOpen[pto];
+    final c = positionWidth[pto];
     final size = controller.size;
 
-    final vf = positionOpen[visible.first];
-    final vl = positionOpen[visible.last];
+    final vf = positionWidth[visible.first];
+    final vl = positionWidth[visible.last];
 
     final isFirst =
         pto == 0 || (pto == 1 && controller.getPagerIndexOffset() > 0);
@@ -336,14 +505,14 @@ class PhotolineState extends State<Photoline>
       ..end = size.side;
 
     if (pto > 0) {
-      final l = positionOpen[pto - 1];
+      final l = positionWidth[pto - 1];
       l.width
         ..start = l.width.current
         ..end = controller.useOpenSideResize ? rend : size.open;
     }
 
     if (pto < count - 1) {
-      final r = positionOpen[pto + 1];
+      final r = positionWidth[pto + 1];
       r.width
         ..start = r.width.current
         ..end = controller.useOpenSideResize ? lend : size.open;
@@ -351,13 +520,13 @@ class PhotolineState extends State<Photoline>
 
     if (isFirst) {
       c.offset.end = 0;
-      positionOpen[pto + 1].width.end =
+      positionWidth[pto + 1].width.end =
           controller.useOpenSideResize ? size.side2 : size.open;
     }
 
     if (pto == count - 1) {
       c.offset.end = size.side2;
-      positionOpen[pto - 1].width.end =
+      positionWidth[pto - 1].width.end =
           controller.useOpenSideResize ? size.side2 : size.open;
     }
 
@@ -375,23 +544,6 @@ class PhotolineState extends State<Photoline>
     _animationStart(c);
   }
 
-  void _animationStart(PhotolinePosition cur) {
-    final size = controller.size;
-    final count = controller.count;
-
-    for (int i = 0; i < count; i++) {
-      final c = positionOpen[i];
-      c
-        ..offsetL = math.min(0, c.offset.current)
-        ..offsetR = math.max(size.viewport, c.offset.current + c.width.current);
-    }
-
-    animationPosition
-      ..stop()
-      ..duration = const Duration(milliseconds: 600)
-      ..forward(from: 0);
-  }
-
   void _toPageClose() {
     controller.pageActiveOpen.value = -1;
     controller.pageActivePaginator.value = -1;
@@ -404,7 +556,7 @@ class PhotolineState extends State<Photoline>
 
     double sz = 0;
     for (int i = 0; i < count; i++) {
-      final c = positionOpen[i];
+      final c = positionWidth[i];
       c.width.begin = c.width.current;
       c.width.end = size.close;
       c.offset.all = c.offset.current;
@@ -417,7 +569,7 @@ class PhotolineState extends State<Photoline>
       }
     }
 
-    final big = positionOpen[controller.pageTargetOpen.value];
+    final big = positionWidth[controller.pageTargetOpen.value];
 
     final bigLeft = big.offset.current.clamp(0, size.viewport).toDouble();
     final bigRight = (big.offset.current + big.width.current)
@@ -456,12 +608,29 @@ class PhotolineState extends State<Photoline>
     _animationStart(big);
   }
 
+  void _animationStart(PhotolinePosition cur) {
+    final size = controller.size;
+    final count = controller.count;
+
+    for (int i = 0; i < count; i++) {
+      final c = positionWidth[i];
+      c
+        ..offsetL = math.min(0, c.offset.current)
+        ..offsetR = math.max(size.viewport, c.offset.current + c.width.current);
+    }
+
+    animationPosition
+      ..stop()
+      ..duration = const Duration(milliseconds: 600)
+      ..forward(from: 0);
+  }
+
   List<int> _positionOpenAddOpen() {
     final size = controller.size;
     final count = controller.count;
     final List<int> visible = [];
 
-    final bool toAdd = positionOpen.isEmpty;
+    final bool toAdd = positionWidth.isEmpty;
     for (int i = 0; i < count; i++) {
       double width = size.open;
       double offset = -size.pixels + size.open * i;
@@ -479,33 +648,10 @@ class PhotolineState extends State<Photoline>
         width = 0;
       }
 
-      if (toAdd) positionOpen.add(PhotolinePosition(width, offset));
+      if (toAdd) positionWidth.add(PhotolinePosition(width, offset));
     }
 
     return visible;
-  }
-
-  void toPage(int target) {
-    if (controller.dragController?.isDrag ?? false) return;
-    if (target >= controller.getPhotoCount()) return;
-
-    final pto = controller.pageTargetOpen.value;
-    controller.pageTargetOpen.value = target;
-    controller.pageActivePaginator.value = target;
-    controller.pageActiveOpenComplete.value = -1;
-
-    switch (controller.action.value) {
-      case PhotolineAction.close:
-        controller.pageOpenInitial = target;
-        return _toPageOpenFromClose();
-      case PhotolineAction.open:
-        return pto == target ? _toPageClose() : _toPageOpenFromOpen();
-      case PhotolineAction.opening:
-        return pto == target ? _toPageClose() : _toPageOpenFromOpening();
-      case PhotolineAction.closing:
-        return _toPageOpenFromOpening();
-      case PhotolineAction.drag:
-    }
   }
 
   void close() {
@@ -517,6 +663,7 @@ class PhotolineState extends State<Photoline>
       case PhotolineAction.close:
       case PhotolineAction.closing:
       case PhotolineAction.drag:
+      case PhotolineAction.upload:
     }
   }
 
@@ -544,6 +691,7 @@ class PhotolineState extends State<Photoline>
         case PhotolineAction.opening:
         case PhotolineAction.closing:
         case PhotolineAction.drag:
+        case PhotolineAction.upload:
           return true;
       }
       //return false;

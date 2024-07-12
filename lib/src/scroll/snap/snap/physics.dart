@@ -151,6 +151,7 @@ class ScrollSnapPhysics extends ScrollPhysics {
             case PhotolineAction.drag:
             case PhotolineAction.closing:
             case PhotolineAction.close:
+            case PhotolineAction.upload:
               so += heightClose + p.bottomHeightAddition();
           }
           so += position.controller.photolineGap;
@@ -210,6 +211,7 @@ class ScrollSnapPhysics extends ScrollPhysics {
               case PhotolineAction.drag:
               case PhotolineAction.closing:
               case PhotolineAction.close:
+              case PhotolineAction.upload:
                 so += heightClose + p.bottomHeightAddition();
             }
             so += position.controller.photolineGap;

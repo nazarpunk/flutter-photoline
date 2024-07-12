@@ -15,6 +15,8 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
 
   final List<PhotolineController> _photolines = [];
 
+  final List<List<Uri>> _uris = [];
+
   @override
   void initState() {
     _controller = ScrollSnapController(
@@ -25,15 +27,38 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
       snapController: _controller,
     );
 
-    for (int i = 0; i < 13; i++) {
+    for (int i = 0; i < 1; i++) {
+      final List<Uri> l = [];
+      for (int k = 0; k < 12 - i; k++) {
+        l.add(PhotolineDummys.get(i, k));
+      }
+      _uris.add(l);
+    }
+
+    for (int i = 0; i < _uris.length; i++) {
       _photolines.add(
         PhotolineController(
-          getUri: (index) => PhotolineDummys.get(i, index),
-          getKey: ValueKey.new,
+          getUri: (index) => _uris[i][index],
+          getKey: (index) => ValueKey(_uris[i][index]),
           //getWidget: (index) => const Placeholder(),
           getWidget: (index) => const SizedBox(),
-          //getPersistentWidgets: (index) => [const Placeholder()],
-          getPhotoCount: () => 10,
+          getPersistentWidgets: (data) {
+            final List<Widget> out = [];
+            if (data.loading < 1) {
+              out.add(const Center(
+                child: CircularProgressIndicator(),
+              ));
+            }
+            out.add(Center(
+              child: Text('${data.index}'),
+            ));
+
+            return out;
+          },
+          getPhotoCount: () => _uris[i].length,
+          onAdd: (index, data) {
+            _uris[i].insert(index, data as Uri);
+          },
           onRemove: (index) {
             //print('onRemove|$index');
           },
@@ -110,7 +135,8 @@ class _ChildState extends State<_Child> with AutomaticKeepAliveClientMixin {
             header: Photoline(controller: widget.controller),
             footer: ElevatedButton(
               onPressed: () {
-                widget.controller.photoline?.toPage(0);
+                widget.controller.addItemUpload(0, PhotolineDummys.next());
+                //widget.controller.photoline?.toPage(0);
                 //print();
               },
               child: const Center(child: Text('Add')),

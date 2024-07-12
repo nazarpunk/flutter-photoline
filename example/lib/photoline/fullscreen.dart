@@ -51,9 +51,7 @@ class _PhotolineTestFullscreenWidgetState
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  print(_photoline.pos);
-                },
+                onPressed: () {},
                 child: const Text('Add'),
               ),
             )

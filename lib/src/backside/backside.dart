@@ -59,7 +59,8 @@ class _PhotolineBacksideState extends State<PhotolineBackside>
           }
         case PhotolineAction.opening:
         case PhotolineAction.closing:
-          final List<PhotolinePosition> po = _photoline.positionOpen;
+        case PhotolineAction.upload:
+          final List<PhotolinePosition> po = _photoline.positionWidth;
           if (count > po.length || po.isEmpty) break;
           final f = po[count - 1];
           final fo = f.offset.current + f.width.current;
