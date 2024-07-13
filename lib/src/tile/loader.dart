@@ -47,6 +47,8 @@ class PhotolineImageLoader {
   }
 
   static void _next() {
+    //if (kDebugMode) return;
+
     if (_map.isEmpty) return;
 
     int i = 0;

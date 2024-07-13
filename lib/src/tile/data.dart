@@ -19,4 +19,21 @@ class PhotolineTileData {
   final bool dragging;
   final double dragCurrent;
   final bool isRemove;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PhotolineTileData &&
+          runtimeType == other.runtimeType &&
+          index == other.index &&
+          loading == other.loading &&
+          closeDw == other.closeDw &&
+          openDw == other.openDw &&
+          dragging == other.dragging &&
+          dragCurrent == other.dragCurrent &&
+          isRemove == other.isRemove;
+
+  @override
+  int get hashCode => Object.hash(
+      index, loading, closeDw, openDw, dragging, dragCurrent, isRemove);
 }
