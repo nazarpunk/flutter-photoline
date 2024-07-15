@@ -48,7 +48,6 @@ class PhotolineHolderDragController implements Drag {
     _currentController.onDirection(_scrollDirection);
   }
 
-
   late int _scrollDirection;
   late double closeDx;
   bool isRemove = false;
@@ -171,6 +170,7 @@ class PhotolineHolderDragController implements Drag {
   Drag? _onDragStart(Offset offset) {
     if (_initialController.action.value != PhotolineAction.close) return null;
     if (!_initialTile.context.mounted) return null;
+    holder?.animationDrag.duration = const Duration(milliseconds: 20 * 1000);
 
     for (final photoline in holder!.photolines) {
       final controller = photoline.controller;
@@ -228,10 +228,15 @@ class PhotolineHolderDragController implements Drag {
     isDrag = false;
     isDragClose = true;
     _scrollTimer?.cancel();
-    if (isRemove) {
-    } else {
+    if (!isRemove) {
       _closeOffsetStart = _tileOffsetVisible;
       _closeOffsetEnd = _currentController.closeOffsetEnd;
+    }
+
+    if (holder != null) {
+      holder!.animationDrag
+        ..duration = Duration(milliseconds: (isRemove ? 10 : 5) * 1000)
+        ..repeat();
     }
   }
 

@@ -26,8 +26,7 @@ class PhotolineHolderState extends State<PhotolineHolder>
   @override
   void initState() {
     dragController?.holder = this;
-    animationDrag = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 10 * 1000));
+    animationDrag = AnimationController(vsync: this);
     if (dragController != null) {
       animationDrag.addListener(dragController!.onAnimationDrag);
     }
