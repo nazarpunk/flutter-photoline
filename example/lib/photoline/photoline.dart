@@ -125,25 +125,33 @@ class _ChildState extends State<_Child> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Column(
-      children: [
-        SizedBox(
-          width: double.infinity,
-          child: PhotolineConstrainted(
-            controller: widget.controller,
-            constraints: widget.constraints,
-            header: Photoline(controller: widget.controller),
-            footer: ElevatedButton(
-              onPressed: () {
-                widget.controller.addItemUpload(0, PhotolineDummys.next());
-                //widget.controller.photoline?.toPage(0);
-                //print();
-              },
-              child: const Center(child: Text('Add')),
-            ),
+    return Center(
+      child: SizedBox(
+        //width: 200,
+        child: ColoredBox(
+          color: Colors.purple,
+          child: Column(
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: PhotolineConstrainted(
+                  controller: widget.controller,
+                  constraints: widget.constraints,
+                  header: Photoline(controller: widget.controller),
+                  footer: ElevatedButton(
+                    onPressed: () {
+                      widget.controller.addItemUpload(0, PhotolineDummys.next());
+                      //widget.controller.photoline?.toPage(0);
+                      //print();
+                    },
+                    child: const Center(child: Text('Add')),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 
