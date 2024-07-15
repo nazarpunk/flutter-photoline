@@ -29,7 +29,7 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
 
     for (int i = 0; i < 1; i++) {
       final List<Uri> l = [];
-      for (int k = 0; k < 12 - i; k++) {
+      for (int k = 0; k < 13 - i; k++) {
         l.add(PhotolineDummys.get(i, k));
       }
       _uris.add(l);
@@ -60,11 +60,30 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
             _uris[i].insert(index, data as Uri);
           },
           onRemove: (index) {
+            _uris[i].removeAt(index);
             //print('onRemove|$index');
           },
           onReorder: (oldIndex, newIndex) {
             //print('onReorder|$oldIndex|$newIndex');
           },
+          getBackside: (index) {
+            final List<Color> colors = [
+              Colors.red,
+              Colors.green,
+              Colors.purple,
+              Colors.tealAccent
+            ];
+
+            return PhotolineAlbumPhotoDummy(
+              child: Container(
+                width: 500,
+                height: 1,
+                color: colors[index % colors.length],
+              ),
+              //child: Placeholder(),
+            );
+          },
+
           //bottomHeightAddition: () => 30,
         ),
       );
@@ -125,33 +144,25 @@ class _ChildState extends State<_Child> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Center(
-      child: SizedBox(
-        //width: 200,
-        child: ColoredBox(
-          color: Colors.purple,
-          child: Column(
-            children: [
-              SizedBox(
-                width: double.infinity,
-                child: PhotolineConstrainted(
-                  controller: widget.controller,
-                  constraints: widget.constraints,
-                  header: Photoline(controller: widget.controller),
-                  footer: ElevatedButton(
-                    onPressed: () {
-                      widget.controller.addItemUpload(0, PhotolineDummys.next());
-                      //widget.controller.photoline?.toPage(0);
-                      //print();
-                    },
-                    child: const Center(child: Text('Add')),
-                  ),
-                ),
-              ),
-            ],
+    return Column(
+      children: [
+        SizedBox(
+          width: double.infinity,
+          child: PhotolineConstrainted(
+            controller: widget.controller,
+            constraints: widget.constraints,
+            header: Photoline(controller: widget.controller),
+            footer: ElevatedButton(
+              onPressed: () {
+                widget.controller.addItemUpload(0, PhotolineDummys.next());
+                //widget.controller.photoline?.toPage(0);
+                //print();
+              },
+              child: const Center(child: Text('Add')),
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 

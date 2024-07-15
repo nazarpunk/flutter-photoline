@@ -26,5 +26,5 @@ export 'src/shimmer/shimmer.dart';
 export 'src/tile/data.dart';
 export 'src/utils/action.dart';
 export 'src/utils/gradient.dart';
-export 'src/utils/misc/album_photo_dummy.dart';
+export 'src/utils/misc/photo_dummy.dart';
 export 'src/utils/stripe.dart';

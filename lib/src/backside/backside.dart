@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:photoline/photoline.dart';
 import 'package:photoline/src/mixin/state/rebuild.dart';
-import 'package:photoline/src/utils/drag.dart';
 import 'package:photoline/src/utils/position.dart';
 
 class PhotolineBackside extends StatefulWidget {
@@ -52,6 +51,7 @@ class _PhotolineBacksideState extends State<PhotolineBackside>
 
       switch (_controller.action.value) {
         case PhotolineAction.close:
+        case PhotolineAction.drag:
           for (int i = 0; i < viewCount; i++) {
             if (i < count) continue;
             w[i] = close;
@@ -73,6 +73,8 @@ class _PhotolineBacksideState extends State<PhotolineBackside>
           final v = contstraints.maxWidth;
           w[1] = close;
           o[1] = v * _controller.openRatio;
+
+        /*
         case PhotolineAction.drag:
           final List<PhotolineDrag> pd = _controller.positionDrag;
           final p = pd.isEmpty ? 0 : pd.first.page;
@@ -80,6 +82,8 @@ class _PhotolineBacksideState extends State<PhotolineBackside>
             w[i] = close;
             o[i] = (p + i) * close;
           }
+
+           */
       }
 
       for (int i = 0; i < viewCount; i++) {
@@ -94,6 +98,21 @@ class _PhotolineBacksideState extends State<PhotolineBackside>
             child: _controller.getBackside?.call(i) ?? const SizedBox(),
           ),
         );
+      }
+
+      if (_controller.action.value == PhotolineAction.drag) {
+        for (int i = 0; i < viewCount; i++) {
+          child.add(
+            Positioned(
+              key: ValueKey('stripe$i'),
+              top: 0,
+              bottom: 0,
+              left: close * i,
+              width: close,
+              child: const PhotolineStripe(),
+            ),
+          );
+        }
       }
 
       if (child.isEmpty) return const SizedBox();
