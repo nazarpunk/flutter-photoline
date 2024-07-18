@@ -27,7 +27,7 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
       snapController: _controller,
     );
 
-    for (int i = 0; i < 1; i++) {
+    for (int i = 0; i < 2; i++) {
       final List<Uri> l = [];
       for (int k = 0; k < 13 - i; k++) {
         l.add(PhotolineDummys.get(i, k));

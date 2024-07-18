@@ -41,17 +41,6 @@ class PhotolineHolderDragController implements Drag {
   int _snapDirection = 0;
   Timer? _snapTimer;
 
-  Timer? _scrollTimer;
-
-
-  /*
-  void _onScrollTimerEnd(Timer timer) {
-    if (isDragClose) return;
-    _currentController.onDirection(_scrollDirection);
-  }
-
-   */
-
   late int _scrollDirection;
   late double closeDx;
   bool isRemove = false;
@@ -130,7 +119,6 @@ class PhotolineHolderDragController implements Drag {
     if (!isRemove) {
       current!.onDragStart(false);
       if (_currentController != current) {
-        _scrollTimer?.cancel();
         _scrollDirection = 0;
         _currentController.onChangeCurrent(false);
         current.onChangeCurrent(true);
@@ -152,19 +140,8 @@ class PhotolineHolderDragController implements Drag {
       direction = -1;
     }
 
-
     if (direction != _scrollDirection) {
-      _scrollDirection = direction;
-      _currentController.onDirection(_scrollDirection);
-      /*
-      _scrollTimer?.cancel();
-      if (direction != 0) {
-        _scrollTimer = Timer.periodic(
-            const Duration(milliseconds: 300), _onScrollTimerEnd);
-        _onScrollTimerEnd(_scrollTimer!);
-      }
-
-       */
+      _currentController.direction = _scrollDirection = direction;
     }
 
     _animateControllers(dx);
@@ -243,7 +220,6 @@ class PhotolineHolderDragController implements Drag {
   void _onDragEndStart() {
     isDrag = false;
     isDragClose = true;
-    _scrollTimer?.cancel();
     if (!isRemove) {
       _closeOffsetStart = _tileOffsetVisible;
       _closeOffsetEnd = _currentController.closeOffsetEnd;

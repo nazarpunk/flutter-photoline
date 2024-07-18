@@ -235,40 +235,7 @@ class PhotolineController extends ScrollController {
   void onPointerDown(PhotolineTileState tile, PointerDownEvent event) =>
       dragController?.onPointerDown(this, tile, event);
 
-  void onDirection(int direction) {
-    //print(direction);
-
-    if (kDebugMode) return;
-
-    if (direction == 0) return;
-    final size = this.size;
-
-    if (direction > 0) {
-      for (int i = positionDrag.length - 1; i >= 0; i--) {
-        final pi = positionDrag[i];
-        if ((isDragMain && pi.index == pageDragInitial) ||
-            pi.page < size.viewCount - 1) continue;
-        for (int k = positionDrag.length - 1; k >= 0; k--) {
-          positionDrag[k].page -= 1;
-        }
-        break;
-      }
-    } else {
-      for (int i = 0; i < positionDrag.length; i++) {
-        final pi = positionDrag[i];
-        if ((isDragMain && pi.index == pageDragInitial) || pi.page >= 0) {
-          continue;
-        }
-        for (int k = 0; k < positionDrag.length; k++) {
-          positionDrag[k].page += 1;
-        }
-        break;
-      }
-    }
-  }
-
   void onChangeCurrent(bool isCurrent) {
-    //if (kDebugMode) return;
     final size = this.size;
     if (!isCurrent && count - 1 >= countClose) {
       for (int i = positionDrag.length - 1; i >= 0; i--) {
@@ -322,27 +289,11 @@ class PhotolineController extends ScrollController {
     action.value = PhotolineAction.drag;
   }
 
-  PhotolineDrag? _nxt(PhotolineDrag pi) {
-    for (int k = pi.index + 1; k < positionDrag.length; k++) {
-      final pk = positionDrag[k];
-      if (isDragMain && pk.index == pageDragInitial) continue;
-      return pk;
-    }
-    return null;
-  }
-
-  PhotolineDrag? _prv(PhotolineDrag pi) {
-    for (int k = pi.index - 1; k >= 0; k--) {
-      final pk = positionDrag[k];
-      if (isDragMain && pk.index == pageDragInitial) continue;
-      return pk;
-    }
-    return null;
-  }
-
   int pageDragTransferTarget = 0;
 
-  void onAnimationDrag1({
+  int direction = 0;
+
+  void onAnimationDrag({
     required double dx,
     required bool isCurrent,
     required double tileOffset,
@@ -363,16 +314,17 @@ class PhotolineController extends ScrollController {
     for (int i = 0; i < positionDrag.length; i++) {
       // head
       final pi = get(i);
-      if (isDragMain && pi.index == pageDragInitial) continue;
-      if (!isDragMain && pi.page == pageDragTile) pageDragTransferTarget = i;
+      if (isDragMain) {
+        if (pi.index == pageDragInitial) continue;
+      } else {
+        if (pi.page == pageDragTile) pageDragTransferTarget = i;
+      }
 
       // calc
       final double end = pi.pos * size.close;
       if (pi.offset == end) continue;
       (pi.offset > end ? l : r).add(i);
     }
-    // print('$i | ${pi.offset} | $end');
-    //print('$l | $r');
 
     final double move = dx * 50;
 
@@ -385,7 +337,7 @@ class PhotolineController extends ScrollController {
         final left = get(l[i - 1]);
         final lo = cur.offset - size.close;
         final over = lo - left.offset;
-        if (over < 0) left.offset = lo;
+        if (over < precisionErrorTolerance) left.offset = lo;
       }
     }
 
@@ -398,74 +350,39 @@ class PhotolineController extends ScrollController {
         final right = get(r[i + 1]);
         final ro = cur.offset + size.close;
         final over = ro - right.offset;
-        if (over > 0) right.offset = ro;
+        if (over > -precisionErrorTolerance) right.offset = ro;
+      }
+    }
+
+    if (l.isEmpty && r.isEmpty) {
+      if (direction > 0) {
+        for (int i = positionDrag.length - 1; i >= 0; i--) {
+          final pi = positionDrag[i];
+          if ((isDragMain && pi.index == pageDragInitial) ||
+              pi.page < size.viewCount - 1) continue;
+
+          for (int k = positionDrag.length - 1; k >= 0; k--) {
+            positionDrag[k].page -= 1;
+          }
+          break;
+        }
+      }
+
+      if (direction < 0) {
+        for (int i = 0; i < positionDrag.length; i++) {
+          final pi = positionDrag[i];
+          if ((isDragMain && pi.index == pageDragInitial) || pi.page >= 0) {
+            continue;
+          }
+          for (int k = 0; k < positionDrag.length; k++) {
+            positionDrag[k].page += 1;
+          }
+          break;
+        }
       }
     }
 
     final count = this.count;
-
-    if (isDragMain) {
-      if (pageDragTile >= count) pageDragTile = count - 1;
-    } else {
-      if (pageDragTile >= count) pageDragTransferTarget = count;
-      if (positionDrag.isNotEmpty) {
-        if (pageDragTile > positionDrag.last.page) pageDragTransferTarget++;
-      }
-    }
-  }
-
-  void onAnimationDrag({
-    required double dx,
-    required bool isCurrent,
-    required double tileOffset,
-  }) {
-    if (kDebugMode) {
-      return onAnimationDrag1(
-          dx: dx, isCurrent: isCurrent, tileOffset: tileOffset);
-    }
-
-    final size = this.size;
-    pageDragTile = (tileOffset / size.close).round();
-
-    for (int i = 0; i < positionDrag.length; i++) {
-      final pi = positionDrag[i];
-      if (isDragMain && pi.index == pageDragInitial) continue;
-
-      int pos = pi.page;
-      if (isCurrent && pos >= pageDragTile) pos += 1;
-
-      if (!isDragMain && pi.page == pageDragTile) pageDragTransferTarget = i;
-
-      double move = dx * 100;
-      final double dd = size.close * 3;
-      move *= Curves.easeOutCubic.transform((dd -
-                  math.min(dd, (pageDragTile * size.close - pi.offset).abs())) /
-              dd) +
-          1;
-
-      final double end = pos * size.close;
-      final dist = (pi.offset - end).abs();
-      if (move > dist) move = dist;
-
-      if (pi.offset < end) {
-        final nxt = _nxt(pi);
-        if (nxt != null) {
-          final r = pi.offset + size.close;
-          move = r > nxt.offset ? 0 : math.min(nxt.offset - r, move);
-        }
-        pi.offset += move;
-      } else {
-        final prv = _prv(pi);
-        if (prv != null) {
-          final r = prv.offset + size.close;
-          move = r > pi.offset ? 0 : math.min(pi.offset - r, move);
-        }
-        pi.offset -= move;
-      }
-    }
-
-    final count = this.count;
-
     if (isDragMain) {
       if (pageDragTile >= count) pageDragTile = count - 1;
     } else {
