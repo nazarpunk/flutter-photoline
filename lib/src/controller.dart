@@ -236,9 +236,12 @@ class PhotolineController extends ScrollController {
       dragController?.onPointerDown(this, tile, event);
 
   void onDirection(int direction) {
+    //print(direction);
+
+    if (kDebugMode) return;
+
     if (direction == 0) return;
     final size = this.size;
-    //if (kDebugMode) return;
 
     if (direction > 0) {
       for (int i = positionDrag.length - 1; i >= 0; i--) {
@@ -339,11 +342,88 @@ class PhotolineController extends ScrollController {
 
   int pageDragTransferTarget = 0;
 
+  void onAnimationDrag1({
+    required double dx,
+    required bool isCurrent,
+    required double tileOffset,
+  }) {
+    final size = this.size;
+    pageDragTile = (tileOffset / size.close).round();
+
+    final List<int> l = [];
+    final List<int> r = [];
+
+    PhotolineDrag get(int i) {
+      final pi = positionDrag[i];
+      pi.pos = pi.page;
+      if (isCurrent && pi.pos >= pageDragTile) pi.pos += 1;
+      return pi;
+    }
+
+    for (int i = 0; i < positionDrag.length; i++) {
+      // head
+      final pi = get(i);
+      if (isDragMain && pi.index == pageDragInitial) continue;
+      if (!isDragMain && pi.page == pageDragTile) pageDragTransferTarget = i;
+
+      // calc
+      final double end = pi.pos * size.close;
+      if (pi.offset == end) continue;
+      (pi.offset > end ? l : r).add(i);
+    }
+    // print('$i | ${pi.offset} | $end');
+    //print('$l | $r');
+
+    final double move = dx * 50;
+
+    for (int i = l.length - 1; i >= 0; i--) {
+      final cur = get(l[i]);
+      if (i == l.length - 1) {
+        cur.offset = math.max(cur.offset - move, cur.pos * size.close);
+      }
+      if (i > 0) {
+        final left = get(l[i - 1]);
+        final lo = cur.offset - size.close;
+        final over = lo - left.offset;
+        if (over < 0) left.offset = lo;
+      }
+    }
+
+    for (int i = 0; i < r.length; i++) {
+      final cur = get(r[i]);
+      if (i == 0) {
+        cur.offset = math.min(cur.offset + move, cur.pos * size.close);
+      }
+      if (i < r.length - 1) {
+        final right = get(r[i + 1]);
+        final ro = cur.offset + size.close;
+        final over = ro - right.offset;
+        if (over > 0) right.offset = ro;
+      }
+    }
+
+    final count = this.count;
+
+    if (isDragMain) {
+      if (pageDragTile >= count) pageDragTile = count - 1;
+    } else {
+      if (pageDragTile >= count) pageDragTransferTarget = count;
+      if (positionDrag.isNotEmpty) {
+        if (pageDragTile > positionDrag.last.page) pageDragTransferTarget++;
+      }
+    }
+  }
+
   void onAnimationDrag({
     required double dx,
     required bool isCurrent,
     required double tileOffset,
   }) {
+    if (kDebugMode) {
+      return onAnimationDrag1(
+          dx: dx, isCurrent: isCurrent, tileOffset: tileOffset);
+    }
+
     final size = this.size;
     pageDragTile = (tileOffset / size.close).round();
 

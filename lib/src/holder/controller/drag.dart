@@ -43,10 +43,14 @@ class PhotolineHolderDragController implements Drag {
 
   Timer? _scrollTimer;
 
+
+  /*
   void _onScrollTimerEnd(Timer timer) {
     if (isDragClose) return;
     _currentController.onDirection(_scrollDirection);
   }
+
+   */
 
   late int _scrollDirection;
   late double closeDx;
@@ -148,14 +152,19 @@ class PhotolineHolderDragController implements Drag {
       direction = -1;
     }
 
+
     if (direction != _scrollDirection) {
       _scrollDirection = direction;
+      _currentController.onDirection(_scrollDirection);
+      /*
       _scrollTimer?.cancel();
       if (direction != 0) {
         _scrollTimer = Timer.periodic(
             const Duration(milliseconds: 300), _onScrollTimerEnd);
         _onScrollTimerEnd(_scrollTimer!);
       }
+
+       */
     }
 
     _animateControllers(dx);
