@@ -50,7 +50,8 @@ class PhotolineHolderDragController implements Drag {
     final dx = holder!.animationDrag.velocity;
 
     if (isDragClose) {
-      closeDx = (closeDx + dx * .5).clamp(0, 1);
+      // close time
+      closeDx = (closeDx + dx * (isRemove ? .7 : 1)).clamp(0, 1);
 
       if (isRemove) {
       } else {
@@ -163,7 +164,7 @@ class PhotolineHolderDragController implements Drag {
   Drag? _onDragStart(Offset offset) {
     if (_initialController.action.value != PhotolineAction.close) return null;
     if (!_initialTile.context.mounted) return null;
-    holder?.animationDrag.duration = const Duration(milliseconds: 20 * 1000);
+    holder?.animationDrag.duration = const Duration(milliseconds: 10000);
 
     for (final photoline in holder!.photolines) {
       final controller = photoline.controller;
@@ -223,12 +224,6 @@ class PhotolineHolderDragController implements Drag {
     if (!isRemove) {
       _closeOffsetStart = _tileOffsetVisible;
       _closeOffsetEnd = _currentController.closeOffsetEnd;
-    }
-
-    if (holder != null) {
-      holder!.animationDrag
-        ..duration = Duration(milliseconds: (isRemove ? 10 : 5) * 1000)
-        ..repeat();
     }
   }
 

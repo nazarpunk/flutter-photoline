@@ -332,7 +332,7 @@ class PhotolineController extends ScrollController {
 
       final t = math.min(diff, size.close) / size.close;
       return dx *
-          (Curves.easeOut.transform(t.clamp(0, 1)) + 1) * 100;
+          (Curves.easeOut.transform(t.clamp(0, 1)) + 1) * 80;
     }
 
     //print('⏰');
