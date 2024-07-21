@@ -326,12 +326,26 @@ class PhotolineController extends ScrollController {
       (pi.offset > end ? l : r).add(i);
     }
 
-    final double move = dx * 50;
+    double moveDx(PhotolineDrag cur) {
+      final e = cur.pos * size.close;
+      final diff = (e - cur.offset).abs();
 
+      final t = math.min(diff, size.close) / size.close;
+      return dx *
+          (Curves.easeOut.transform(t.clamp(0, 1)) + 1) *
+          (kDebugMode ? 40 : 90);
+    }
+
+    //print('⏰');
+
+
+    /// left
     for (int i = l.length - 1; i >= 0; i--) {
       final cur = get(l[i]);
+      cur.offset = math.max(cur.offset - moveDx(cur), cur.pos * size.close);
+      /*
       if (i == l.length - 1) {
-        cur.offset = math.max(cur.offset - move, cur.pos * size.close);
+
       }
       if (i > 0) {
         final left = get(l[i - 1]);
@@ -339,12 +353,17 @@ class PhotolineController extends ScrollController {
         final over = lo - left.offset;
         if (over < precisionErrorTolerance) left.offset = lo;
       }
+       */
     }
 
+    /// right
     for (int i = 0; i < r.length; i++) {
       final cur = get(r[i]);
+      cur.offset = math.min(cur.offset + moveDx(cur), cur.pos * size.close);
+
+      /*
       if (i == 0) {
-        cur.offset = math.min(cur.offset + move, cur.pos * size.close);
+
       }
       if (i < r.length - 1) {
         final right = get(r[i + 1]);
@@ -352,6 +371,8 @@ class PhotolineController extends ScrollController {
         final over = ro - right.offset;
         if (over > -precisionErrorTolerance) right.offset = ro;
       }
+
+       */
     }
 
     if (l.isEmpty && r.isEmpty) {

@@ -8,5 +8,5 @@ class PhotolineDrag {
   double offset = 0;
 
   @override
-  String toString() => 'i:$index p:$page';
+  String toString() => 'i:$index p:$page o:$offset';
 }

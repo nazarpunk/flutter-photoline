@@ -50,7 +50,13 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
               ));
             }
             out.add(Center(
-              child: Text('${data.index}'),
+              child: ColoredBox(
+                color: Colors.black,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text('${data.index}'),
+                ),
+              ),
             ));
 
             return out;
@@ -93,35 +99,40 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
   }
 
   @override
-  Widget build(BuildContext context) => LayoutBuilder(
-        builder: (context, constraints) {
-          _controller.boxConstraints = constraints;
-          return PhotolineHolder(
-            dragController: _photolineHolderDragController,
-            child: ScrollSnap(
-              controller: _controller,
-              cacheExtent: .1,
-              slivers: [
-                ScrollSnapRefresh(
+  Widget build(BuildContext context) => Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 100, maxWidth: 200),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              _controller.boxConstraints = constraints;
+              return PhotolineHolder(
+                dragController: _photolineHolderDragController,
+                child: ScrollSnap(
                   controller: _controller,
-                ),
-                SliverSnapList(
-                  controller: _controller,
-                  delegate: SliverChildBuilderDelegateWithGap(
-                    (context, index) => AutomaticKeepAlive(
-                      child: _Child(
-                        index: index,
-                        constraints: constraints,
-                        controller: _photolines[index],
+                  cacheExtent: .1,
+                  slivers: [
+                    ScrollSnapRefresh(
+                      controller: _controller,
+                    ),
+                    SliverSnapList(
+                      controller: _controller,
+                      delegate: SliverChildBuilderDelegateWithGap(
+                        (context, index) => AutomaticKeepAlive(
+                          child: _Child(
+                            index: index,
+                            constraints: constraints,
+                            controller: _photolines[index],
+                          ),
+                        ),
+                        childCount: _photolines.length,
                       ),
                     ),
-                    childCount: _photolines.length,
-                  ),
+                  ],
                 ),
-              ],
-            ),
-          );
-        },
+              );
+            },
+          ),
+        ),
       );
 }
 
