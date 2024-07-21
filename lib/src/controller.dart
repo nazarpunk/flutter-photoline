@@ -332,12 +332,10 @@ class PhotolineController extends ScrollController {
 
       final t = math.min(diff, size.close) / size.close;
       return dx *
-          (Curves.easeOut.transform(t.clamp(0, 1)) + 1) *
-          (kDebugMode ? 40 : 90);
+          (Curves.easeOut.transform(t.clamp(0, 1)) + 1) * 100;
     }
 
     //print('⏰');
-
 
     /// left
     for (int i = l.length - 1; i >= 0; i--) {
@@ -375,7 +373,7 @@ class PhotolineController extends ScrollController {
        */
     }
 
-    if (l.isEmpty && r.isEmpty) {
+    if (l.isEmpty && r.isEmpty && isCurrent) {
       if (direction > 0) {
         for (int i = positionDrag.length - 1; i >= 0; i--) {
           final pi = positionDrag[i];

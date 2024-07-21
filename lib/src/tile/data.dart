@@ -8,7 +8,6 @@ class PhotolineTileData {
     required this.closeDw,
     required this.openDw,
     required this.dragging,
-    required this.dragCurrent,
     required this.isRemove,
   });
 
@@ -17,7 +16,6 @@ class PhotolineTileData {
   final double closeDw;
   final double openDw;
   final bool dragging;
-  final double dragCurrent;
   final bool isRemove;
 
   @override
@@ -30,10 +28,9 @@ class PhotolineTileData {
           closeDw == other.closeDw &&
           openDw == other.openDw &&
           dragging == other.dragging &&
-          dragCurrent == other.dragCurrent &&
           isRemove == other.isRemove;
 
   @override
-  int get hashCode => Object.hash(
-      index, loading, closeDw, openDw, dragging, dragCurrent, isRemove);
+  int get hashCode =>
+      Object.hash(index, loading, closeDw, openDw, dragging, isRemove);
 }

@@ -10,7 +10,6 @@ import 'package:photoline/src/tile/data.dart';
 import 'package:photoline/src/tile/loader.dart';
 import 'package:photoline/src/tile/painter/blur.dart';
 import 'package:photoline/src/tile/painter/image.dart';
-import 'package:photoline/src/utils/action.dart';
 import 'package:photoline/src/utils/stripe.dart';
 
 class PhotolineTile extends StatefulWidget {
@@ -35,7 +34,6 @@ class PhotolineTileState extends State<PhotolineTile>
     with StateRebuildMixin, TickerProviderStateMixin {
   double _opacity = 0;
   double _opacityCurrent = 0;
-  double _dragCurrent = 0;
 
   int get _index => widget.index;
 
@@ -62,24 +60,9 @@ class PhotolineTileState extends State<PhotolineTile>
     rebuild();
   }
 
-  void _listenerDrag(double ax) {
-    final bool cl = _drag?.isDragClose ?? true;
-    final dcx = cl ||
-            _controller.pageDragInitial != _index ||
-            _controller.action.value != PhotolineAction.drag
-        ? -1
-        : 1;
-
-    final double dc = (_dragCurrent + ax * dcx).clamp(0, 1);
-    if (dc == _dragCurrent) return;
-    _dragCurrent = dc;
-    rebuild();
-  }
-
   void _listener() {
     final double ax = _animation.velocity.abs();
     _listenerOpacity(ax);
-    _listenerDrag(ax);
   }
 
   void _reblur() {
@@ -213,8 +196,8 @@ class PhotolineTileState extends State<PhotolineTile>
           closeDw: (cdwa / (size.close - size.side2)).clamp(0, 1),
           openDw: (constraints.maxWidth - size.close) /
               (size.open - size.close).clamp(-1, 1),
-          dragging: _dragCurrent > 0,
-          dragCurrent: _dragCurrent,
+          dragging:
+              (_drag?.isDrag ?? false) && _controller.pageDragInitial == _index,
           isRemove: _drag?.isRemove ?? false,
         );
 

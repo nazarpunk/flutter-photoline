@@ -194,10 +194,10 @@
       "languageVersion": "3.3"
     }
   ],
-  "generated": "2024-06-10T15:17:22.333706Z",
+  "generated": "2024-07-21T14:17:40.566088Z",
   "generator": "pub",
-  "generatorVersion": "3.4.3",
+  "generatorVersion": "3.4.4",
   "flutterRoot": "file:///Users/nazarpunk/flutter",
-  "flutterVersion": "3.22.2",
+  "flutterVersion": "3.22.3",
   "pubCache": "file:///Users/nazarpunk/.pub-cache"
 }

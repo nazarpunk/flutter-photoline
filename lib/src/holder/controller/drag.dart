@@ -268,16 +268,23 @@ class PhotolineHolderDragController implements Drag {
     double dx = _tileOffset.dx;
     final double dy = _tileOffset.dy;
 
-    final RenderBox overlayBox =
-        _overlayState!.context.findRenderObject()! as RenderBox;
+    final overlayBox = _overlayState!.context.findRenderObject()! as RenderBox;
 
-    if (dx < 0) dx = 0;
-    if (dx + _tileSize.width > overlayBox.size.width) {
-      dx = overlayBox.size.width - _tileSize.width;
+    final photolineBox =
+        _currentController.photoline!.context.findRenderObject()! as RenderBox;
+
+    final photolineOffset =
+        photolineBox.localToGlobal(Offset.zero, ancestor: overlayBox);
+
+    // dx
+    if (dx < photolineOffset.dx) dx = photolineOffset.dx;
+    final pr = photolineBox.size.width + photolineOffset.dx;
+    if (dx + _tileSize.width > pr) {
+      dx = pr - _tileSize.width;
     }
 
+    // dy
     int snapDir = 0;
-
     if (dy < 0) {
       //dy = 0;
       snapDir = -1;

@@ -59,6 +59,10 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
               ),
             ));
 
+            if (data.dragging) {
+              out.add(const Placeholder());
+            }
+
             return out;
           },
           getPhotoCount: () => _uris[i].length,
@@ -70,6 +74,7 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
             //print('onRemove|$index');
           },
           onReorder: (oldIndex, newIndex) {
+            _uris[i].reorder(oldIndex, newIndex);
             //print('onReorder|$oldIndex|$newIndex');
           },
           getBackside: (index) {
@@ -101,7 +106,7 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
   @override
   Widget build(BuildContext context) => Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: 100, maxWidth: 200),
+          constraints: const BoxConstraints(minWidth: 100, maxWidth: 900),
           child: LayoutBuilder(
             builder: (context, constraints) {
               _controller.boxConstraints = constraints;
