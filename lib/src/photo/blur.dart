@@ -96,7 +96,9 @@ class PhotolineBlurPhotoState extends State<PhotolineBlurPhoto>
   void _imageListener() {
     if (_notifier.loader!.uri != widget.uri) return;
     _image = _notifier.loader!.image;
-    _animationImage.forward(from: 0);
+    if (!_animationImage.isAnimating && _animationImage.value == 0) {
+      _animationImage.forward(from: 0);
+    }
   }
 
   @override

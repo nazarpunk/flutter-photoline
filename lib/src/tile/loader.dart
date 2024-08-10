@@ -1,12 +1,9 @@
 import 'dart:async';
 import 'dart:ui' as ui;
 
-import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
-final _dio = Dio();
 
 final Map<Uri, PhotolineImageLoader> _map = {};
 
@@ -78,8 +75,6 @@ class PhotolineImageLoader {
 
   int ts;
 
-  final cancel = CancelToken();
-
   int _attempt = 0;
 
   bool _loading = false;
@@ -90,7 +85,7 @@ class PhotolineImageLoader {
     _next();
   }
 
-  Future<void> _loadNew() async {
+  Future<void> _load() async {
     _attempt++;
     final response = await http.get(uri);
     if (response.statusCode != 200) {
@@ -103,55 +98,6 @@ class PhotolineImageLoader {
       image = await decodeImageFromList(data);
     } else {
       final codec = await ui.instantiateImageCodec(data);
-      final frame = await codec.getNextFrame();
-      image = frame.image;
-    }
-
-    _loading = false;
-    _next();
-
-    PhotolineImageNotifier().update(this);
-  }
-
-  Future<void> _load() async {
-    if (!kProfileMode) {
-      await _loadNew();
-      return;
-    }
-
-    _attempt++;
-    late final Response<Uint8List> r;
-    try {
-      _loading = true;
-      r = await _dio.get(
-        uri.toString(),
-        options: Options(responseType: ResponseType.bytes),
-      );
-    } on DioException catch (e) {
-      if (kDebugMode) {
-        print('⚠️ $e');
-      }
-      return _reload();
-    }
-
-    if (r.statusCode != 200) {
-      if (kDebugMode) {
-        print('⚠️ status');
-      }
-      return _reload();
-    }
-
-    if (r.data == null) {
-      if (kDebugMode) {
-        print('⚠️ data');
-      }
-      return _reload();
-    }
-
-    if (kIsWeb) {
-      image = await decodeImageFromList(r.data!);
-    } else {
-      final codec = await ui.instantiateImageCodec(r.data!);
       final frame = await codec.getNextFrame();
       image = frame.image;
     }
