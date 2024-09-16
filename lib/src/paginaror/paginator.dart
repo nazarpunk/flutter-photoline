@@ -35,7 +35,7 @@ class PhotolinePagerState extends State<PhotolinePager> {
   Widget build(BuildContext context) => LayoutBuilder(
         builder: (context, constraints) => Container(
           width: double.infinity,
-          color: Colors.white,
+          color: widget.photoline.controller.getPagerColor(),
           height: PhotolinePager.height,
           child: PhotolineScrollExtentView(
             axisDirection: AxisDirection.right,

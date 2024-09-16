@@ -20,6 +20,8 @@ int _getPagerIndexOffset() => 0;
 
 double _bottomHeightAddition() => 0;
 
+Color _getPagerColor() => Colors.white;
+
 /// Photoline controller
 /// [ClipRect]
 class PhotolineController extends ScrollController {
@@ -38,6 +40,7 @@ class PhotolineController extends ScrollController {
     this.onReorder,
     this.getPagerItem,
     this.getPagerIndexOffset = _getPagerIndexOffset,
+    this.getPagerColor = _getPagerColor,
     this.getPersistentWidgets,
     this.getTransferState,
     this.onTransfer,
@@ -65,6 +68,7 @@ class PhotolineController extends ScrollController {
   final void Function(int oldIndex, int newIndex)? onReorder;
   final List<Widget> Function(int index, Color color)? getPagerItem;
   final int Function() getPagerIndexOffset;
+  final Color Function() getPagerColor;
   final bool isTileOpenGray;
   final State? Function()? getTransferState;
   final void Function(State from, int fi, State target, int ti)? onTransfer;
@@ -331,8 +335,7 @@ class PhotolineController extends ScrollController {
       final diff = (e - cur.offset).abs();
 
       final t = math.min(diff, size.close) / size.close;
-      return dx *
-          (Curves.easeOut.transform(t.clamp(0, 1)) + 1) * 80;
+      return dx * (Curves.easeOut.transform(t.clamp(0, 1)) + 1) * 80;
     }
 
     //print('⏰');
