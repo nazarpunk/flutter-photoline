@@ -4,7 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:photoline/photoline.dart';
 import 'package:photoline/src/scroll/snap/snap/box.dart';
-import 'package:photoline/src/scroll/snap/snap/position_old.dart';
+import 'package:photoline/src/scroll/snap/snap/position.dart';
 
 class ScrollSnapPhysics extends ScrollPhysics {
   const ScrollSnapPhysics({
