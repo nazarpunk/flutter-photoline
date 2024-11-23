@@ -196,8 +196,6 @@ class ScrollSnapPosition extends ScrollPositionWithSingleContext {
 
   @override
   void applyNewDimensions() {
-    //print('applyNewDimensions');
-
     if (activity is BallisticScrollActivity) return;
     super.applyNewDimensions();
   }

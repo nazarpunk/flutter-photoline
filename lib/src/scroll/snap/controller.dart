@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:photoline/photoline.dart';
 import 'package:photoline/src/scroll/snap/snap/box.dart';
-import 'package:photoline/src/scroll/snap/snap/position.dart';
+import 'package:photoline/src/scroll/snap/snap/position_old.dart';
 
 double _photolineHeight(double width) => width * .7 + 64;
 

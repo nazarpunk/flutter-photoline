@@ -19,7 +19,6 @@ export 'src/scroll/snap/simulation/spring.dart';
 export 'src/scroll/snap/snap.dart';
 export 'src/scroll/snap/snap/sliver_child_delegate.dart';
 export 'src/scroll/snap/snap/sliver_list.dart';
-export 'src/scroll_snap_photoline/snap.dart';
 export 'src/scrollable/notification/pointer.dart';
 export 'src/scrollable/scrollable.dart';
 export 'src/shimmer/container.dart';

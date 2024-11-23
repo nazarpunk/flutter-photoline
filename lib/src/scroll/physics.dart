@@ -24,9 +24,7 @@ class PhotolineScrollPhysics extends ScrollPhysics {
    */
 
   @override
-  PhotolineScrollPhysics applyTo(ScrollPhysics? ancestor) {
-    return PhotolineScrollPhysics(parent: buildParent(ancestor));
-  }
+  PhotolineScrollPhysics applyTo(ScrollPhysics? ancestor) => PhotolineScrollPhysics(parent: buildParent(ancestor));
 
   @override
   double applyPhysicsToUserOffset(ScrollMetrics position, double offset) {

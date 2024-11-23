@@ -4,7 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:photoline/photoline.dart';
 import 'package:photoline/src/scroll/snap/snap/box.dart';
-import 'package:photoline/src/scroll/snap/snap/position.dart';
+import 'package:photoline/src/scroll/snap/snap/position_old.dart';
 
 class ScrollSnapPhysics extends ScrollPhysics {
   const ScrollSnapPhysics({
@@ -80,7 +80,7 @@ class ScrollSnapPhysics extends ScrollPhysics {
   @override
   Simulation? createBallisticSimulation(
       ScrollMetrics position, double velocity) {
-    //print('☢️ createBallisticSimulation');
+    print('☢️ createBallisticSimulation | $velocity | $position');
 
     //assert(position.pixels == 0);
 

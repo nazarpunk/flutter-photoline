@@ -104,37 +104,8 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
     super.initState();
   }
 
-  late final ScrollSnapPhotolineController _snapController =
-      ScrollSnapPhotolineController();
-
   @override
   Widget build(BuildContext context) {
-    if (kDebugMode) {
-      return LayoutBuilder(builder: (context, constraints) {
-        return ScrollSnapPhotoline(
-          scrollDirection: Axis.vertical,
-          controller: _snapController,
-          slivers: [
-            ScrollSnapRefresh(
-              controller: _controller,
-            ),
-            SliverSnapList(
-              controller: _controller,
-              delegate: SliverChildBuilderDelegateWithGap(
-                (context, index) => AutomaticKeepAlive(
-                  child: _Child(
-                    index: index,
-                    constraints: constraints,
-                    controller: _photolines[index],
-                  ),
-                ),
-                childCount: _photolines.length,
-              ),
-            ),
-          ],
-        );
-      });
-    }
 
     return Center(
       child: ConstrainedBox(
