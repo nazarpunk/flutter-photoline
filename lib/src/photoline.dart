@@ -21,7 +21,7 @@ import 'package:photoline/src/viewport/viewport.dart';
 class Photoline extends StatefulWidget {
   const Photoline({
     required this.controller,
-    this.photoStripeColor = const Color.fromRGBO(255, 255, 255, .1),
+    required this.photoStripeColor,
     super.key,
   });
 

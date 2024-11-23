@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:photoline/photoline.dart';
 import 'package:photoline_example/photoline/dummy.dart';
@@ -27,7 +28,7 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
       snapController: _controller,
     );
 
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < 12; i++) {
       final List<Uri> l = [];
       for (int k = 0; k < 13 - i; k++) {
         l.add(PhotolineDummys.get(i, k));
@@ -103,42 +104,74 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
     super.initState();
   }
 
+  late final ScrollSnapPhotolineController _snapController =
+      ScrollSnapPhotolineController();
+
   @override
-  Widget build(BuildContext context) => Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: 100, maxWidth: 900),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              _controller.boxConstraints = constraints;
-              return PhotolineHolder(
-                dragController: _photolineHolderDragController,
-                child: ScrollSnap(
-                  controller: _controller,
-                  cacheExtent: .1,
-                  slivers: [
-                    ScrollSnapRefresh(
-                      controller: _controller,
-                    ),
-                    SliverSnapList(
-                      controller: _controller,
-                      delegate: SliverChildBuilderDelegateWithGap(
-                        (context, index) => AutomaticKeepAlive(
-                          child: _Child(
-                            index: index,
-                            constraints: constraints,
-                            controller: _photolines[index],
-                          ),
-                        ),
-                        childCount: _photolines.length,
-                      ),
-                    ),
-                  ],
+  Widget build(BuildContext context) {
+    if (kDebugMode) {
+      return LayoutBuilder(builder: (context, constraints) {
+        return ScrollSnapPhotoline(
+          scrollDirection: Axis.vertical,
+          controller: _snapController,
+          slivers: [
+            ScrollSnapRefresh(
+              controller: _controller,
+            ),
+            SliverSnapList(
+              controller: _controller,
+              delegate: SliverChildBuilderDelegateWithGap(
+                (context, index) => AutomaticKeepAlive(
+                  child: _Child(
+                    index: index,
+                    constraints: constraints,
+                    controller: _photolines[index],
+                  ),
                 ),
-              );
-            },
-          ),
+                childCount: _photolines.length,
+              ),
+            ),
+          ],
+        );
+      });
+    }
+
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minWidth: 100, maxWidth: 900),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            _controller.boxConstraints = constraints;
+            return PhotolineHolder(
+              dragController: _photolineHolderDragController,
+              child: ScrollSnap(
+                controller: _controller,
+                cacheExtent: .1,
+                slivers: [
+                  ScrollSnapRefresh(
+                    controller: _controller,
+                  ),
+                  SliverSnapList(
+                    controller: _controller,
+                    delegate: SliverChildBuilderDelegateWithGap(
+                      (context, index) => AutomaticKeepAlive(
+                        child: _Child(
+                          index: index,
+                          constraints: constraints,
+                          controller: _photolines[index],
+                        ),
+                      ),
+                      childCount: _photolines.length,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         ),
-      );
+      ),
+    );
+  }
 }
 
 class _Child extends StatefulWidget {
@@ -167,7 +200,10 @@ class _ChildState extends State<_Child> with AutomaticKeepAliveClientMixin {
           child: PhotolineConstrainted(
             controller: widget.controller,
             constraints: widget.constraints,
-            header: Photoline(controller: widget.controller),
+            header: Photoline(
+              controller: widget.controller,
+              photoStripeColor: const Color.fromRGBO(255, 255, 255, .2),
+            ),
             footer: ElevatedButton(
               onPressed: () {
                 widget.controller.addItemUpload(0, PhotolineDummys.next());

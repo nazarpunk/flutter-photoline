@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'dart:math' as math;
-import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:photoline/photoline.dart';
@@ -48,10 +48,37 @@ class ScrollSnapPosition extends ScrollPositionWithSingleContext {
       }
     }
 
+    /// cage
+    if (controller.snapCage != null) {
+      final boxes = SplayTreeMap<int, ScrollSnapBox>.from(
+          controller.box, (a, b) => a.compareTo(b));
+
+      ScrollSnapBox? box;
+      for (final e in boxes.entries) {
+        if (e.key == controller.snapCage) {
+          box = e.value;
+          break;
+        }
+      }
+
+      if (box != null) {
+        maxScrollExtent = box.scrollOffset;
+        for (final e in boxes.entries) {
+          if (e.key > controller.snapCage!) break;
+          final diff = box.scrollOffset - e.value.scrollOffset;
+          if (diff + box.height < viewportDimension) {
+            minScrollExtent = e.value.scrollOffset;
+            break;
+          }
+        }
+      }
+    }
+
     /// snap last photolines
     if (controller.snapPhotolines != null &&
         controller.boxConstraints != null &&
-        physics is ScrollSnapPhysics) {
+        physics is ScrollSnapPhysics &&
+        kProfileMode) {
       final p = physics as ScrollSnapPhysics;
       double so = 0;
 
@@ -169,6 +196,8 @@ class ScrollSnapPosition extends ScrollPositionWithSingleContext {
 
   @override
   void applyNewDimensions() {
+    //print('applyNewDimensions');
+
     if (activity is BallisticScrollActivity) return;
     super.applyNewDimensions();
   }

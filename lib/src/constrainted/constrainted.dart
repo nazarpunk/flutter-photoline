@@ -24,13 +24,15 @@ class PhotolineConstrainted extends MultiChildRenderObjectWidget {
   PhotolineConstraintedRenderBox createRenderObject(BuildContext context) =>
       PhotolineConstraintedRenderBox(
         controller: controller,
-        constraints: constraints,
+        boxConstraints: constraints,
       );
 
   @override
   void updateRenderObject(
       BuildContext context, PhotolineConstraintedRenderBox renderObject) {
-    renderObject.controller = controller;
+    renderObject
+      ..controller = controller
+      ..boxConstraints = constraints;
   }
 
   static double lerpConstraints(BoxConstraints constraints, double t,
@@ -48,9 +50,9 @@ class PhotolineConstraintedRenderBox extends RenderBox
         RenderBoxContainerDefaultsMixin<RenderBox, MultiChildLayoutParentData> {
   PhotolineConstraintedRenderBox({
     required PhotolineController controller,
-    required BoxConstraints constraints,
+    required BoxConstraints boxConstraints,
   })  : _controller = controller,
-        _boxConstraints = constraints;
+        _boxConstraints = boxConstraints;
 
   // -- controller
   PhotolineController _controller;

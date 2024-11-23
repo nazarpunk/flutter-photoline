@@ -10,7 +10,7 @@ class SliverChildBuilderDelegateWithGap extends SliverChildDelegate {
   final NullableIndexedWidgetBuilder builder;
 
   final int childCount;
-  final int gap;
+  final double gap;
 
   @override
   Widget? build(BuildContext context, int index) {
@@ -18,7 +18,7 @@ class SliverChildBuilderDelegateWithGap extends SliverChildDelegate {
     if (index.isEven) {
       return builder(context, index ~/ 2);
     } else {
-      return const SizedBox(height: 20);
+      return SizedBox(height: gap);
     }
   }
 

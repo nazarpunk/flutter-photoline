@@ -109,7 +109,9 @@ class _PhotolineBacksideState extends State<PhotolineBackside>
               bottom: 0,
               left: close * i,
               width: close,
-              child: const PhotolineStripe(),
+              child: PhotolineStripe(
+                stripeColor: _controller.photoline?.widget.photoStripeColor ?? Colors.transparent,
+              ),
             ),
           );
         }

@@ -6,15 +6,20 @@ class PhotolineStripe extends SingleChildRenderObjectWidget {
   const PhotolineStripe({
     super.key,
     super.child,
+    required this.stripeColor,
   });
+
+  final Color stripeColor;
 
   @override
   StripeRenderProxyBox createRenderObject(BuildContext context) =>
-      StripeRenderProxyBox();
+      StripeRenderProxyBox(stripeColor);
 }
 
 class StripeRenderProxyBox extends RenderProxyBox {
-  StripeRenderProxyBox() : super();
+  StripeRenderProxyBox(this.stripeColor) : super();
+
+  final Color stripeColor;
 
   @override
   void paint(PaintingContext context, Offset offset) {
@@ -23,7 +28,7 @@ class StripeRenderProxyBox extends RenderProxyBox {
       context.canvas.drawRect(
         offset & Size(math.min(size.width, 10), size.height),
         Paint()
-          ..color = const Color.fromRGBO(255, 255, 255, .1)
+          ..color = stripeColor
           ..style = PaintingStyle.fill,
       );
     }

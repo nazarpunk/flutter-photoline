@@ -262,6 +262,7 @@ class PhotolineTileState extends State<PhotolineTile>
           onTap: () => _photoline.toPage(_index),
           behavior: HitTestBehavior.opaque,
           child: PhotolineStripe(
+            stripeColor: _photoline.widget.photoStripeColor,
             child: child,
           ),
         );

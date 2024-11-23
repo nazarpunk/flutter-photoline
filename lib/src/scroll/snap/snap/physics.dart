@@ -200,7 +200,6 @@ class ScrollSnapPhysics extends ScrollPhysics {
         if (c.snapPhotolines != null && c.boxConstraints != null) {
           final List<double> offsets = [];
           double so = 0;
-
           final (heightClose, heightOpen) = photolineHeights(position);
           for (final p in position.controller.snapPhotolines!()) {
             offsets.add(so);

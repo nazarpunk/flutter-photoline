@@ -46,6 +46,7 @@ class ScrollSnapController extends ScrollController {
 
   final Map<int, ScrollSnapBox> box = {};
   BoxConstraints? boxConstraints;
+  int? snapCage;
 
   final bool snap;
   final bool snapLast;

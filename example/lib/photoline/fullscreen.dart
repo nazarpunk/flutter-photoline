@@ -46,7 +46,10 @@ class _PhotolineTestFullscreenWidgetState
         return Column(
           children: [
             Expanded(
-              child: Photoline(controller: _photoline),
+              child: Photoline(
+                controller: _photoline,
+                photoStripeColor: Colors.red,
+              ),
             ),
             SizedBox(
               width: double.infinity,

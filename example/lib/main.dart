@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:photoline_example/nested_scroll/nested_widget.dart';
 import 'package:photoline_example/photoline/fullscreen.dart';
 import 'package:photoline_example/photoline/photoline.dart';
-import 'package:photoline_example/widget/page_view.dart';
+import 'package:photoline_example/snap/snap.dart';
 import 'package:photoline_example/widget/scroll.dart';
 
 void main() => runApp(const MyApp());
@@ -46,6 +46,7 @@ class MyApp extends StatelessWidget {
             const PhotolineTestWidget(),
             //const PhotolineTestFullscreenWidget(),
             //const PageViewExample(),
+            //const SnapExampleList(),
       ),
     );
   }
