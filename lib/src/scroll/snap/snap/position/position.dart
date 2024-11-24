@@ -85,6 +85,199 @@ class ScrollSnapPosition extends ScrollPosition
       !outOfRange && (activity?.shouldIgnorePointer ?? true);
 
   @override
+  bool applyViewportDimension(double viewportDimension) {
+    print('🍒 applyViewportDimension');
+    final double? oldViewportDimensions =
+        hasViewportDimension ? this.viewportDimension : null;
+    if (viewportDimension == oldViewportDimensions) {
+      return true;
+    }
+
+    if (_viewportDimension != viewportDimension) {
+      _viewportDimension = viewportDimension;
+      _didChangeViewportDimensionOrReceiveCorrection = true;
+    }
+
+    /// snap last photolines
+    if (controller.snapPhotolines != null &&
+        controller.boxConstraints != null &&
+        physics is ScrollSnapPhysics) {
+      final phs = physics as ScrollSnapPhysics;
+
+      final double? oldPixels = hasPixels ? pixels : null;
+
+      int i = -1;
+      double newPixels = 0;
+
+      final (heightClose, heightOpen) = phs.photolineHeights(this);
+
+      for (final p in controller.snapPhotolines!()) {
+        i++;
+        if (i == 3) break;
+        switch (p.action.value) {
+          case PhotolineAction.open:
+          case PhotolineAction.opening:
+            newPixels += heightOpen;
+          case PhotolineAction.drag:
+          case PhotolineAction.closing:
+          case PhotolineAction.close:
+          case PhotolineAction.upload:
+            newPixels += heightClose + p.bottomHeightAddition();
+        }
+        newPixels += controller.photolineGap;
+      }
+
+      if (newPixels != oldPixels) {
+        //correctPixels(newPixels);
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @override
+  bool applyContentDimensions(double minScrollExtent, double maxScrollExtent) {
+    print('🔥 applyContentDimensions');
+
+    /// snapLast box
+    if (controller.snap) {
+      if (controller.box.isNotEmpty) {
+        final box = SplayTreeMap<int, ScrollSnapBox>.from(
+            controller.box, (a, b) => b.compareTo(a));
+        if (controller.snapLast) {
+          maxScrollExtent =
+              math.max(maxScrollExtent, box.entries.first.value.scrollOffset);
+        } else {
+          double h = 0;
+          double so = box.entries.first.value.scrollOffset;
+
+          for (final b in box.entries) {
+            final v = b.value;
+            h += v.height;
+            if (h >= viewportDimension) {
+              maxScrollExtent = math.max(maxScrollExtent, so);
+              break;
+            }
+            so = v.scrollOffset;
+          }
+        }
+      }
+    }
+
+    /// cage
+    if (controller.snapCage != null) {
+      final boxes = SplayTreeMap<int, ScrollSnapBox>.from(
+          controller.box, (a, b) => a.compareTo(b));
+
+      ScrollSnapBox? box;
+      for (final e in boxes.entries) {
+        if (e.key == controller.snapCage) {
+          box = e.value;
+          break;
+        }
+      }
+
+      if (box != null) {
+        maxScrollExtent = box.scrollOffset;
+        for (final e in boxes.entries) {
+          if (e.key > controller.snapCage!) break;
+          final diff = box.scrollOffset - e.value.scrollOffset;
+          if (diff + box.height < viewportDimension) {
+            minScrollExtent = e.value.scrollOffset;
+            break;
+          }
+        }
+      }
+    }
+
+    /// snap last photolines
+    if (controller.snapPhotolines != null &&
+        controller.boxConstraints != null &&
+        physics is ScrollSnapPhysics) {
+      final p = physics as ScrollSnapPhysics;
+      double so = 0;
+
+      final (heightClose, heightOpen) = p.photolineHeights(this);
+      final list = controller.snapPhotolines!();
+
+      for (int i = 0; i < list.length - 1; i++) {
+        final p = list[i];
+        switch (p.action.value) {
+          case PhotolineAction.open:
+          case PhotolineAction.opening:
+            so += heightOpen;
+          case PhotolineAction.drag:
+          case PhotolineAction.closing:
+          case PhotolineAction.close:
+          case PhotolineAction.upload:
+            so += heightClose + p.bottomHeightAddition();
+        }
+        so += controller.photolineGap;
+      }
+      maxScrollExtent = math.max(maxScrollExtent, so);
+    }
+
+    if (controller.headerHolder != null) {
+      final h = controller.headerHolder!;
+      final e = h.height.value;
+      minScrollExtent -= e;
+      //maxScrollExtent += e;
+    }
+
+    assert(haveDimensions == (_lastMetrics != null));
+    if (!nearEqual(_minScrollExtent, minScrollExtent,
+            Tolerance.defaultTolerance.distance) ||
+        !nearEqual(_maxScrollExtent, maxScrollExtent,
+            Tolerance.defaultTolerance.distance) ||
+        _didChangeViewportDimensionOrReceiveCorrection) {
+      assert(minScrollExtent <= maxScrollExtent);
+      _minScrollExtent = minScrollExtent;
+      _maxScrollExtent = maxScrollExtent;
+
+      final ScrollMetrics? currentMetrics = haveDimensions ? copyWith() : null;
+      _didChangeViewportDimensionOrReceiveCorrection = false;
+      _pendingDimensions = true;
+      if (haveDimensions &&
+          !correctForNewDimensions(_lastMetrics!, currentMetrics!)) {
+        return false;
+      }
+      _haveDimensions = true;
+    }
+    assert(haveDimensions);
+    if (_pendingDimensions) {
+      applyNewDimensions();
+      _pendingDimensions = false;
+    }
+    assert(!_didChangeViewportDimensionOrReceiveCorrection,
+        'Use correctForNewDimensions() (and return true) to change the scroll offset during applyContentDimensions().');
+
+    if (_isMetricsChanged()) {
+      // It is too late to send useful notifications, because the potential
+      // listeners have, by definition, already been built this frame. To make
+      // sure the notification is sent at all, we delay it until after the frame
+      // is complete.
+      if (!_haveScheduledUpdateNotification) {
+        scheduleMicrotask(didUpdateScrollMetrics);
+        _haveScheduledUpdateNotification = true;
+      }
+      _lastMetrics = copyWith();
+    }
+    return true;
+  }
+
+  /// After [applyViewportDimension] or [applyContentDimensions]
+  @override
+  // ignore: must_call_super
+  void applyNewDimensions() {
+    //print('💩 applyNewDimensions');
+    if (activity is BallisticScrollActivity) return;
+    assert(hasPixels);
+    assert(_pendingDimensions);
+    activity!.applyNewDimensions();
+    context.setCanDrag(physics.shouldAcceptUserOffset(this));
+  }
+
+  @override
   // ignore: must_call_super
   void absorb(ScrollPosition other) {
     _absorb(other);
@@ -258,68 +451,10 @@ class ScrollSnapPosition extends ScrollPosition
 
   bool _didChangeViewportDimensionOrReceiveCorrection = true;
 
-  @override
-  bool applyViewportDimension(double viewportDimension) {
-    final double? oldViewportDimensions =
-        hasViewportDimension ? this.viewportDimension : null;
-    if (viewportDimension == oldViewportDimensions) {
-      return true;
-    }
-    final bool result = _applyViewportDimension(viewportDimension);
-
-    /// snap last photolines
-    if (controller.snapPhotolines != null &&
-        controller.boxConstraints != null &&
-        physics is ScrollSnapPhysics) {
-      final phs = physics as ScrollSnapPhysics;
-
-      final double? oldPixels = hasPixels ? pixels : null;
-
-      int i = -1;
-      double newPixels = 0;
-
-      final (heightClose, heightOpen) = phs.photolineHeights(this);
-
-      for (final p in controller.snapPhotolines!()) {
-        i++;
-        if (i == 3) break;
-        switch (p.action.value) {
-          case PhotolineAction.open:
-          case PhotolineAction.opening:
-            newPixels += heightOpen;
-          case PhotolineAction.drag:
-          case PhotolineAction.closing:
-          case PhotolineAction.close:
-          case PhotolineAction.upload:
-            newPixels += heightClose + p.bottomHeightAddition();
-        }
-        newPixels += controller.photolineGap;
-      }
-
-      if (newPixels != oldPixels) {
-        //correctPixels(newPixels);
-        return false;
-      }
-    }
-    return result;
-  }
-
-  bool _applyViewportDimension(double viewportDimension) {
-    if (_viewportDimension != viewportDimension) {
-      _viewportDimension = viewportDimension;
-      _didChangeViewportDimensionOrReceiveCorrection = true;
-      // If this is called, you can rely on applyContentDimensions being called
-      // soon afterwards in the same layout phase. So we put all the logic that
-      // relies on both values being computed into applyContentDimensions.
-    }
-    return true;
-  }
-
   bool _pendingDimensions = false;
   ScrollMetrics? _lastMetrics;
 
   bool _haveScheduledUpdateNotification = false;
-  Axis? _lastAxis;
 
   bool _isMetricsChanged() {
     assert(haveDimensions);
@@ -330,139 +465,6 @@ class ScrollSnapPosition extends ScrollPosition
             currentMetrics.extentInside == _lastMetrics!.extentInside &&
             currentMetrics.extentAfter == _lastMetrics!.extentAfter &&
             currentMetrics.axisDirection == _lastMetrics!.axisDirection);
-  }
-
-  @override
-  bool applyContentDimensions(double minScrollExtent, double maxScrollExtent) {
-    /// snapLast box
-    if (controller.snap) {
-      if (controller.box.isNotEmpty) {
-        final box = SplayTreeMap<int, ScrollSnapBox>.from(
-            controller.box, (a, b) => b.compareTo(a));
-        if (controller.snapLast) {
-          maxScrollExtent =
-              math.max(maxScrollExtent, box.entries.first.value.scrollOffset);
-        } else {
-          double h = 0;
-          double so = box.entries.first.value.scrollOffset;
-
-          for (final b in box.entries) {
-            final v = b.value;
-            h += v.height;
-            if (h >= viewportDimension) {
-              maxScrollExtent = math.max(maxScrollExtent, so);
-              break;
-            }
-            so = v.scrollOffset;
-          }
-        }
-      }
-    }
-
-    /// cage
-    if (controller.snapCage != null) {
-      final boxes = SplayTreeMap<int, ScrollSnapBox>.from(
-          controller.box, (a, b) => a.compareTo(b));
-
-      ScrollSnapBox? box;
-      for (final e in boxes.entries) {
-        if (e.key == controller.snapCage) {
-          box = e.value;
-          break;
-        }
-      }
-
-      if (box != null) {
-        maxScrollExtent = box.scrollOffset;
-        for (final e in boxes.entries) {
-          if (e.key > controller.snapCage!) break;
-          final diff = box.scrollOffset - e.value.scrollOffset;
-          if (diff + box.height < viewportDimension) {
-            minScrollExtent = e.value.scrollOffset;
-            break;
-          }
-        }
-      }
-    }
-
-    /// snap last photolines
-    if (controller.snapPhotolines != null &&
-        controller.boxConstraints != null &&
-        physics is ScrollSnapPhysics) {
-      final p = physics as ScrollSnapPhysics;
-      double so = 0;
-
-      final (heightClose, heightOpen) = p.photolineHeights(this);
-      final list = controller.snapPhotolines!();
-
-      for (int i = 0; i < list.length - 1; i++) {
-        final p = list[i];
-        switch (p.action.value) {
-          case PhotolineAction.open:
-          case PhotolineAction.opening:
-            so += heightOpen;
-          case PhotolineAction.drag:
-          case PhotolineAction.closing:
-          case PhotolineAction.close:
-          case PhotolineAction.upload:
-            so += heightClose + p.bottomHeightAddition();
-        }
-        so += controller.photolineGap;
-      }
-      maxScrollExtent = math.max(maxScrollExtent, so);
-    }
-
-    if (controller.headerHolder != null) {
-      final h = controller.headerHolder!;
-      final e = h.height.value;
-      minScrollExtent -= e;
-      //maxScrollExtent += e;
-    }
-
-    return _applyContentDimensions(minScrollExtent, maxScrollExtent);
-  }
-
-  bool _applyContentDimensions(double minScrollExtent, double maxScrollExtent) {
-    assert(haveDimensions == (_lastMetrics != null));
-    if (!nearEqual(_minScrollExtent, minScrollExtent,
-            Tolerance.defaultTolerance.distance) ||
-        !nearEqual(_maxScrollExtent, maxScrollExtent,
-            Tolerance.defaultTolerance.distance) ||
-        _didChangeViewportDimensionOrReceiveCorrection ||
-        _lastAxis != axis) {
-      assert(minScrollExtent <= maxScrollExtent);
-      _minScrollExtent = minScrollExtent;
-      _maxScrollExtent = maxScrollExtent;
-      _lastAxis = axis;
-      final ScrollMetrics? currentMetrics = haveDimensions ? copyWith() : null;
-      _didChangeViewportDimensionOrReceiveCorrection = false;
-      _pendingDimensions = true;
-      if (haveDimensions &&
-          !correctForNewDimensions(_lastMetrics!, currentMetrics!)) {
-        return false;
-      }
-      _haveDimensions = true;
-    }
-    assert(haveDimensions);
-    if (_pendingDimensions) {
-      applyNewDimensions();
-      _pendingDimensions = false;
-    }
-    assert(!_didChangeViewportDimensionOrReceiveCorrection,
-        'Use correctForNewDimensions() (and return true) to change the scroll offset during applyContentDimensions().');
-
-    if (_isMetricsChanged()) {
-      // It is too late to send useful notifications, because the potential
-      // listeners have, by definition, already been built this frame. To make
-      // sure the notification is sent at all, we delay it until after the frame
-      // is complete.
-      if (!_haveScheduledUpdateNotification) {
-        scheduleMicrotask(didUpdateScrollMetrics);
-        _haveScheduledUpdateNotification = true;
-      }
-      _lastMetrics = copyWith();
-    }
-    return true;
   }
 
   @override
@@ -484,58 +486,6 @@ class ScrollSnapPosition extends ScrollPosition
       return false;
     }
     return true;
-  }
-
-  @override
-  // ignore: must_call_super
-  void applyNewDimensions() {
-    //print('💩 applyNewDimensions');
-    if (activity is BallisticScrollActivity) return;
-    _applyNewDimensions();
-    context.setCanDrag(physics.shouldAcceptUserOffset(this));
-  }
-
-  void _applyNewDimensions() {
-    assert(hasPixels);
-    assert(_pendingDimensions);
-    activity!.applyNewDimensions();
-    _updateSemanticActions(); // will potentially request a semantics update.
-  }
-
-  Set<SemanticsAction>? _semanticActions;
-
-  void _updateSemanticActions() {
-    final (SemanticsAction forward, SemanticsAction backward) =
-        switch (axisDirection) {
-      AxisDirection.up => (
-          SemanticsAction.scrollDown,
-          SemanticsAction.scrollUp
-        ),
-      AxisDirection.down => (
-          SemanticsAction.scrollUp,
-          SemanticsAction.scrollDown
-        ),
-      AxisDirection.left => (
-          SemanticsAction.scrollRight,
-          SemanticsAction.scrollLeft
-        ),
-      AxisDirection.right => (
-          SemanticsAction.scrollLeft,
-          SemanticsAction.scrollRight
-        ),
-    };
-
-    final Set<SemanticsAction> actions = <SemanticsAction>{
-      if (pixels > minScrollExtent) backward,
-      if (pixels < maxScrollExtent) forward,
-    };
-
-    if (setEquals<SemanticsAction>(actions, _semanticActions)) {
-      return;
-    }
-
-    _semanticActions = actions;
-    context.setSemanticsActions(_semanticActions!);
   }
 
   ScrollPositionAlignmentPolicy _maybeFlipAlignment(
@@ -894,12 +844,6 @@ class ScrollSnapPosition extends ScrollPosition
     _activity = null;
     isScrollingNotifier.dispose();
     super.dispose();
-  }
-
-  @override
-  void notifyListeners() {
-    _updateSemanticActions(); // will potentially request a semantics update.
-    super.notifyListeners();
   }
 
   @override
