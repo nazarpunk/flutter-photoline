@@ -8,6 +8,9 @@ import 'package:photoline/photoline.dart';
 import 'package:photoline/src/scroll/snap/snap/box.dart';
 import 'package:photoline/src/scroll/snap/snap/physics.dart';
 
+part 'override.dart';
+
+/// [PageView]
 class ScrollSnapPosition extends ScrollPositionWithSingleContext {
   ScrollSnapPosition({
     required this.controller,
@@ -20,6 +23,59 @@ class ScrollSnapPosition extends ScrollPositionWithSingleContext {
   });
 
   final ScrollSnapController controller;
+
+  @override
+  bool applyViewportDimension(double viewportDimension) {
+    final double? oldViewportDimensions =
+        hasViewportDimension ? this.viewportDimension : null;
+    if (viewportDimension == oldViewportDimensions) {
+      return true;
+    }
+    final bool result = super.applyViewportDimension(viewportDimension);
+
+    /// snap last photolines
+    if (controller.snapPhotolines != null &&
+        controller.boxConstraints != null &&
+        physics is ScrollSnapPhysics) {
+      final phs = physics as ScrollSnapPhysics;
+
+      final double? oldPixels = hasPixels ? pixels : null;
+
+      int i = -1;
+      double newPixels = 0;
+
+      final (heightClose, heightOpen) = phs.photolineHeights(this);
+
+      for (final p in controller.snapPhotolines!()) {
+        i++;
+        if (i == 3) break;
+        switch (p.action.value) {
+          case PhotolineAction.open:
+          case PhotolineAction.opening:
+            newPixels += heightOpen;
+          case PhotolineAction.drag:
+          case PhotolineAction.closing:
+          case PhotolineAction.close:
+          case PhotolineAction.upload:
+            newPixels += heightClose + p.bottomHeightAddition();
+        }
+        newPixels += controller.photolineGap;
+      }
+
+      print('$oldPixels | $newPixels');
+      if (newPixels != oldPixels) {
+        //correctPixels(newPixels);
+        return false;
+      }
+    }
+    return result;
+  }
+
+  @override
+  bool correctForNewDimensions(
+      ScrollMetrics oldPosition, ScrollMetrics newPosition) {
+    return true;
+  }
 
   @override
   bool applyContentDimensions(double minScrollExtent, double maxScrollExtent) {
@@ -77,8 +133,7 @@ class ScrollSnapPosition extends ScrollPositionWithSingleContext {
     /// snap last photolines
     if (controller.snapPhotolines != null &&
         controller.boxConstraints != null &&
-        physics is ScrollSnapPhysics &&
-        kProfileMode) {
+        physics is ScrollSnapPhysics) {
       final p = physics as ScrollSnapPhysics;
       double so = 0;
 
@@ -168,6 +223,29 @@ class ScrollSnapPosition extends ScrollPositionWithSingleContext {
   }
 
   @override
+  void goBallistic(double velocity) {
+    //print('🍒 goBallistic | $velocity');
+    assert(hasPixels);
+    final Simulation? simulation =
+        physics.createBallisticSimulation(this, velocity);
+    if (simulation != null) {
+      beginActivity(BallisticScrollActivity(
+        this,
+        simulation,
+        context.vsync,
+        shouldIgnorePointer,
+      ));
+    } else {
+      goIdle();
+    }
+  }
+
+  @override
+  void goIdle() {
+    beginActivity(IdleScrollActivity(this));
+  }
+
+  @override
   double setPixels(double newPixels) {
     final delta = newPixels - pixels;
     if (delta == 0) return super.setPixels(newPixels);
@@ -196,6 +274,7 @@ class ScrollSnapPosition extends ScrollPositionWithSingleContext {
 
   @override
   void applyNewDimensions() {
+    //print('💩 applyNewDimensions');
     if (activity is BallisticScrollActivity) return;
     super.applyNewDimensions();
   }
@@ -207,4 +286,8 @@ class ScrollSnapPosition extends ScrollPositionWithSingleContext {
   void pointerScroll(double delta) {
     return;
   }
+
+
+  // ===========================================
+
 }

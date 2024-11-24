@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:photoline/photoline.dart';
 import 'package:photoline/src/scroll/snap/snap/physics.dart';
-import 'package:photoline/src/scroll/snap/snap/position.dart';
+import 'package:photoline/src/scroll/snap/snap/position/position.dart';
 
 class ScrollSnap extends StatefulWidget {
   const ScrollSnap({
