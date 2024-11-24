@@ -38,9 +38,7 @@ class ScrollSnapController extends ScrollController {
       physics: physics,
       context: context,
       initialPixels: initital,
-      keepScrollOffset: keepScrollOffset,
       oldPosition: oldPosition,
-      debugLabel: debugLabel,
     );
   }
 

@@ -1,1 +1,730 @@
 part of 'position.dart';
+
+class ScrollSnapPositionOverride extends ScrollPosition
+    implements ScrollActivityDelegate {
+  ScrollSnapPositionOverride({
+    required this.controller,
+    required super.physics,
+    required super.context,
+    ScrollPosition? oldPosition,
+  }) {
+    if (oldPosition != null) {
+      absorb(oldPosition);
+    }
+    if (keepScrollOffset) {
+      restoreScrollOffset();
+    }
+  }
+
+  final ScrollSnapController controller;
+
+  @override
+  AxisDirection get axisDirection => context.axisDirection;
+
+  @override
+  ScrollDirection get userScrollDirection => _userScrollDirection;
+  ScrollDirection _userScrollDirection = ScrollDirection.idle;
+
+  @override
+  double get minScrollExtent => _minScrollExtent!;
+  double? _minScrollExtent;
+
+  @override
+  double get maxScrollExtent => _maxScrollExtent!;
+  double? _maxScrollExtent;
+
+  @override
+  bool get hasContentDimensions =>
+      _minScrollExtent != null && _maxScrollExtent != null;
+
+  double _impliedVelocity = 0;
+
+  @override
+  double get pixels => _pixels!;
+  double? _pixels;
+
+  @override
+  bool get hasPixels => _pixels != null;
+
+  @override
+  double get viewportDimension => _viewportDimension!;
+  double? _viewportDimension;
+
+  @override
+  bool get hasViewportDimension => _viewportDimension != null;
+
+  @override
+  bool get haveDimensions => _haveDimensions;
+  bool _haveDimensions = false;
+
+  @override
+  bool get shouldIgnorePointer =>
+      !outOfRange && (activity?.shouldIgnorePointer ?? true);
+
+  @override
+  @protected
+  @mustCallSuper
+  void absorb(ScrollPosition other) {
+    assert(other.context == context);
+    assert(_pixels == null);
+    if (other.hasContentDimensions) {
+      _minScrollExtent = other.minScrollExtent;
+      _maxScrollExtent = other.maxScrollExtent;
+    }
+    if (other.hasPixels) {
+      _pixels = other.pixels;
+    }
+    if (other.hasViewportDimension) {
+      _viewportDimension = other.viewportDimension;
+    }
+
+    assert(activity == null);
+    assert(other.activity != null);
+    _activity = other.activity;
+    if (other is ScrollSnapPositionOverride) {
+      other._activity = null;
+    }
+    if (other.runtimeType != runtimeType) {
+      activity!.resetActivity();
+    }
+    context.setIgnorePointer(activity!.shouldIgnorePointer);
+    isScrollingNotifier.value = activity!.isScrolling;
+  }
+
+  @override
+  double get devicePixelRatio => context.devicePixelRatio;
+
+  @override
+  double setPixels(double newPixels) {
+    assert(hasPixels);
+    assert(
+        SchedulerBinding.instance.schedulerPhase !=
+            SchedulerPhase.persistentCallbacks,
+        "A scrollable's position should not change during the build, layout, and paint phases, otherwise the rendering will be confused.");
+    if (newPixels != pixels) {
+      final double overscroll = applyBoundaryConditions(newPixels);
+      assert(() {
+        final double delta = newPixels - pixels;
+        if (overscroll.abs() > delta.abs()) {
+          throw FlutterError(
+            '$runtimeType.applyBoundaryConditions returned invalid overscroll value.\n'
+            'setPixels() was called to change the scroll offset from $pixels to $newPixels.\n'
+            'That is a delta of $delta units.\n'
+            '$runtimeType.applyBoundaryConditions reported an overscroll of $overscroll units.',
+          );
+        }
+        return true;
+      }());
+      final double oldPixels = pixels;
+      _pixels = newPixels - overscroll;
+      if (_pixels != oldPixels) {
+        if (outOfRange) {
+          context.setIgnorePointer(false);
+        }
+        notifyListeners();
+        didUpdateScrollPositionBy(pixels - oldPixels);
+      }
+      if (overscroll.abs() > precisionErrorTolerance) {
+        didOverscrollBy(overscroll);
+        return overscroll;
+      }
+    }
+    return 0.0;
+  }
+
+  @override
+  void correctPixels(double value) {
+    _pixels = value;
+  }
+
+  @override
+  void correctBy(double correction) {
+    assert(
+      hasPixels,
+      'An initial pixels value must exist by calling correctPixels on the ScrollPosition',
+    );
+    _pixels = _pixels! + correction;
+    _didChangeViewportDimensionOrReceiveCorrection = true;
+  }
+
+  @override
+  void forcePixels(double value) {
+    assert(hasPixels);
+    _impliedVelocity = value - pixels;
+    _pixels = value;
+    notifyListeners();
+    SchedulerBinding.instance.addPostFrameCallback((Duration timeStamp) {
+      _impliedVelocity = 0;
+    }, debugLabel: 'ScrollPosition.resetVelocity');
+  }
+
+  @override
+  void saveScrollOffset() {}
+
+  @override
+  void restoreScrollOffset() {}
+
+  @override
+  void restoreOffset(double offset, {bool initialRestore = false}) {
+    if (initialRestore) {
+      correctPixels(offset);
+    } else {
+      jumpTo(offset);
+    }
+  }
+
+  @override
+  @protected
+  void saveOffset() {
+    assert(hasPixels);
+    context.saveOffset(pixels);
+  }
+
+  @override
+  @protected
+  double applyBoundaryConditions(double value) {
+    final double result = physics.applyBoundaryConditions(this, value);
+    assert(() {
+      final double delta = value - pixels;
+      if (result.abs() > delta.abs()) {
+        throw FlutterError(
+          '${physics.runtimeType}.applyBoundaryConditions returned invalid overscroll value.\n'
+          'The method was called to consider a change from $pixels to $value, which is a '
+          'delta of ${delta.toStringAsFixed(1)} units. However, it returned an overscroll of '
+          '${result.toStringAsFixed(1)} units, which has a greater magnitude than the delta. '
+          'The applyBoundaryConditions method is only supposed to reduce the possible range '
+          'of movement, not increase it.\n'
+          'The scroll extents are $minScrollExtent .. $maxScrollExtent, and the '
+          'viewport dimension is $viewportDimension.',
+        );
+      }
+      return true;
+    }());
+    return result;
+  }
+
+  bool _didChangeViewportDimensionOrReceiveCorrection = true;
+
+  @override
+  bool applyViewportDimension(double viewportDimension) {
+    if (_viewportDimension != viewportDimension) {
+      _viewportDimension = viewportDimension;
+      _didChangeViewportDimensionOrReceiveCorrection = true;
+      // If this is called, you can rely on applyContentDimensions being called
+      // soon afterwards in the same layout phase. So we put all the logic that
+      // relies on both values being computed into applyContentDimensions.
+    }
+    return true;
+  }
+
+  bool _pendingDimensions = false;
+  ScrollMetrics? _lastMetrics;
+
+  bool _haveScheduledUpdateNotification = false;
+  Axis? _lastAxis;
+
+  bool _isMetricsChanged() {
+    assert(haveDimensions);
+    final ScrollMetrics currentMetrics = copyWith();
+
+    return _lastMetrics == null ||
+        !(currentMetrics.extentBefore == _lastMetrics!.extentBefore &&
+            currentMetrics.extentInside == _lastMetrics!.extentInside &&
+            currentMetrics.extentAfter == _lastMetrics!.extentAfter &&
+            currentMetrics.axisDirection == _lastMetrics!.axisDirection);
+  }
+
+  @override
+  bool applyContentDimensions(double minScrollExtent, double maxScrollExtent) {
+    assert(haveDimensions == (_lastMetrics != null));
+    if (!nearEqual(_minScrollExtent, minScrollExtent,
+            Tolerance.defaultTolerance.distance) ||
+        !nearEqual(_maxScrollExtent, maxScrollExtent,
+            Tolerance.defaultTolerance.distance) ||
+        _didChangeViewportDimensionOrReceiveCorrection ||
+        _lastAxis != axis) {
+      assert(minScrollExtent <= maxScrollExtent);
+      _minScrollExtent = minScrollExtent;
+      _maxScrollExtent = maxScrollExtent;
+      _lastAxis = axis;
+      final ScrollMetrics? currentMetrics = haveDimensions ? copyWith() : null;
+      _didChangeViewportDimensionOrReceiveCorrection = false;
+      _pendingDimensions = true;
+      if (haveDimensions &&
+          !correctForNewDimensions(_lastMetrics!, currentMetrics!)) {
+        return false;
+      }
+      _haveDimensions = true;
+    }
+    assert(haveDimensions);
+    if (_pendingDimensions) {
+      applyNewDimensions();
+      _pendingDimensions = false;
+    }
+    assert(!_didChangeViewportDimensionOrReceiveCorrection,
+        'Use correctForNewDimensions() (and return true) to change the scroll offset during applyContentDimensions().');
+
+    if (_isMetricsChanged()) {
+      // It is too late to send useful notifications, because the potential
+      // listeners have, by definition, already been built this frame. To make
+      // sure the notification is sent at all, we delay it until after the frame
+      // is complete.
+      if (!_haveScheduledUpdateNotification) {
+        scheduleMicrotask(didUpdateScrollMetrics);
+        _haveScheduledUpdateNotification = true;
+      }
+      _lastMetrics = copyWith();
+    }
+    return true;
+  }
+
+  @override
+  bool correctForNewDimensions(
+      ScrollMetrics oldPosition, ScrollMetrics newPosition) {
+    final double newPixels = physics.adjustPositionForNewDimensions(
+      oldPosition: oldPosition,
+      newPosition: newPosition,
+      isScrolling: activity!.isScrolling,
+      velocity: activity!.velocity,
+    );
+
+    if (newPixels != pixels) {
+      correctPixels(newPixels);
+      return false;
+    }
+    return true;
+  }
+
+  @override
+  // ignore: must_call_super
+  void applyNewDimensions() {
+    assert(hasPixels);
+    assert(_pendingDimensions);
+    activity!.applyNewDimensions();
+    _updateSemanticActions(); // will potentially request a semantics update.
+  }
+
+  Set<SemanticsAction>? _semanticActions;
+
+  void _updateSemanticActions() {
+    final (SemanticsAction forward, SemanticsAction backward) =
+        switch (axisDirection) {
+      AxisDirection.up => (
+          SemanticsAction.scrollDown,
+          SemanticsAction.scrollUp
+        ),
+      AxisDirection.down => (
+          SemanticsAction.scrollUp,
+          SemanticsAction.scrollDown
+        ),
+      AxisDirection.left => (
+          SemanticsAction.scrollRight,
+          SemanticsAction.scrollLeft
+        ),
+      AxisDirection.right => (
+          SemanticsAction.scrollLeft,
+          SemanticsAction.scrollRight
+        ),
+    };
+
+    final Set<SemanticsAction> actions = <SemanticsAction>{
+      if (pixels > minScrollExtent) backward,
+      if (pixels < maxScrollExtent) forward,
+    };
+
+    if (setEquals<SemanticsAction>(actions, _semanticActions)) {
+      return;
+    }
+
+    _semanticActions = actions;
+    context.setSemanticsActions(_semanticActions!);
+  }
+
+  ScrollPositionAlignmentPolicy _maybeFlipAlignment(
+      ScrollPositionAlignmentPolicy alignmentPolicy) {
+    return switch (alignmentPolicy) {
+      // Don't flip when explicit.
+      ScrollPositionAlignmentPolicy.explicit => alignmentPolicy,
+      ScrollPositionAlignmentPolicy.keepVisibleAtEnd =>
+        ScrollPositionAlignmentPolicy.keepVisibleAtStart,
+      ScrollPositionAlignmentPolicy.keepVisibleAtStart =>
+        ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+    };
+  }
+
+  ScrollPositionAlignmentPolicy _applyAxisDirectionToAlignmentPolicy(
+      ScrollPositionAlignmentPolicy alignmentPolicy) {
+    return switch (axisDirection) {
+      // Start and end alignments must account for axis direction.
+      // When focus is requested for example, it knows the directionality of the
+      // keyboard keys initiating traversal, but not the direction of the
+      // Scrollable.
+      AxisDirection.up ||
+      AxisDirection.left =>
+        _maybeFlipAlignment(alignmentPolicy),
+      AxisDirection.down || AxisDirection.right => alignmentPolicy,
+    };
+  }
+
+  @override
+  Future<void> ensureVisible(
+    RenderObject object, {
+    double alignment = 0.0,
+    Duration duration = Duration.zero,
+    Curve curve = Curves.ease,
+    ScrollPositionAlignmentPolicy alignmentPolicy =
+        ScrollPositionAlignmentPolicy.explicit,
+    RenderObject? targetRenderObject,
+  }) async {
+    assert(object.attached);
+    final RenderAbstractViewport? viewport =
+        RenderAbstractViewport.maybeOf(object);
+    // If no viewport is found, return.
+    if (viewport == null) {
+      return;
+    }
+
+    Rect? targetRect;
+    if (targetRenderObject != null && targetRenderObject != object) {
+      targetRect = MatrixUtils.transformRect(
+        targetRenderObject.getTransformTo(object),
+        object.paintBounds.intersect(targetRenderObject.paintBounds),
+      );
+    }
+
+    double target;
+    switch (_applyAxisDirectionToAlignmentPolicy(alignmentPolicy)) {
+      case ScrollPositionAlignmentPolicy.explicit:
+        target = viewport
+            .getOffsetToReveal(
+              object,
+              alignment,
+              rect: targetRect,
+              axis: axis,
+            )
+            .offset;
+        target = clampDouble(target, minScrollExtent, maxScrollExtent);
+      case ScrollPositionAlignmentPolicy.keepVisibleAtEnd:
+        target = viewport
+            .getOffsetToReveal(
+              object,
+              1.0, // Aligns to end
+              rect: targetRect,
+              axis: axis,
+            )
+            .offset;
+        target = clampDouble(target, minScrollExtent, maxScrollExtent);
+        if (target < pixels) {
+          target = pixels;
+        }
+      case ScrollPositionAlignmentPolicy.keepVisibleAtStart:
+        target = viewport
+            .getOffsetToReveal(
+              object,
+              0.0, // Aligns to start
+              rect: targetRect,
+              axis: axis,
+            )
+            .offset;
+        target = clampDouble(target, minScrollExtent, maxScrollExtent);
+        if (target > pixels) {
+          target = pixels;
+        }
+    }
+
+    if (target == pixels) {
+      return;
+    }
+
+    if (duration == Duration.zero) {
+      jumpTo(target);
+      return;
+    }
+
+    return animateTo(target, duration: duration, curve: curve);
+  }
+
+  @override
+  Future<void> animateTo(
+    double to, {
+    required Duration duration,
+    required Curve curve,
+  }) {
+    if (nearEqual(to, pixels, physics.toleranceFor(this).distance)) {
+      // Skip the animation, go straight to the position as we are already close.
+      jumpTo(to);
+      return Future<void>.value();
+    }
+
+    final DrivenScrollActivity activity = DrivenScrollActivity(
+      this,
+      from: pixels,
+      to: to,
+      duration: duration,
+      curve: curve,
+      vsync: context.vsync,
+    );
+    beginActivity(activity);
+    return activity.done;
+  }
+
+  @override
+  void jumpTo(double value) {
+    goIdle();
+    if (pixels != value) {
+      final double oldPixels = pixels;
+      forcePixels(value);
+      didStartScroll();
+      didUpdateScrollPositionBy(pixels - oldPixels);
+      didEndScroll();
+    }
+    goBallistic(0.0);
+  }
+
+  @override
+  void pointerScroll(double delta) {}
+
+  @override
+  Future<void> moveTo(
+    double to, {
+    Duration? duration,
+    Curve? curve,
+    bool? clamp = true,
+  }) {
+    assert(clamp != null);
+
+    if (clamp!) {
+      to = clampDouble(to, minScrollExtent, maxScrollExtent);
+    }
+
+    return super.moveTo(to, duration: duration, curve: curve);
+  }
+
+  @override
+  bool get allowImplicitScrolling => physics.allowImplicitScrolling;
+
+  @override
+  void jumpToWithoutSettling(double value) {}
+
+  // ===========================================
+
+  /// Velocity from a previous activity temporarily held by [hold] to potentially
+  /// transfer to a next activity.
+  double heldPreviousVelocity = 0.0;
+
+  @override
+  ScrollHoldController hold(VoidCallback holdCancelCallback) {
+    final double previousVelocity = activity!.velocity;
+    final HoldScrollActivity holdActivity = HoldScrollActivity(
+      delegate: this,
+      onHoldCanceled: holdCancelCallback,
+    );
+    beginActivity(holdActivity);
+    heldPreviousVelocity = previousVelocity;
+    return holdActivity;
+  }
+
+  ScrollDragController? _currentDrag;
+
+  @override
+  Drag drag(DragStartDetails details, VoidCallback dragCancelCallback) {
+    final ScrollDragController drag = ScrollDragController(
+      delegate: this,
+      details: details,
+      onDragCanceled: dragCancelCallback,
+      carriedVelocity: physics.carriedMomentum(heldPreviousVelocity),
+      motionStartDistanceThreshold: physics.dragStartDistanceMotionThreshold,
+    );
+    beginActivity(DragScrollActivity(this, drag));
+    assert(_currentDrag == null);
+    _currentDrag = drag;
+    return drag;
+  }
+
+  @override
+  ScrollActivity? get activity => _activity;
+  ScrollActivity? _activity;
+
+  @override
+  void beginActivity(ScrollActivity? newActivity) {
+    if (newActivity == null) {
+      return;
+    }
+    bool wasScrolling, oldIgnorePointer;
+    if (_activity != null) {
+      oldIgnorePointer = _activity!.shouldIgnorePointer;
+      wasScrolling = _activity!.isScrolling;
+      if (wasScrolling && !newActivity.isScrolling) {
+        // Notifies and then saves the scroll offset.
+        didEndScroll();
+      }
+      _activity!.dispose();
+    } else {
+      oldIgnorePointer = false;
+      wasScrolling = false;
+    }
+    _activity = newActivity;
+    if (oldIgnorePointer != activity!.shouldIgnorePointer) {
+      context.setIgnorePointer(activity!.shouldIgnorePointer);
+    }
+    isScrollingNotifier.value = activity!.isScrolling;
+    if (!wasScrolling && _activity!.isScrolling) {
+      didStartScroll();
+    }
+  }
+
+  // NOTIFICATION DISPATCH
+
+  @override
+  void didStartScroll() {
+    activity!.dispatchScrollStartNotification(
+        copyWith(), context.notificationContext);
+  }
+
+  @override
+  void didUpdateScrollPositionBy(double delta) {
+    activity!.dispatchScrollUpdateNotification(
+        copyWith(), context.notificationContext!, delta);
+  }
+
+  @override
+  void didEndScroll() {
+    activity!.dispatchScrollEndNotification(
+        copyWith(), context.notificationContext!);
+    saveOffset();
+    if (keepScrollOffset) {
+      saveScrollOffset();
+    }
+  }
+
+  @override
+  void didOverscrollBy(double value) {
+    assert(activity!.isScrolling);
+    activity!.dispatchOverscrollNotification(
+        copyWith(), context.notificationContext!, value);
+  }
+
+  void updateUserScrollDirection(ScrollDirection value) {
+    if (userScrollDirection == value) {
+      return;
+    }
+    _userScrollDirection = value;
+    didUpdateScrollDirection(value);
+  }
+
+  @override
+  void didUpdateScrollDirection(ScrollDirection direction) {
+    UserScrollNotification(
+            metrics: copyWith(),
+            context: context.notificationContext!,
+            direction: direction)
+        .dispatch(context.notificationContext);
+  }
+
+  @override
+  void didUpdateScrollMetrics() {
+    assert(SchedulerBinding.instance.schedulerPhase !=
+        SchedulerPhase.persistentCallbacks);
+    assert(_haveScheduledUpdateNotification);
+    _haveScheduledUpdateNotification = false;
+    if (context.notificationContext != null) {
+      ScrollMetricsNotification(
+              metrics: copyWith(), context: context.notificationContext!)
+          .dispatch(context.notificationContext);
+    }
+  }
+
+  @override
+  bool recommendDeferredLoading(BuildContext context) {
+    assert(activity != null);
+    return physics.recommendDeferredLoading(
+      activity!.velocity + _impliedVelocity,
+      copyWith(),
+      context,
+    );
+  }
+
+  @override
+  void dispose() {
+    _currentDrag?.dispose();
+    _currentDrag = null;
+
+    activity
+        ?.dispose(); // it will be null if it got absorbed by another ScrollPosition
+    _activity = null;
+    isScrollingNotifier.dispose();
+    super.dispose();
+  }
+
+  @override
+  void notifyListeners() {
+    _updateSemanticActions(); // will potentially request a semantics update.
+    super.notifyListeners();
+  }
+
+  @override
+  void applyUserOffset(double delta) {}
+
+  @override
+  void goBallistic(double velocity) {}
+
+  @override
+  void goIdle() {
+    beginActivity(IdleScrollActivity(this));
+  }
+
+  void scrollNextPhotoline(int direction) {
+    final photolines = controller.snapPhotolines;
+    if (photolines == null) return;
+
+    double dist = double.infinity;
+    double so = 0;
+    int current = -1;
+    final List<double> offsets = [];
+
+    final (heightClose, heightOpen) =
+        (physics as ScrollSnapPhysics).photolineHeights(this);
+
+    for (final p in photolines()) {
+      final d = so - pixels;
+      offsets.add(so);
+      if (dist.isInfinite || d.abs() < dist.abs()) {
+        dist = d;
+        current = offsets.length - 1;
+      }
+      switch (p.action.value) {
+        case PhotolineAction.open:
+        case PhotolineAction.opening:
+          so += heightOpen;
+        case PhotolineAction.drag:
+        case PhotolineAction.closing:
+        case PhotolineAction.close:
+        case PhotolineAction.upload:
+          so += heightClose + p.bottomHeightAddition();
+      }
+      so += controller.photolineGap;
+    }
+
+    current += direction;
+
+    if (current < 0 || current >= offsets.length) return;
+
+    //unawaited(animateTo(offsets[current],duration: const Duration(milliseconds: 300), curve: Curves.linear));
+    beginActivity(BallisticScrollActivity(
+      this,
+      ScrollSpringSimulation(
+        SpringDescription.withDampingRatio(
+          mass: 1.2,
+          stiffness: 80.0,
+          ratio: 1.2,
+        ),
+        pixels,
+        offsets[current],
+        0,
+        tolerance: physics.toleranceFor(this),
+      ),
+      context.vsync,
+      activity?.shouldIgnorePointer ?? true,
+    ));
+  }
+}
