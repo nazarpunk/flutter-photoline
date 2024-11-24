@@ -78,7 +78,7 @@ class ScrollSnapPhysics extends ScrollPhysics {
   }
 
   (double heightClose, double heightOpen) photolineHeights(
-      ScrollSnapPositionOverride position) {
+      ScrollSnapPosition position) {
     final c = position.controller;
     final b = c.boxConstraints!;
 
