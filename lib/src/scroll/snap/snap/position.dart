@@ -86,7 +86,7 @@ class ScrollSnapPosition extends ScrollPosition
 
   @override
   bool applyViewportDimension(double viewportDimension) {
-    print('🍒 applyViewportDimension');
+    //print('🍒 applyViewportDimension');
     final double? oldViewportDimensions =
         hasViewportDimension ? this.viewportDimension : null;
     if (viewportDimension == oldViewportDimensions) {
@@ -137,7 +137,7 @@ class ScrollSnapPosition extends ScrollPosition
 
   @override
   bool applyContentDimensions(double minScrollExtent, double maxScrollExtent) {
-    print('🔥 applyContentDimensions');
+    //print('🔥 applyContentDimensions');
 
     /// snapLast box
     if (controller.snap) {
@@ -329,7 +329,7 @@ class ScrollSnapPosition extends ScrollPosition
   @override
   double setPixels(double newPixels) {
     final delta = newPixels - pixels;
-    if (delta == 0) return super.setPixels(newPixels);
+    if (delta == 0) return _setPixels(newPixels);
 
     if (controller.headerHolder != null) {
       final holder = controller.headerHolder!;
@@ -385,6 +385,7 @@ class ScrollSnapPosition extends ScrollPosition
 
   @override
   void correctBy(double correction) {
+    //print('✅ correct | $correction');
     assert(
       hasPixels,
       'An initial pixels value must exist by calling correctPixels on the ScrollPosition',
@@ -411,20 +412,10 @@ class ScrollSnapPosition extends ScrollPosition
   void restoreScrollOffset() {}
 
   @override
-  void restoreOffset(double offset, {bool initialRestore = false}) {
-    if (initialRestore) {
-      correctPixels(offset);
-    } else {
-      jumpTo(offset);
-    }
-  }
+  void restoreOffset(double offset, {bool initialRestore = false}) {}
 
   @override
-  @protected
-  void saveOffset() {
-    assert(hasPixels);
-    context.saveOffset(pixels);
-  }
+  void saveOffset() {}
 
   @override
   @protected

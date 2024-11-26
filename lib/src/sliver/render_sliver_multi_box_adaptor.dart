@@ -119,7 +119,11 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
     final c = constraints.asBoxConstraints(minExtent: width, maxExtent: width);
 
     if (child == null || indexOf(child) != index - 1) {
-      child = insertAndLayoutChild(c, after: prev);
+      try {
+        child = insertAndLayoutChild(c, after: prev);
+      } catch (e) {
+        print('⚠️ Build dirty widget');
+      }
     } else {
       child.layout(c);
     }

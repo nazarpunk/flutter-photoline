@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:photoline/photoline.dart';
 import 'package:photoline/src/scroll/snap/snap/physics.dart';
-import 'package:photoline/src/scroll/snap/snap/position/position.dart';
+import 'package:photoline/src/scroll/snap/snap/position.dart';
+import 'package:photoline/src/scroll/snap/snap/viewport/viewport.dart';
 
 class ScrollSnap extends StatefulWidget {
   const ScrollSnap({
@@ -56,12 +57,15 @@ class ScrollSnapState extends State<ScrollSnap> {
       child: PhotolineScrollable(
         controller: controller,
         physics: _physics,
-        viewportBuilder: (context, position) => Viewport(
-          cacheExtent: widget.cacheExtent,
-          cacheExtentStyle: CacheExtentStyle.viewport,
-          offset: position,
-          slivers: widget.slivers,
-        ),
+        viewportBuilder: (context, position) {
+          //print('😍 $position');
+          return SnapViewport(
+            cacheExtent: widget.cacheExtent,
+            cacheExtentStyle: CacheExtentStyle.viewport,
+            offset: position,
+            children: widget.slivers,
+          );
+        },
       ),
     );
   }

@@ -24,6 +24,7 @@ linter:
     prefer_mixin: false # https://dart-lang.github.io/linter/lints/prefer_mixin.html
     always_specify_types: false # https://dart-lang.github.io/linter/lints/always_specify_types.html
     #
+    avoid_implementing_value_types: false # https://dart.dev/tools/linter-rules/avoid_implementing_value_types
     avoid_final_parameters: false # https://dart-lang.github.io/linter/lints/avoid_final_parameters.html
     prefer_final_parameters: false # https://dart-lang.github.io/linter/lints/prefer_final_parameters.html
     parameter_assignments: false # https://dart-lang.github.io/linter/lints/parameter_assignments.html

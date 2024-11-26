@@ -27,7 +27,7 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
       snapController: _controller,
     );
 
-    for (int i = 0; i < 12; i++) {
+    for (int i = 0; i < 5; i++) {
       final List<Uri> l = [];
       for (int k = 0; k < 13 - i; k++) {
         l.add(PhotolineDummys.get(i, k));
@@ -105,7 +105,6 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
 
   @override
   Widget build(BuildContext context) {
-
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(minWidth: 100, maxWidth: 900),
