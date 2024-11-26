@@ -8,19 +8,20 @@ import 'package:flutter/rendering.dart';
 part 'render.dart';
 
 class SnapViewport extends MultiChildRenderObjectWidget implements Viewport {
-  const SnapViewport(
-      {super.key,
-      required this.offset,
-      this.cacheExtent,
-      this.cacheExtentStyle = CacheExtentStyle.pixel,
-      super.children});
+  const SnapViewport({
+    super.key,
+    required this.offset,
+    this.cacheExtent,
+    super.children,
+  });
 
   @override
   final ViewportOffset offset;
   @override
   final double? cacheExtent;
+
   @override
-  final CacheExtentStyle cacheExtentStyle;
+  final CacheExtentStyle cacheExtentStyle = CacheExtentStyle.viewport;
 
   @override
   RenderViewport createRenderObject(BuildContext context) {

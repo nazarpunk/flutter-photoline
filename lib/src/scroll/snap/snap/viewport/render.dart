@@ -1,38 +1,19 @@
 part of 'viewport.dart';
 
-@deprecated
-AxisDirection _applyGrowthDirectionToAxisDirection(
-    GrowthDirection growthDirection) {
-  return switch (growthDirection) {
-    GrowthDirection.forward => AxisDirection.down,
-    GrowthDirection.reverse => flipAxisDirection(AxisDirection.down),
-  };
-}
-
-class RenderViewportPhotoline
-    extends RenderViewportBase<SliverPhysicalContainerParentData>
-    implements RenderViewport {
+class RenderViewportPhotoline extends RenderBox
+    with
+        ContainerRenderObjectMixin<RenderSliver,
+            SliverPhysicalContainerParentData>
+    implements
+        RenderViewport {
   RenderViewportPhotoline({
-    required super.crossAxisDirection,
-    required super.offset,
-  });
-}
-
-class RenderViewportBase<
-        ParentDataClass extends ContainerParentDataMixin<RenderSliver>>
-    extends RenderBox
-    with ContainerRenderObjectMixin<RenderSliver, ParentDataClass>
-    implements RenderAbstractViewport {
-  RenderViewportBase({
     required AxisDirection crossAxisDirection,
     required ViewportOffset offset,
     List<RenderSliver>? children,
-  })  : assert(axisDirectionToAxis(AxisDirection.down) !=
-            axisDirectionToAxis(crossAxisDirection)),
+  })  : assert(Axis.vertical != axisDirectionToAxis(crossAxisDirection)),
         _crossAxisDirection = crossAxisDirection,
         _offset = offset,
-        _cacheExtent = 1.5,
-        _cacheExtentStyle = CacheExtentStyle.viewport {
+        _cacheExtent = 1.5 {
     addAll(children);
     if (center == null && firstChild != null) {
       _center = firstChild;
@@ -62,15 +43,20 @@ class RenderViewportBase<
 
   bool _hasVisualOverflow = false;
 
+  @override
   bool get hasVisualOverflow => _hasVisualOverflow;
 
+  @override
   double get anchor => 0;
 
+  @override
   set anchor(double value) {}
 
+  @override
   RenderSliver? get center => _center;
   RenderSliver? _center;
 
+  @override
   set center(RenderSliver? value) {
     if (value == _center) {
       return;
@@ -91,17 +77,11 @@ class RenderViewportBase<
   @override
   void visitChildrenForSemantics(RenderObjectVisitor visitor) {}
 
-  @deprecated
-  AxisDirection get axisDirection => _axisDirection;
-  @deprecated
-  final AxisDirection _axisDirection = AxisDirection.down;
-
-  @deprecated
-  set axisDirection(AxisDirection value) {}
-
+  @override
   AxisDirection get crossAxisDirection => _crossAxisDirection;
   AxisDirection _crossAxisDirection;
 
+  @override
   set crossAxisDirection(AxisDirection value) {
     if (value == _crossAxisDirection) {
       return;
@@ -110,11 +90,14 @@ class RenderViewportBase<
     markNeedsLayout();
   }
 
-  Axis get axis => axisDirectionToAxis(axisDirection);
+  @override
+  Axis get axis => Axis.vertical;
 
+  @override
   ViewportOffset get offset => _offset;
   ViewportOffset _offset;
 
+  @override
   set offset(ViewportOffset value) {
     if (value == _offset) {
       return;
@@ -132,9 +115,11 @@ class RenderViewportBase<
     markNeedsLayout();
   }
 
+  @override
   double? get cacheExtent => _cacheExtent;
   double _cacheExtent;
 
+  @override
   set cacheExtent(double? value) {
     value ??= RenderAbstractViewport.defaultCacheExtent;
     if (value == _cacheExtent) {
@@ -146,20 +131,18 @@ class RenderViewportBase<
 
   double? _calculatedCacheExtent;
 
+  @override
   CacheExtentStyle get cacheExtentStyle => _cacheExtentStyle;
-  CacheExtentStyle _cacheExtentStyle;
+  final CacheExtentStyle _cacheExtentStyle = CacheExtentStyle.viewport;
 
-  set cacheExtentStyle(CacheExtentStyle value) {
-    if (value == _cacheExtentStyle) {
-      return;
-    }
-    _cacheExtentStyle = value;
-    markNeedsLayout();
-  }
+  @override
+  set cacheExtentStyle(CacheExtentStyle value) {}
 
+  @override
   Clip get clipBehavior => _clipBehavior;
   Clip _clipBehavior = Clip.hardEdge;
 
+  @override
   set clipBehavior(Clip value) {
     if (value != _clipBehavior) {
       _clipBehavior = value;
@@ -218,23 +201,7 @@ class RenderViewportBase<
       if (count >= maxLayoutCycles) {
         assert(count != 1);
         throw FlutterError(
-          'A RenderViewport exceeded its maximum number of layout cycles.\n'
-          'RenderViewport render objects, during layout, can retry if either their '
-          'slivers or their ViewportOffset decide that the offset should be corrected '
-          'to take into account information collected during that layout.\n'
-          'In the case of this RenderViewport object, however, this happened $count '
-          'times and still there was no consensus on the scroll offset. This usually '
-          'indicates a bug. Specifically, it means that one of the following three '
-          'problems is being experienced by the RenderViewport object:\n'
-          ' * One of the RenderSliver children or the ViewportOffset have a bug such'
-          ' that they always think that they need to correct the offset regardless.\n'
-          ' * Some combination of the RenderSliver children and the ViewportOffset'
-          ' have a bad interaction such that one applies a correction then another'
-          ' applies a reverse correction, leading to an infinite loop of corrections.\n'
-          ' * There is a pathological case that would eventually resolve, but it is'
-          ' so complicated that it cannot be resolved in any reasonable number of'
-          ' layout passes.',
-        );
+            'A RenderViewport exceeded its maximum number of layout cycles.');
       }
       return true;
     }());
@@ -323,6 +290,7 @@ class RenderViewportBase<
     super.detach();
   }
 
+  @override
   @protected
   bool debugThrowIfNotCheckingIntrinsics() {
     assert(() {
@@ -374,6 +342,7 @@ class RenderViewportBase<
   @override
   bool get isRepaintBoundary => true;
 
+  @override
   double layoutChildSequence({
     required RenderSliver? child,
     required double scrollOffset,
@@ -464,44 +433,6 @@ class RenderViewportBase<
     }
 
     return 0.0;
-  }
-
-  @override
-  Rect? describeApproximatePaintClip(RenderSliver child) {
-    switch (clipBehavior) {
-      case Clip.none:
-        return null;
-      case Clip.hardEdge:
-      case Clip.antiAlias:
-      case Clip.antiAliasWithSaveLayer:
-        break;
-    }
-
-    final Rect viewportClip = Offset.zero & size;
-    if (child.constraints.overlap == 0 ||
-        !child.constraints.viewportMainAxisExtent.isFinite) {
-      return viewportClip;
-    }
-
-    double left = viewportClip.left;
-    double right = viewportClip.right;
-    double top = viewportClip.top;
-    double bottom = viewportClip.bottom;
-    final double startOfOverlap = child.constraints.viewportMainAxisExtent -
-        child.constraints.remainingPaintExtent;
-    final double overlapCorrection = startOfOverlap + child.constraints.overlap;
-    switch (_applyGrowthDirectionToAxisDirection(
-        child.constraints.growthDirection)) {
-      case AxisDirection.down:
-        top += overlapCorrection;
-      case AxisDirection.up:
-        bottom -= overlapCorrection;
-      case AxisDirection.right:
-        left += overlapCorrection;
-      case AxisDirection.left:
-        right -= overlapCorrection;
-    }
-    return Rect.fromLTRB(left, top, right, bottom);
   }
 
   @override
@@ -624,27 +555,17 @@ class RenderViewportBase<
     }
 
     final Rect rectLocal;
-    final double pivotExtent;
-    final GrowthDirection growthDirection;
 
     if (pivot != null) {
       assert(pivot.parent != null);
       assert(pivot.parent != this);
       assert(pivot != this);
       assert(pivot.parent is RenderSliver);
-      final RenderSliver pivotParent = pivot.parent! as RenderSliver;
-      growthDirection = pivotParent.constraints.growthDirection;
-      pivotExtent = switch (axis) {
-        Axis.horizontal => pivot.size.width,
-        Axis.vertical => pivot.size.height,
-      };
       rect ??= target.paintBounds;
       rectLocal = MatrixUtils.transformRect(target.getTransformTo(pivot), rect);
     } else if (onlySlivers) {
       final RenderSliver targetSliver = target as RenderSliver;
-      growthDirection = targetSliver.constraints.growthDirection;
 
-      pivotExtent = targetSliver.geometry!.scrollExtent;
       if (rect == null) {
         switch (axis) {
           case Axis.horizontal:
@@ -673,13 +594,7 @@ class RenderViewportBase<
     assert(child is RenderSliver);
     final RenderSliver sliver = child as RenderSliver;
 
-    leadingScrollOffset +=
-        switch (_applyGrowthDirectionToAxisDirection(growthDirection)) {
-      AxisDirection.up => pivotExtent - rectLocal.bottom,
-      AxisDirection.left => pivotExtent - rectLocal.right,
-      AxisDirection.right => rectLocal.left,
-      AxisDirection.down => rectLocal.top,
-    };
+    leadingScrollOffset += rectLocal.top;
 
     final bool isPinned = sliver.geometry!.maxScrollObstructionExtent > 0 &&
         leadingScrollOffset >= 0;
@@ -725,21 +640,24 @@ class RenderViewportBase<
     return RevealedOffset(offset: targetOffset, rect: targetRect);
   }
 
-  @deprecated
-  Offset computeAbsolutePaintOffset(RenderSliver child, double layoutOffset,
+  @override
+  void updateChildLayoutOffset(RenderSliver child, double layoutOffset,
       GrowthDirection growthDirection) {
-    assert(hasSize); // this is only usable once we have a size
-    assert(child.geometry != null);
-    return switch (_applyGrowthDirectionToAxisDirection(growthDirection)) {
-      AxisDirection.up =>
-        Offset(0.0, size.height - layoutOffset - child.geometry!.paintExtent),
-      AxisDirection.left =>
-        Offset(size.width - layoutOffset - child.geometry!.paintExtent, 0.0),
-      AxisDirection.right => Offset(layoutOffset, 0.0),
-      AxisDirection.down => Offset(0.0, layoutOffset),
-    };
+    assert(growthDirection == GrowthDirection.forward);
+    (child.parentData! as SliverPhysicalParentData).paintOffset =
+        computeAbsolutePaintOffset(child, layoutOffset, growthDirection);
   }
 
+  @override
+  Offset computeAbsolutePaintOffset(RenderSliver child, double layoutOffset,
+      GrowthDirection growthDirection) {
+    assert(growthDirection == GrowthDirection.forward);
+    assert(hasSize);
+    assert(child.geometry != null);
+    return Offset(0.0, layoutOffset);
+  }
+
+  @override
   void updateOutOfBandData(
       GrowthDirection growthDirection, SliverGeometry childLayoutGeometry) {
     switch (growthDirection) {
@@ -753,18 +671,14 @@ class RenderViewportBase<
     }
   }
 
-  void updateChildLayoutOffset(RenderSliver child, double layoutOffset,
-      GrowthDirection growthDirection) {
-    (child.parentData! as SliverPhysicalParentData).paintOffset =
-        computeAbsolutePaintOffset(child, layoutOffset, growthDirection);
-  }
-
+  @override
   Offset paintOffsetOf(RenderSliver child) {
     final SliverPhysicalParentData childParentData =
         child.parentData! as SliverPhysicalParentData;
     return childParentData.paintOffset;
   }
 
+  @override
   double scrollOffsetOf(RenderSliver child, double scrollOffsetWithinChild) {
     assert(child.parent == this);
     final GrowthDirection growthDirection = child.constraints.growthDirection;
@@ -788,6 +702,7 @@ class RenderViewportBase<
     }
   }
 
+  @override
   double maxScrollObstructionExtentBefore(RenderSliver child) {
     assert(child.parent == this);
     final GrowthDirection growthDirection = child.constraints.growthDirection;
@@ -811,21 +726,15 @@ class RenderViewportBase<
     }
   }
 
+  @override
   double computeChildMainAxisPosition(
       RenderSliver child, double parentMainAxisPosition) {
-    final Offset paintOffset =
-        (child.parentData! as SliverPhysicalParentData).paintOffset;
-    return switch (_applyGrowthDirectionToAxisDirection(
-        child.constraints.growthDirection)) {
-      AxisDirection.down => parentMainAxisPosition - paintOffset.dy,
-      AxisDirection.right => parentMainAxisPosition - paintOffset.dx,
-      AxisDirection.up =>
-        child.geometry!.paintExtent - (parentMainAxisPosition - paintOffset.dy),
-      AxisDirection.left =>
-        child.geometry!.paintExtent - (parentMainAxisPosition - paintOffset.dx),
-    };
+    assert(child.constraints.growthDirection == GrowthDirection.forward);
+    return parentMainAxisPosition -
+        (child.parentData! as SliverPhysicalParentData).paintOffset.dy;
   }
 
+  @override
   int get indexOfFirstChild {
     assert(center != null);
     assert(center!.parent == this);
@@ -839,6 +748,7 @@ class RenderViewportBase<
     return count;
   }
 
+  @override
   String labelForChild(int index) {
     if (index == 0) {
       return 'center child';
@@ -846,6 +756,7 @@ class RenderViewportBase<
     return 'child $index';
   }
 
+  @override
   Iterable<RenderSliver> get childrenInPaintOrder {
     final List<RenderSliver> children = <RenderSliver>[];
     if (firstChild == null) {
@@ -866,6 +777,7 @@ class RenderViewportBase<
     }
   }
 
+  @override
   Iterable<RenderSliver> get childrenInHitTestOrder {
     final List<RenderSliver> children = <RenderSliver>[];
     if (firstChild == null) {
@@ -900,7 +812,7 @@ class RenderViewportBase<
       );
     }
 
-    final Rect? newRect = RenderViewportBase.showInViewport(
+    final Rect? newRect = RenderViewportPhotoline.showInViewport(
       descendant: descendant,
       viewport: this,
       offset: offset,
@@ -937,8 +849,6 @@ class RenderViewportBase<
       currentOffset: currentOffset,
     );
     if (targetOffset == null) {
-      // `descendant` is between leading and trailing edge and hence already
-      //  fully shown on screen. No action necessary.
       assert(viewport.parent != null);
       final Matrix4 transform = descendant.getTransformTo(viewport.parent);
       return MatrixUtils.transformRect(
@@ -949,4 +859,18 @@ class RenderViewportBase<
         offset.moveTo(targetOffset.offset, duration: duration, curve: curve));
     return targetOffset.rect;
   }
+
+  /// --- UNUSED
+  @override
+  Rect? describeApproximatePaintClip(RenderSliver child) {
+    return null;
+  }
+
+  @override
+  @deprecated
+  AxisDirection get axisDirection => AxisDirection.down;
+
+  @override
+  @deprecated
+  set axisDirection(AxisDirection value) {}
 }

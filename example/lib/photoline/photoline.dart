@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:photoline/photoline.dart';
 import 'package:photoline_example/photoline/dummy.dart';
@@ -22,12 +23,15 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
     _controller = ScrollSnapController(
       snapLast: true,
       snapPhotolines: () => _photolines,
+      onRefresh: () async {
+        await Future.delayed(const Duration(milliseconds: 500));
+      },
     );
     _photolineHolderDragController = PhotolineHolderDragController(
       snapController: _controller,
     );
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 50; i++) {
       final List<Uri> l = [];
       for (int k = 0; k < 13 - i; k++) {
         l.add(PhotolineDummys.get(i, k));
@@ -85,13 +89,19 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
               Colors.tealAccent
             ];
 
+            if (kDebugMode) {
+              return Container(
+                width: 500,
+                height: 1,
+                color: colors[index % colors.length],
+              );
+            }
             return PhotolineAlbumPhotoDummy(
               child: Container(
                 width: 500,
                 height: 1,
                 color: colors[index % colors.length],
               ),
-              //child: Placeholder(),
             );
           },
 

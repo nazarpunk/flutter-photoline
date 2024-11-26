@@ -95,7 +95,11 @@ class _PhotolineBacksideState extends State<PhotolineBackside>
             bottom: 0,
             left: o[i],
             width: close,
-            child: _controller.getBackside?.call(i) ?? const SizedBox(),
+            child: SizedBox(
+              width: close,
+              height: double.infinity,
+              child: _controller.getBackside?.call(i) ?? const SizedBox(),
+            ),
           ),
         );
       }
@@ -110,7 +114,8 @@ class _PhotolineBacksideState extends State<PhotolineBackside>
               left: close * i,
               width: close,
               child: PhotolineStripe(
-                stripeColor: _controller.photoline?.widget.photoStripeColor ?? Colors.transparent,
+                stripeColor: _controller.photoline?.widget.photoStripeColor ??
+                    Colors.transparent,
               ),
             ),
           );
