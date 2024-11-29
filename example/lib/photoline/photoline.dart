@@ -115,6 +115,8 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
 
   @override
   Widget build(BuildContext context) {
+    //if (kDebugMode) return SizedBox();
+
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(minWidth: 100, maxWidth: 900),
@@ -130,19 +132,43 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
                   ScrollSnapRefresh(
                     controller: _controller,
                   ),
-                  SliverSnapList(
-                    controller: _controller,
-                    delegate: SliverChildBuilderDelegateWithGap(
-                      (context, index) => AutomaticKeepAlive(
-                        child: _Child(
-                          index: index,
-                          constraints: constraints,
-                          controller: _photolines[index],
-                        ),
+                  if (kProfileMode)
+                    SliverFixedExtentList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) => const Placeholder(),
+                        childCount: 50,
                       ),
-                      childCount: _photolines.length,
+                      itemExtent: 400,
                     ),
-                  ),
+                  if (kProfileMode)
+                    SliverFixedExtentList(
+                      delegate: SliverChildBuilderDelegateWithGap(
+                        (context, index) => AutomaticKeepAlive(
+                          child: Photoline(
+                            controller: _photolines[index],
+                            photoStripeColor:
+                                const Color.fromRGBO(255, 255, 255, .2),
+                          ),
+                        ),
+                        childCount: _photolines.length,
+                      ),
+                      //itemExtent: constraints.maxHeight,
+                      itemExtent: 500,
+                    ),
+                  if (kProfileMode)
+                    SliverSnapList(
+                      controller: _controller,
+                      delegate: SliverChildBuilderDelegateWithGap(
+                        (context, index) => AutomaticKeepAlive(
+                          child: _Child(
+                            index: index,
+                            constraints: constraints,
+                            controller: _photolines[index],
+                          ),
+                        ),
+                        childCount: _photolines.length,
+                      ),
+                    ),
                 ],
               ),
             );

@@ -47,20 +47,12 @@ class RenderViewportPhotoline extends RenderBox
   bool get hasVisualOverflow => _hasVisualOverflow;
 
   @override
-  double get anchor => 0;
-
-  @override
-  set anchor(double value) {}
-
-  @override
   RenderSliver? get center => _center;
   RenderSliver? _center;
 
   @override
   set center(RenderSliver? value) {
-    if (value == _center) {
-      return;
-    }
+    if (value == _center) return;
     _center = value;
     markNeedsLayout();
   }
@@ -109,6 +101,7 @@ class RenderViewportPhotoline extends RenderBox
     if (attached) {
       _offset.addListener(markNeedsLayout);
     }
+
     // We need to go through layout even if the new offset has the same pixels
     // value as the old offset so that we will apply our viewport and content
     // dimensions.
@@ -153,14 +146,7 @@ class RenderViewportPhotoline extends RenderBox
 
   @override
   void performLayout() {
-    // Ignore the return value of applyViewportDimension because we are
-    // doing a layout regardless.
-    switch (axis) {
-      case Axis.vertical:
-        offset.applyViewportDimension(size.height);
-      case Axis.horizontal:
-        offset.applyViewportDimension(size.width);
-    }
+    offset.applyViewportDimension(size.height);
 
     if (center == null) {
       assert(firstChild == null);
@@ -172,10 +158,8 @@ class RenderViewportPhotoline extends RenderBox
     }
     assert(center!.parent == this);
 
-    final (double mainAxisExtent, double crossAxisExtent) = switch (axis) {
-      Axis.vertical => (size.height, size.width),
-      Axis.horizontal => (size.width, size.height),
-    };
+    final mainAxisExtent = size.height;
+    final crossAxisExtent = size.width;
 
     final double centerOffsetAdjustment = center!.centerOffsetAdjustment;
     final int maxLayoutCycles = _maxLayoutCyclesPerChild * childCount;
@@ -224,10 +208,7 @@ class RenderViewportPhotoline extends RenderBox
     final double forwardDirectionRemainingPaintExtent =
         clampDouble(mainAxisExtent - centerOffset, 0.0, mainAxisExtent);
 
-    _calculatedCacheExtent = switch (cacheExtentStyle) {
-      CacheExtentStyle.pixel => cacheExtent,
-      CacheExtentStyle.viewport => mainAxisExtent * _cacheExtent,
-    };
+    _calculatedCacheExtent = mainAxisExtent * _cacheExtent;
 
     final double fullCacheExtent = mainAxisExtent + 2 * _calculatedCacheExtent!;
     final double centerCacheOffset = centerOffset + _calculatedCacheExtent!;
@@ -351,17 +332,18 @@ class RenderViewportPhotoline extends RenderBox
     required double remainingPaintExtent,
     required double mainAxisExtent,
     required double crossAxisExtent,
-    @deprecated required GrowthDirection growthDirection,
+    required GrowthDirection growthDirection,
     required RenderSliver? Function(RenderSliver child) advance,
     required double remainingCacheExtent,
     required double cacheOrigin,
   }) {
+    assert(growthDirection == GrowthDirection.forward);
+
     assert(scrollOffset.isFinite);
     assert(scrollOffset >= 0.0);
     final double initialLayoutOffset = layoutOffset;
     final ScrollDirection adjustedUserScrollDirection =
-        applyGrowthDirectionToScrollDirection(
-            offset.userScrollDirection, growthDirection);
+        offset.userScrollDirection;
     double maxPaintOffset = layoutOffset + overlap;
     double precedingScrollExtent = 0.0;
 
@@ -873,4 +855,10 @@ class RenderViewportPhotoline extends RenderBox
   @override
   @deprecated
   set axisDirection(AxisDirection value) {}
+
+  @override
+  double get anchor => 0;
+
+  @override
+  set anchor(double value) {}
 }
