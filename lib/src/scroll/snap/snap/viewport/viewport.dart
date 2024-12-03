@@ -115,8 +115,6 @@ class _ViewportElement extends MultiChildRenderObjectElement
   @override
   void insertRenderObjectChild(RenderObject child, IndexedSlot<Element?> slot) {
     super.insertRenderObjectChild(child, slot);
-    // Once [mount]/[update] are done, the `renderObject.center` will be updated
-    // in [_updateCenter].
     if (!_doingMountOrUpdate && slot.index == _centerSlotIndex) {
       renderObject.center = child as RenderSliver?;
     }

@@ -13,7 +13,7 @@ class RenderViewportPhotoline extends RenderBox
   })  : assert(Axis.vertical != axisDirectionToAxis(crossAxisDirection)),
         _crossAxisDirection = crossAxisDirection,
         _offset = offset,
-        _cacheExtent = 1.5 {
+        _cacheExtent = .1 {
     addAll(children);
     if (center == null && firstChild != null) {
       _center = firstChild;
@@ -209,7 +209,7 @@ class RenderViewportPhotoline extends RenderBox
         clampDouble(mainAxisExtent - centerOffset, 0.0, mainAxisExtent);
 
     _calculatedCacheExtent = mainAxisExtent * _cacheExtent;
-
+    
     final double fullCacheExtent = mainAxisExtent + 2 * _calculatedCacheExtent!;
     final double centerCacheOffset = centerOffset + _calculatedCacheExtent!;
     final double reverseDirectionRemainingCacheExtent =

@@ -46,74 +46,80 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
     }
 
     for (int i = 0; i < _uris.length; i++) {
-      _photolines.add(
-        PhotolineController(
-          getUri: (index) => _uris[i][index],
-          getKey: (index) => ValueKey(_uris[i][index]),
-          //getWidget: (index) => const Placeholder(),
-          getWidget: (index) => const SizedBox(),
-          getPersistentWidgets: (data) {
-            final List<Widget> out = [];
-            if (data.loading < 1) {
-              out.add(const Center(
-                child: CircularProgressIndicator(),
-              ));
-            }
-            out.add(Center(
-              child: ColoredBox(
-                color: Colors.black,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text('${data.index}'),
-                ),
-              ),
+      final c = PhotolineController(
+        getUri: (index) => _uris[i][index],
+        getKey: (index) => ValueKey(_uris[i][index]),
+        //getWidget: (index) => const Placeholder(),
+        getWidget: (index) => const SizedBox(),
+        getPersistentWidgets: (data) {
+          final List<Widget> out = [];
+          if (data.loading < 1) {
+            out.add(const Center(
+              child: CircularProgressIndicator(),
             ));
-
-            if (data.dragging) {
-              out.add(const Placeholder());
-            }
-
-            return out;
-          },
-          getPhotoCount: () => _uris[i].length,
-          onAdd: (index, data) {
-            _uris[i].insert(index, data as Uri);
-          },
-          onRemove: (index) {
-            _uris[i].removeAt(index);
-            //print('onRemove|$index');
-          },
-          onReorder: (oldIndex, newIndex) {
-            _uris[i].reorder(oldIndex, newIndex);
-            //print('onReorder|$oldIndex|$newIndex');
-          },
-          getBackside: (index) {
-            final List<Color> colors = [
-              Colors.red,
-              Colors.green,
-              Colors.purple,
-              Colors.tealAccent
-            ];
-
-            if (kDebugMode) {
-              return Container(
-                width: 500,
-                height: 1,
-                color: colors[index % colors.length],
-              );
-            }
-            return PhotolineAlbumPhotoDummy(
-              child: Container(
-                width: 500,
-                height: 1,
-                color: colors[index % colors.length],
+          }
+          out.add(Center(
+            child: ColoredBox(
+              color: Colors.black,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text('${data.index}'),
               ),
-            );
-          },
+            ),
+          ));
 
-          //bottomHeightAddition: () => 30,
-        ),
+          if (data.dragging) {
+            out.add(const Placeholder());
+          }
+
+          return out;
+        },
+        getPhotoCount: () => _uris[i].length,
+        onAdd: (index, data) {
+          _uris[i].insert(index, data as Uri);
+        },
+        onRemove: (index) {
+          _uris[i].removeAt(index);
+          //print('onRemove|$index');
+        },
+        onReorder: (oldIndex, newIndex) {
+          _uris[i].reorder(oldIndex, newIndex);
+          //print('onReorder|$oldIndex|$newIndex');
+        },
+        getBackside: (index) {
+          final List<Color> colors = [
+            Colors.red,
+            Colors.green,
+            Colors.purple,
+            Colors.tealAccent
+          ];
+
+          if (kDebugMode) {
+            return Container(
+              width: 500,
+              height: 1,
+              color: colors[index % colors.length],
+            );
+          }
+          return PhotolineAlbumPhotoDummy(
+            child: Container(
+              width: 500,
+              height: 1,
+              color: colors[index % colors.length],
+            ),
+          );
+        },
+
+        //bottomHeightAddition: () => 30,
       );
+
+      c.fullScreenExpander.addListener(() {
+        if (mounted) {
+          setState(() {});
+        }
+      });
+
+      _photolines.add(c);
     }
 
     super.initState();
@@ -141,7 +147,7 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
                   if (kDebugMode)
                     SliverPhotolineList(
                       delegate: SliverChildBuilderDelegate(
-                        (context, index) => kDebugMode
+                        (context, index) => kProfileMode
                             ? _Photoline(
                                 index: index,
                               )
@@ -153,11 +159,12 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
                         childCount: 50,
                       ),
                       itemExtentBuilder: (index, dimensions) {
+                        //setState(() {});
                         return lerpDouble(
-                                constraints.maxWidth * .7 + 64,
-                                constraints.maxHeight,
-                                //_photolines[index].fullScreenExpander.value,
-                                0)! +
+                              constraints.maxWidth * .7 + 64,
+                              constraints.maxHeight,
+                              _photolines[index].fullScreenExpander.value,
+                            )! +
                             20;
                       },
                     ),
