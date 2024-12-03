@@ -1,7 +1,13 @@
+import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:photoline/photoline.dart';
 import 'package:photoline_example/photoline/dummy.dart';
+
+part '_child.dart';
+
+part '_photoline.dart';
 
 class PhotolineTestWidget extends StatefulWidget {
   const PhotolineTestWidget({super.key});
@@ -33,7 +39,7 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
 
     for (int i = 0; i < 50; i++) {
       final List<Uri> l = [];
-      for (int k = 0; k < 13 - i; k++) {
+      for (int k = 0; k < 113 - i; k++) {
         l.add(PhotolineDummys.get(i, k));
       }
       _uris.add(l);
@@ -132,13 +138,28 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
                   ScrollSnapRefresh(
                     controller: _controller,
                   ),
-                  if (kProfileMode)
-                    SliverFixedExtentList(
+                  if (kDebugMode)
+                    SliverPhotolineList(
                       delegate: SliverChildBuilderDelegate(
-                        (context, index) => const Placeholder(),
+                        (context, index) => kDebugMode
+                            ? _Photoline(
+                                index: index,
+                              )
+                            : Photoline(
+                                controller: _photolines[index],
+                                photoStripeColor:
+                                    const Color.fromRGBO(255, 255, 255, .2),
+                              ),
                         childCount: 50,
                       ),
-                      itemExtent: 400,
+                      itemExtentBuilder: (index, dimensions) {
+                        return lerpDouble(
+                                constraints.maxWidth * .7 + 64,
+                                constraints.maxHeight,
+                                //_photolines[index].fullScreenExpander.value,
+                                0)! +
+                            20;
+                      },
                     ),
                   if (kProfileMode)
                     SliverFixedExtentList(
@@ -177,52 +198,4 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
       ),
     );
   }
-}
-
-class _Child extends StatefulWidget {
-  const _Child({
-    required this.index,
-    required this.constraints,
-    required this.controller,
-  });
-
-  final int index;
-  final BoxConstraints constraints;
-  final PhotolineController controller;
-
-  @override
-  State<_Child> createState() => _ChildState();
-}
-
-class _ChildState extends State<_Child> with AutomaticKeepAliveClientMixin {
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-    return Column(
-      children: [
-        SizedBox(
-          width: double.infinity,
-          child: PhotolineConstrainted(
-            controller: widget.controller,
-            constraints: widget.constraints,
-            header: Photoline(
-              controller: widget.controller,
-              photoStripeColor: const Color.fromRGBO(255, 255, 255, .2),
-            ),
-            footer: ElevatedButton(
-              onPressed: () {
-                widget.controller.addItemUpload(0, PhotolineDummys.next());
-                //widget.controller.photoline?.toPage(0);
-                //print();
-              },
-              child: const Center(child: Text('Add')),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  @override
-  bool get wantKeepAlive => true;
 }

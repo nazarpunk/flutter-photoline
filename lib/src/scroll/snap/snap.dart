@@ -5,6 +5,8 @@ import 'package:photoline/src/scroll/snap/snap/physics.dart';
 import 'package:photoline/src/scroll/snap/snap/position.dart';
 import 'package:photoline/src/scroll/snap/snap/viewport/viewport.dart';
 
+export './snap/sliver/photoline/list.dart';
+
 class ScrollSnap extends StatefulWidget {
   const ScrollSnap({
     super.key,
@@ -58,7 +60,7 @@ class ScrollSnapState extends State<ScrollSnap> {
         physics: _physics,
         viewportBuilder: (context, position) {
           //print('😍 $position');
-          return SnapViewport(
+          return ScrollSnapViewport(
             cacheExtent: widget.cacheExtent,
             offset: position,
             children: widget.slivers,

@@ -7,8 +7,9 @@ import 'package:flutter/rendering.dart';
 
 part 'render.dart';
 
-class SnapViewport extends MultiChildRenderObjectWidget implements Viewport {
-  const SnapViewport({
+class ScrollSnapViewport extends MultiChildRenderObjectWidget
+    implements Viewport {
+  const ScrollSnapViewport({
     super.key,
     required this.offset,
     this.cacheExtent,
@@ -61,7 +62,7 @@ class SnapViewport extends MultiChildRenderObjectWidget implements Viewport {
 
 class _ViewportElement extends MultiChildRenderObjectElement
     with NotifiableElementMixin, ViewportElementMixin {
-  _ViewportElement(SnapViewport super.widget);
+  _ViewportElement(ScrollSnapViewport super.widget);
 
   bool _doingMountOrUpdate = false;
   int? _centerSlotIndex;
