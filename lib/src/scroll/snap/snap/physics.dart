@@ -44,6 +44,8 @@ class ScrollSnapPhysics extends ScrollPhysics {
   /// [ScrollPosition]
   @override
   double applyBoundaryConditions(ScrollMetrics position, double value) {
+    print('applyBoundaryConditions');
+
     assert(() {
       if (value == position.pixels) {
         throw FlutterError.fromParts(<DiagnosticsNode>[
