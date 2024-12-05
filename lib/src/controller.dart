@@ -1,9 +1,11 @@
 import 'dart:math' as math;
+import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
+import 'package:flutter/rendering.dart';
 import 'package:photoline/src/holder/controller/drag.dart';
 import 'package:photoline/src/photoline.dart';
 import 'package:photoline/src/scroll/photoline/position.dart';
@@ -50,6 +52,7 @@ class PhotolineController extends ScrollController {
     this.useOpenSideResize = true,
     this.useOpenSideResizeScale = true,
     this.bottomHeightAddition = _bottomHeightAddition,
+    required this.rebuilder,
   });
 
   PhotolineHolderDragController? dragController;
@@ -79,6 +82,7 @@ class PhotolineController extends ScrollController {
   final bool useOpenSideResizeScale;
 
   final double Function() bottomHeightAddition;
+  final void Function() rebuilder;
 
   final double openRatio;
 
@@ -86,7 +90,8 @@ class PhotolineController extends ScrollController {
 
   double? photolineWidth;
 
-  final fullScreenExpander = ValueNotifier<double>(0);
+  late final fullScreenExpander = ValueNotifier<double>(0)
+    ..addListener(rebuilder);
 
   final action = ValueNotifier<PhotolineAction>(PhotolineAction.close);
   final pageActivePaginator = ValueNotifier<int>(-1);
@@ -97,6 +102,14 @@ class PhotolineController extends ScrollController {
   int pageOpenInitial = -1;
 
   final aspectRatio = ValueNotifier<double>(0);
+
+  double lerpConstraints(SliverLayoutDimensions dimensions) {
+    final w = dimensions.crossAxisExtent;
+    final h = dimensions.viewportMainAxisExtent;
+    final t = fullScreenExpander.value;
+    const double footer = 64;
+    return lerpDouble(w * .7 + footer, h, t)! + 20 + bottomHeightAddition();
+  }
 
   @override
   void dispose() {

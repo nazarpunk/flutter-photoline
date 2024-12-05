@@ -7,11 +7,16 @@ import 'package:flutter/rendering.dart';
 part 'render.dart';
 
 class SliverPhotolineList extends SliverMultiBoxAdaptorWidget {
-  const SliverPhotolineList({
+  SliverPhotolineList(
+    this.builder, {
     super.key,
-    required super.delegate,
     required this.itemExtentBuilder,
-  });
+    required int childCount,
+  }) : super(
+          delegate: _Delegate(builder, childCount: childCount),
+        );
+
+  final NullableIndexedWidgetBuilder builder;
 
   final ItemExtentBuilder itemExtentBuilder;
 
@@ -26,8 +31,30 @@ class SliverPhotolineList extends SliverMultiBoxAdaptorWidget {
   }
 
   @override
-  void updateRenderObject(
-      BuildContext context, RenderSliverVariedExtentList renderObject) {
+  void updateRenderObject(BuildContext context, _Render renderObject) {
     renderObject.itemExtentBuilder = itemExtentBuilder;
   }
+}
+
+class _Delegate extends SliverChildDelegate {
+  const _Delegate(
+    this.builder, {
+    required this.childCount,
+  });
+
+  final NullableIndexedWidgetBuilder builder;
+
+  final int childCount;
+
+  @override
+  Widget? build(BuildContext context, int index) {
+    if (index < 0 || index >= estimatedChildCount!) return null;
+    return builder(context, index);
+  }
+
+  @override
+  int? get estimatedChildCount => childCount;
+
+  @override
+  bool shouldRebuild(covariant _Delegate oldDelegate) => true;
 }

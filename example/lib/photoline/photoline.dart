@@ -24,22 +24,16 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
 
   final List<List<Uri>> _uris = [];
 
-  @override
-  void initState() {
-    _controller = ScrollSnapController(
-      snapLast: true,
-      snapPhotolines: () => _photolines,
-      onRefresh: () async {
-        await Future.delayed(const Duration(milliseconds: 500));
-      },
-    );
-    _photolineHolderDragController = PhotolineHolderDragController(
-      snapController: _controller,
-    );
+  int _min = -1;
 
-    for (int i = 0; i < 50; i++) {
+  void _reload() {
+    _photolines.clear();
+    _uris.clear();
+    ++_min;
+
+    for (int i = _min; i < 50; i++) {
       final List<Uri> l = [];
-      for (int k = 0; k < 113 - i; k++) {
+      for (int k = 0; k < 13 - i; k++) {
         l.add(PhotolineDummys.get(i, k));
       }
       _uris.add(l);
@@ -110,99 +104,66 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
           );
         },
 
-        //bottomHeightAddition: () => 30,
+        bottomHeightAddition: () => 0,
+        rebuilder: () {
+          if (mounted) setState(() {});
+        },
       );
-
-      c.fullScreenExpander.addListener(() {
-        if (mounted) {
-          setState(() {});
-        }
-      });
 
       _photolines.add(c);
     }
+  }
+
+  @override
+  void initState() {
+    _reload();
+
+    _controller = ScrollSnapController(
+      snapLast: true,
+      snapPhotolines: () => _photolines,
+      onRefresh: () async {
+        await Future.delayed(const Duration(milliseconds: 500));
+        _reload();
+        setState(() {});
+      },
+    );
+    _photolineHolderDragController = PhotolineHolderDragController(
+      snapController: _controller,
+    );
 
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    //if (kDebugMode) return SizedBox();
-
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minWidth: 100, maxWidth: 900),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            _controller.boxConstraints = constraints;
-            return PhotolineHolder(
-              dragController: _photolineHolderDragController,
-              child: ScrollSnap(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        _controller.boxConstraints = constraints;
+        return PhotolineHolder(
+          dragController: _photolineHolderDragController,
+          child: ScrollSnap(
+            controller: _controller,
+            cacheExtent: .1,
+            slivers: [
+              ScrollSnapRefresh(
                 controller: _controller,
-                cacheExtent: .1,
-                slivers: [
-                  ScrollSnapRefresh(
-                    controller: _controller,
-                  ),
-                  if (kDebugMode)
-                    SliverPhotolineList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) => kProfileMode
-                            ? _Photoline(
-                                index: index,
-                              )
-                            : Photoline(
-                                controller: _photolines[index],
-                                photoStripeColor:
-                                    const Color.fromRGBO(255, 255, 255, .2),
-                              ),
-                        childCount: 50,
-                      ),
-                      itemExtentBuilder: (index, dimensions) {
-                        //setState(() {});
-                        return lerpDouble(
-                              constraints.maxWidth * .7 + 64,
-                              constraints.maxHeight,
-                              _photolines[index].fullScreenExpander.value,
-                            )! +
-                            20;
-                      },
-                    ),
-                  if (kProfileMode)
-                    SliverFixedExtentList(
-                      delegate: SliverChildBuilderDelegateWithGap(
-                        (context, index) => AutomaticKeepAlive(
-                          child: Photoline(
-                            controller: _photolines[index],
-                            photoStripeColor:
-                                const Color.fromRGBO(255, 255, 255, .2),
-                          ),
-                        ),
-                        childCount: _photolines.length,
-                      ),
-                      //itemExtent: constraints.maxHeight,
-                      itemExtent: 500,
-                    ),
-                  if (kProfileMode)
-                    SliverSnapList(
-                      controller: _controller,
-                      delegate: SliverChildBuilderDelegateWithGap(
-                        (context, index) => AutomaticKeepAlive(
-                          child: _Child(
-                            index: index,
-                            constraints: constraints,
-                            controller: _photolines[index],
-                          ),
-                        ),
-                        childCount: _photolines.length,
-                      ),
-                    ),
-                ],
               ),
-            );
-          },
-        ),
-      ),
+              SliverPhotolineList(
+                (context, index) => _Child(
+                  controller: _photolines[index],
+                  index: index,
+                  constraints: constraints,
+                  //photoStripeColor: const Color.fromRGBO(255, 255, 255, .2),
+                ),
+                childCount: _photolines.length,
+                itemExtentBuilder: (index, dimensions) {
+                  return _photolines[index].lerpConstraints(dimensions);
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

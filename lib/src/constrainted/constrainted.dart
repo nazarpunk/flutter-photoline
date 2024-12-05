@@ -35,6 +35,15 @@ class PhotolineConstrainted extends MultiChildRenderObjectWidget {
       ..boxConstraints = constraints;
   }
 
+  static double lerpConstraintsNew(double width, double height, double t,
+          [double footer = 64]) =>
+      ui.lerpDouble(
+        width * .7 + footer,
+        height,
+        t,
+      )!;
+
+  @deprecated
   static double lerpConstraints(BoxConstraints constraints, double t,
           [double footer = 64]) =>
       ui.lerpDouble(

@@ -17,25 +17,27 @@ class _PhotolineTestFullscreenWidgetState
   @override
   void initState() {
     _photoline = PhotolineController(
-      getUri: (index) => PhotolineDummys.get(0, index),
-      getKey: ValueKey.new,
-      //getWidget: (index) => const Placeholder(),
-      getWidget: (index) => const SizedBox(),
-      //getBackside: (index) => const Placeholder(),
-      getPersistentWidgets: (data) => [
-        Center(
-          child: CircleAvatar(
-            backgroundColor: Colors.purple,
-            child: Text(
-              '${data.index}',
-              style: const TextStyle(color: Colors.white),
-            ),
-          ),
-        ),
-      ],
-      getPhotoCount: () => 3,
-      getViewCount: _minPhotoLength,
-    );
+        getUri: (index) => PhotolineDummys.get(0, index),
+        getKey: ValueKey.new,
+        //getWidget: (index) => const Placeholder(),
+        getWidget: (index) => const SizedBox(),
+        //getBackside: (index) => const Placeholder(),
+        getPersistentWidgets: (data) => [
+              Center(
+                child: CircleAvatar(
+                  backgroundColor: Colors.purple,
+                  child: Text(
+                    '${data.index}',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+        getPhotoCount: () => 3,
+        getViewCount: _minPhotoLength,
+        rebuilder: () {
+          if (mounted) setState(() {});
+        });
 
     super.initState();
   }

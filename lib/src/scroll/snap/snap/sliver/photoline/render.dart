@@ -12,10 +12,13 @@ class _Render extends RenderSliverMultiBoxAdaptor
   double? get itemExtent => null;
 
   @override
+  @deprecated
   ItemExtentBuilder get itemExtentBuilder => _itemExtentBuilder;
+  @deprecated
   ItemExtentBuilder _itemExtentBuilder;
 
   @override
+  @deprecated
   set itemExtentBuilder(ItemExtentBuilder value) {
     if (_itemExtentBuilder == value) {
       return;
