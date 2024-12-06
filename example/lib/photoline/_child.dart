@@ -35,7 +35,7 @@ class _ChildState extends State<_Child> {
                 //widget.controller.photoline?.toPage(0);
                 //print();
               },
-              child: const Center(child: Text('Add')),
+              child: Center(child: Text('Add ${widget.index}')),
             ),
           ),
         ),

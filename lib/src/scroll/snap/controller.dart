@@ -49,7 +49,7 @@ class ScrollSnapController extends ScrollController {
   final bool snap;
   final bool snapLast;
   final List<PhotolineController> Function()? snapPhotolines;
-  final int photolineGap;
+  final double photolineGap;
   final double Function(double) photolineHeight;
 
   final RefreshCallback? onRefresh;

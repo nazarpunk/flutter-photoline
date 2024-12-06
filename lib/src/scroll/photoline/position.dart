@@ -155,7 +155,6 @@ class PhotolineScrollPosition extends PhotolineScrollPositionOverride {
       page = _cachedPage!;
     } else {
       switch (controller.action.value) {
-
         case PhotolineAction.upload:
         case PhotolineAction.closing:
         case PhotolineAction.close:
@@ -322,7 +321,7 @@ class PhotolineScrollPosition extends PhotolineScrollPositionOverride {
 
   @override
   double setPixels(double newPixels) {
-    assert(activity!.isScrolling);
+    //assert(activity!.isScrolling);
     assert(hasPixels);
     assert(
         SchedulerBinding.instance.schedulerPhase !=

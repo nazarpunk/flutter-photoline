@@ -106,9 +106,15 @@ class PhotolineController extends ScrollController {
   double lerpConstraints(SliverLayoutDimensions dimensions) {
     final w = dimensions.crossAxisExtent;
     final h = dimensions.viewportMainAxisExtent;
+    return lerpConstraintsWH(w, h);
+  }
+
+  double lerpConstraintsWH(double width, double height) {
     final t = fullScreenExpander.value;
     const double footer = 64;
-    return lerpDouble(w * .7 + footer, h, t)! + 20 + bottomHeightAddition();
+    return lerpDouble(width * .7 + footer, height, t)! +
+        20 +
+        bottomHeightAddition();
   }
 
   @override

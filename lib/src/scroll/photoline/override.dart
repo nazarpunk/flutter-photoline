@@ -568,7 +568,7 @@ abstract class PhotolineScrollPositionOverride extends ScrollPosition
   /// Called by [setPixels] to report a change to the [pixels] position.
   @override
   void didUpdateScrollPositionBy(double delta) {
-    activity!.dispatchScrollUpdateNotification(
+    activity?.dispatchScrollUpdateNotification(
         copyWith(), context.notificationContext!, delta);
   }
 

@@ -41,51 +41,9 @@ class ScrollSnapPhysics extends ScrollPhysics {
     return 0;
   }
 
-  /// [ScrollPosition]
+  /// [ScrollPosition] calc in [ScrollSnapPosition.applyBoundaryConditions]
   @override
-  double applyBoundaryConditions(ScrollMetrics position, double value) {
-    print('applyBoundaryConditions');
-
-    assert(() {
-      if (value == position.pixels) {
-        throw FlutterError.fromParts(<DiagnosticsNode>[
-          ErrorSummary(
-              '$runtimeType.applyBoundaryConditions() was called redundantly.'),
-          ErrorDescription(
-            'The proposed new position, $value, is exactly equal to the current position of the '
-            'given ${position.runtimeType}, ${position.pixels}.\n'
-            'The applyBoundaryConditions method should only be called when the value is '
-            'going to actually change the pixels, otherwise it is redundant.',
-          ),
-        ]);
-      }
-      return true;
-    }());
-    final pp = position.pixels;
-    final min = position.minScrollExtent;
-    final max = position.maxScrollExtent;
-
-    if (position is ScrollSnapPosition && controller is ScrollSnapController) {
-      final c = controller as ScrollSnapController;
-      if (c.onRefresh != null && value < pp && pp <= min) {
-        return 0.0; // Bouncing underscroll
-      }
-    }
-
-    if (value < pp && pp <= min) return value - pp; // Underscroll.
-    if (max <= pp && pp < value) return value - pp; // Overscroll.
-    if (value < min && min < pp) return value - min; // Hit top edge.
-    if (pp < max && max < value) return value - max; // Hit bottom edge.
-    return 0.0;
-  }
-
-  (double heightClose, double heightOpen) photolineHeights(
-      ScrollSnapPosition position) {
-    final c = position.controller;
-    final b = c.boxConstraints!;
-
-    return (c.photolineHeight(b.maxWidth), b.maxHeight);
-  }
+  double applyBoundaryConditions(ScrollMetrics position, double value) => 0;
 
   /// [ClampingScrollPhysics.createBallisticSimulation]
   /// [BouncingScrollSimulation]
@@ -94,17 +52,22 @@ class ScrollSnapPhysics extends ScrollPhysics {
       ScrollMetrics position, double velocity) {
     //print('☢️ createBallisticSimulation | $velocity');
 
-    //assert(position.viewportDimension > 500);
+    final ScrollSnapPosition? pPos =
+        position is ScrollSnapPosition ? position : null;
+    final bool pSnap = pPos?.photolineCanSnap ?? false;
 
-    //assert(position.pixels == 0);
+    final pp = position.pixels;
+    final double pW = pPos?.controller.boxConstraints?.maxWidth ?? 0;
+    final double pH =
+        (pPos?.hasViewportDimension ?? false) ? pPos!.viewportDimension : 0;
 
     final Tolerance tolerance = toleranceFor(position);
     if (position.outOfRange) {
       double? end;
-      if (position.pixels > position.maxScrollExtent) {
+      if (pp > position.maxScrollExtent) {
         end = position.maxScrollExtent;
       }
-      if (position.pixels < position.minScrollExtent) {
+      if (pp < position.minScrollExtent) {
         end = position.minScrollExtent;
       }
       assert(end != null);
@@ -119,11 +82,13 @@ class ScrollSnapPhysics extends ScrollPhysics {
         tolerance: tolerance,
       );
     }
+
+    /// end scroll
     if (velocity.abs() < tolerance.velocity) {
       /// snap box
-      if (position is ScrollSnapPosition && position.controller.snap) {
+      if (pPos != null && pPos.controller.snap) {
         double dist = double.infinity;
-        for (final b in position.controller.box.entries) {
+        for (final b in pPos.controller.box.entries) {
           final so = b.value.scrollOffset;
           final d = so - position.pixels;
           if (dist.isInfinite || d.abs() < dist.abs()) {
@@ -131,8 +96,6 @@ class ScrollSnapPhysics extends ScrollPhysics {
           }
         }
         if (dist == 0 || dist.isInfinite) return null;
-
-        //print('🤡 spring');
         return ScrollSpringSimulation(
           spring,
           position.pixels,
@@ -142,38 +105,13 @@ class ScrollSnapPhysics extends ScrollPhysics {
         );
       }
 
-      /// snap photoline
-      if (position is ScrollSnapPosition &&
-          position.controller.snapPhotolines != null &&
-          position.controller.boxConstraints != null) {
-        double dist = double.infinity;
-        double target = 0;
-        double so = 0;
-
-        final (heightClose, heightOpen) = photolineHeights(position);
-
-        for (final p in position.controller.snapPhotolines!()) {
-          final d = so - position.pixels;
-          if (dist.isInfinite || d.abs() < dist.abs()) {
-            dist = d;
-            target = so;
-          }
-          switch (p.action.value) {
-            case PhotolineAction.open:
-            case PhotolineAction.opening:
-              so += heightOpen;
-            case PhotolineAction.drag:
-            case PhotolineAction.closing:
-            case PhotolineAction.close:
-            case PhotolineAction.upload:
-              so += heightClose + p.bottomHeightAddition();
-          }
-          so += position.controller.photolineGap;
-        }
-        if (dist == 0 || dist.isInfinite) return null;
+      /// snap photoline at end
+      if (pSnap) {
+        final (_, target) = pPos!.photolineClosest(pp);
+        if (pp == target) return null;
         return ScrollSpringSimulation(
           spring,
-          position.pixels,
+          pp,
           target,
           math.min(0.0, velocity),
           tolerance: tolerance,
@@ -181,15 +119,16 @@ class ScrollSnapPhysics extends ScrollPhysics {
       }
       return null;
     }
-    if (velocity > 0.0 && position.pixels >= position.maxScrollExtent) {
+
+    if (velocity > 0.0 && pp >= position.maxScrollExtent) {
       return null;
     }
-    if (velocity < 0.0 && position.pixels <= position.minScrollExtent) {
+    if (velocity < 0.0 && pp <= position.minScrollExtent) {
       return null;
     }
 
     if (position is ScrollSnapPosition) {
-      double target = position.pixels +
+      double target = pp +
           200 *
               math.exp(1.2 * math.log(.6 * velocity.abs() / 800)) *
               velocity.sign;
@@ -211,25 +150,13 @@ class ScrollSnapPhysics extends ScrollPhysics {
         }
 
         /// snap photoline
-        if (c.snapPhotolines != null && c.boxConstraints != null) {
-          final List<double> offsets = [];
+        if (pSnap) {
           double so = 0;
-          final (heightClose, heightOpen) = photolineHeights(position);
+          final List<double> offsets = [];
           for (final p in position.controller.snapPhotolines!()) {
             offsets.add(so);
-            switch (p.action.value) {
-              case PhotolineAction.open:
-              case PhotolineAction.opening:
-                so += heightOpen;
-              case PhotolineAction.drag:
-              case PhotolineAction.closing:
-              case PhotolineAction.close:
-              case PhotolineAction.upload:
-                so += heightClose + p.bottomHeightAddition();
-            }
-            so += position.controller.photolineGap;
+            so += p.lerpConstraintsWH(pW, pH);
           }
-
           final list = toBottom ? offsets : offsets.reversed;
           for (final so in list) {
             if ((toBottom && so >= target) || (!toBottom && so <= target)) {
@@ -268,8 +195,6 @@ class ScrollSnapPhysics extends ScrollPhysics {
   double applyPhysicsToUserOffset(ScrollMetrics position, double offset) {
     assert(offset != 0.0);
     assert(position.minScrollExtent <= position.maxScrollExtent);
-
-    //print('🍒 applyPhysicsToUserOffset');
 
     if (!position.outOfRange) return offset;
 
