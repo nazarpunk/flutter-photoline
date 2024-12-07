@@ -54,12 +54,7 @@ class ScrollSnapPhysics extends ScrollPhysics {
 
     final ScrollSnapPosition? pPos =
         position is ScrollSnapPosition ? position : null;
-    final bool pSnap = pPos?.photolineCanSnap ?? false;
-
     final pp = position.pixels;
-    final double pW = pPos?.controller.boxConstraints?.maxWidth ?? 0;
-    final double pH =
-        (pPos?.hasViewportDimension ?? false) ? pPos!.viewportDimension : 0;
 
     final Tolerance tolerance = toleranceFor(position);
     if (position.outOfRange) {
@@ -106,18 +101,15 @@ class ScrollSnapPhysics extends ScrollPhysics {
       }
 
       /// snap photoline at end
-      if (pSnap) {
-        final (_, target) = pPos!.photolineClosest(pp);
-        if (pp == target) return null;
-        return ScrollSpringSimulation(
-          spring,
-          pp,
-          target,
-          math.min(0.0, velocity),
-          tolerance: tolerance,
-        );
-      }
-      return null;
+      final target = pPos?.photolinePhysicSnap(velocity, pp);
+      if (target == null || pp == target) return null;
+      return ScrollSpringSimulation(
+        spring,
+        pp,
+        target,
+        math.min(0.0, velocity),
+        tolerance: tolerance,
+      );
     }
 
     if (velocity > 0.0 && pp >= position.maxScrollExtent) {
@@ -150,21 +142,8 @@ class ScrollSnapPhysics extends ScrollPhysics {
         }
 
         /// snap photoline
-        if (pSnap) {
-          double so = 0;
-          final List<double> offsets = [];
-          for (final p in position.controller.snapPhotolines!()) {
-            offsets.add(so);
-            so += p.lerpConstraintsWH(pW, pH);
-          }
-          final list = toBottom ? offsets : offsets.reversed;
-          for (final so in list) {
-            if ((toBottom && so >= target) || (!toBottom && so <= target)) {
-              target = so;
-              break;
-            }
-          }
-        }
+        final nT = pPos?.photolinePhysicSnap(velocity, target);
+        if (nT != null) target = nT;
       }
       return ScrollSnapSpringSimulation(
           spring, position.pixels, target, velocity);

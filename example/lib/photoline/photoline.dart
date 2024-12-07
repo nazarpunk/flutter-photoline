@@ -149,11 +149,13 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
                 controller: _controller,
               ),
               SliverPhotolineList(
-                (context, index) => _Child(
-                  controller: _photolines[index],
-                  index: index,
-                  constraints: constraints,
-                  //photoStripeColor: const Color.fromRGBO(255, 255, 255, .2),
+                (context, index) => AutomaticKeepAlive(
+                  child: _Child(
+                    controller: _photolines[index],
+                    index: index,
+                    constraints: constraints,
+                    //photoStripeColor: const Color.fromRGBO(255, 255, 255, .2),
+                  ),
                 ),
                 childCount: _photolines.length,
                 itemExtentBuilder: (index, dimensions) {

@@ -15,9 +15,10 @@ class _Child extends StatefulWidget {
   State<_Child> createState() => _ChildState();
 }
 
-class _ChildState extends State<_Child> {
+class _ChildState extends State<_Child> with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Column(
       children: [
         SizedBox(
@@ -42,4 +43,7 @@ class _ChildState extends State<_Child> {
       ],
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

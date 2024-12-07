@@ -90,34 +90,7 @@ class ScrollSnapPosition extends ScrollPosition
     final double? mw = controller.boxConstraints?.maxWidth;
     final double? vd = _viewportDimension;
     if (mw == null || vd == null) return false;
-    if (mw > vd) return false;
     return controller.snapPhotolines != null;
-  }
-
-  (int, double) photolineClosest(double newPixels) {
-    if (!photolineCanSnap) return (0, 0);
-
-    final mw = controller.boxConstraints!.maxWidth;
-    final vd = _viewportDimension!;
-    final list = controller.snapPhotolines!();
-
-    double dist = double.infinity;
-    double so = 0;
-    int index = 0;
-    double target = 0;
-
-    for (int i = 0; i < list.length; i++) {
-      final d = so - newPixels;
-      if (dist.isInfinite || d.abs() < dist.abs()) {
-        dist = d;
-        index = i;
-        target = so;
-      }
-      so += list[i].lerpConstraintsWH(mw, vd);
-    }
-    _photolineLastScrollIndex = index;
-
-    return (index, target);
   }
 
   void photolineScrollToNext(int direction) {
@@ -163,6 +136,117 @@ class ScrollSnapPosition extends ScrollPosition
       context.vsync,
       activity?.shouldIgnorePointer ?? true,
     ));
+  }
+
+  (int index, double height, double size, double target)
+      _photolineClosestIntersect(double target) {
+    if (!photolineCanSnap) return (0, 0, 0, 0);
+
+    final mw = controller.boxConstraints!.maxWidth;
+    final vd = _viewportDimension!;
+    final list = controller.snapPhotolines!();
+
+    double so = 0;
+
+    final List<(int index, double height, double size, double target)> offsets =
+        [];
+
+    for (int i = 0; i < list.length; i++) {
+      final h = list[i].lerpConstraintsWH(mw, vd);
+
+      final as = so;
+      final ae = so + h;
+      so += h;
+
+      final bs = pixels;
+      final be = pixels + vd;
+
+      final sz = math.min(ae, be) - math.max(as, bs);
+      if (sz < 0) continue;
+
+      offsets.add((i, h, sz, as));
+    }
+
+    for (int i = 0; i < offsets.length; i++) {
+      final (index, h, s, t) = offsets.first;
+      print('catcha $h | $vd');
+    }
+
+    //print('catcha $target');
+
+    return (0, 0, 0, 0);
+  }
+
+  (int index, double target, double height) _photolineClosestTop(
+      double newPixels) {
+    if (!photolineCanSnap) return (0, 0, 0);
+
+    final mw = controller.boxConstraints!.maxWidth;
+    final vd = _viewportDimension!;
+    final list = controller.snapPhotolines!();
+
+    double dist = double.infinity;
+    double so = 0;
+    int index = 0;
+    double target = 0;
+    double height = 0;
+
+    for (int i = 0; i < list.length; i++) {
+      final d = so - newPixels;
+      final h = list[i].lerpConstraintsWH(mw, vd);
+      if (dist.isInfinite || d.abs() < dist.abs()) {
+        dist = d;
+        index = i;
+        target = so;
+        height = h;
+      }
+      so += h;
+    }
+    _photolineLastScrollIndex = index;
+
+    return (index, target, height);
+  }
+
+  double? photolinePhysicSnap(double velocity, double target) {
+    if (!photolineCanSnap) return null;
+
+    final mw = controller.boxConstraints!.maxWidth;
+    final vd = _viewportDimension!;
+
+    if (velocity == 0) {
+      final (_, nT, h) = _photolineClosestTop(target);
+      final snap = h - vd == controller.photolineGap;
+      return snap ? nT : target;
+    }
+
+    double so = 0;
+    final photolines = controller.snapPhotolines!();
+
+    if (velocity > 0) {
+      // ⬇️
+      for (final p in photolines) {
+        final h = p.lerpConstraintsWH(mw, vd);
+        so += h;
+        if (so >= target) {
+          if (h <= vd) target = so;
+          break;
+        }
+      }
+    } else {
+      // ⬆️
+      double soprev = so;
+      for (final p in photolines) {
+        soprev = so;
+        final h = p.lerpConstraintsWH(mw, vd);
+        so += h;
+        if (soprev <= target && so >= target) {
+          if (h <= vd) target = soprev;
+          break;
+        }
+      }
+    }
+
+    return target;
   }
 
   // === Position
@@ -396,7 +480,7 @@ class ScrollSnapPosition extends ScrollPosition
   }
 
   double _setPixels(double newPixels) {
-    final (pI, _) = photolineClosest(newPixels);
+    final (pI, _, _) = _photolineClosestTop(newPixels);
     _photolineLastScrollIndex = pI;
 
     assert(hasPixels);
