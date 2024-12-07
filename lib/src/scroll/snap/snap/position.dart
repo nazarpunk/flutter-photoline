@@ -138,45 +138,6 @@ class ScrollSnapPosition extends ScrollPosition
     ));
   }
 
-  (int index, double height, double size, double target)
-      _photolineClosestIntersect(double target) {
-    if (!photolineCanSnap) return (0, 0, 0, 0);
-
-    final mw = controller.boxConstraints!.maxWidth;
-    final vd = _viewportDimension!;
-    final list = controller.snapPhotolines!();
-
-    double so = 0;
-
-    final List<(int index, double height, double size, double target)> offsets =
-        [];
-
-    for (int i = 0; i < list.length; i++) {
-      final h = list[i].lerpConstraintsWH(mw, vd);
-
-      final as = so;
-      final ae = so + h;
-      so += h;
-
-      final bs = pixels;
-      final be = pixels + vd;
-
-      final sz = math.min(ae, be) - math.max(as, bs);
-      if (sz < 0) continue;
-
-      offsets.add((i, h, sz, as));
-    }
-
-    for (int i = 0; i < offsets.length; i++) {
-      final (index, h, s, t) = offsets.first;
-      print('catcha $h | $vd');
-    }
-
-    //print('catcha $target');
-
-    return (0, 0, 0, 0);
-  }
-
   (int index, double target, double height) _photolineClosestTop(
       double newPixels) {
     if (!photolineCanSnap) return (0, 0, 0);
@@ -213,39 +174,42 @@ class ScrollSnapPosition extends ScrollPosition
     final mw = controller.boxConstraints!.maxWidth;
     final vd = _viewportDimension!;
 
+    bool viewport(double a) => a - controller.photolineGap <= vd;
+
     if (velocity == 0) {
       final (_, nT, h) = _photolineClosestTop(target);
-      final snap = h - vd == controller.photolineGap;
+      final snap = viewport(h);
       return snap ? nT : target;
     }
 
     double so = 0;
     final photolines = controller.snapPhotolines!();
 
+    final List<(double, double)> offsets = [];
+    for (int i = 0; i < photolines.length; i++) {
+      final p = photolines[i];
+      final h = p.lerpConstraintsWH(mw, vd);
+      offsets.add((so, h));
+      so += h;
+    }
+
     if (velocity > 0) {
-      // ⬇️
-      for (final p in photolines) {
-        final h = p.lerpConstraintsWH(mw, vd);
-        so += h;
-        if (so >= target) {
-          if (h <= vd) target = so;
-          break;
+      // ⬆️
+      for (int i = offsets.length - 1; i >= 0; i--) {
+        final (so, h) = offsets[i];
+        if (target >= so) {
+          return so + h;
         }
       }
     } else {
-      // ⬆️
-      double soprev = so;
-      for (final p in photolines) {
-        soprev = so;
-        final h = p.lerpConstraintsWH(mw, vd);
-        so += h;
-        if (soprev <= target && so >= target) {
-          if (h <= vd) target = soprev;
-          break;
+      // ⬇️
+      for (int i = offsets.length - 1; i >= 0; i--) {
+        final (so, h) = offsets[i];
+        if (target >= so) {
+          return so;
         }
       }
     }
-
     return target;
   }
 
