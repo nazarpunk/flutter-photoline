@@ -221,10 +221,12 @@ class PhotolineHolderDragController implements Drag {
   void _onDragEndStart() {
     isDrag = false;
     isDragClose = true;
+
     if (!isRemove) {
       _closeOffsetStart = _tileOffsetVisible;
       _closeOffsetEnd = _currentController.closeOffsetEnd;
     }
+    _snapTimer?.cancel();
   }
 
   void onPointerDown(PhotolineController controller, PhotolineTileState tile,

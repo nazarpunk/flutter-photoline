@@ -93,6 +93,16 @@ class ScrollSnapPosition extends ScrollPosition
     return controller.snapPhotolines != null;
   }
 
+  void photolineScrollToOpen(double delta) {
+    if (!photolineCanSnap) return;
+
+    unawaited(animateTo(
+      pixels - delta,
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.easeIn,
+    ));
+  }
+
   void photolineScrollToNext(int direction) {
     final photolines = controller.snapPhotolines;
     if (photolines == null) return;

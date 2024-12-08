@@ -9,6 +9,7 @@ import 'package:photoline/src/mixin/state/rebuild.dart';
 import 'package:photoline/src/paginaror/paginator.dart';
 import 'package:photoline/src/scroll/photoline/position.dart';
 import 'package:photoline/src/scroll/physics.dart';
+import 'package:photoline/src/scroll/snap/snap.dart';
 import 'package:photoline/src/scrollable/notification/pointer.dart';
 import 'package:photoline/src/scrollable/scrollable.dart';
 import 'package:photoline/src/sliver/sliver_child_delegate.dart';
@@ -414,6 +415,16 @@ class PhotolineState extends State<Photoline>
   }
 
   void _toPageOpenFromClose() {
+    final snap = context.findAncestorStateOfType<ScrollSnapState>();
+    if (snap != null) {
+      snap.controller.pos.photolineScrollToOpen(
+        (context.findRenderObject()! as RenderBox)
+            .globalToLocal(Offset.zero,
+                ancestor: snap.context.findRenderObject())
+            .dy,
+      );
+    }
+
     //controller.pageActivePaginator.value = -1;
     final size = controller.size;
     final count = controller.count;
