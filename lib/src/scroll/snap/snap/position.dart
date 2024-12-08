@@ -176,36 +176,55 @@ class ScrollSnapPosition extends ScrollPosition
 
     bool viewport(double a) => a - controller.photolineGap <= vd;
 
+    final photolines = controller.snapPhotolines!();
+    double so = 0;
+    final List<(double, double)> offsets = [];
+    bool hasOverflow = false;
+
+    for (int i = 0; i < photolines.length; i++) {
+      final p = photolines[i];
+      final h = p.lerpConstraintsWH(mw, vd);
+      if (!viewport(h)) hasOverflow = true;
+      offsets.add((so, h));
+      so += h;
+    }
+
     if (velocity == 0) {
+      if (kDebugMode) return target;
       final (_, nT, h) = _photolineClosestTop(target);
       final snap = viewport(h);
       return snap ? nT : target;
     }
 
-    double so = 0;
-    final photolines = controller.snapPhotolines!();
-
-    final List<(double, double)> offsets = [];
-    for (int i = 0; i < photolines.length; i++) {
-      final p = photolines[i];
-      final h = p.lerpConstraintsWH(mw, vd);
-      offsets.add((so, h));
-      so += h;
-    }
-
-    if (velocity > 0) {
-      // ⬆️
-      for (int i = offsets.length - 1; i >= 0; i--) {
+    if (hasOverflow) {
+      final List<double> anchors = [];
+      for (int i = 0; i < offsets.length; i++) {
         final (so, h) = offsets[i];
-        if (target >= so) {
-          return so + h;
+        if (!viewport(h)) continue;
+        anchors.add(so);
+      }
+
+      if (velocity > 0) {
+        for (int i = 0; i < anchors.length; i++) {
+          final a = anchors[i];
+          if (a < target) continue; //⬆️
+          return (a - target).abs() > vd ? target : a;
+        }
+      } else {
+        for (int i = anchors.length - 1; i >= 0; i--) {
+          final a = anchors[i];
+          if (a > target) continue; //⬇️
+          return (a - target).abs() > vd ? target : a;
         }
       }
     } else {
-      // ⬇️
       for (int i = offsets.length - 1; i >= 0; i--) {
         final (so, h) = offsets[i];
-        if (target >= so) {
+        if (velocity > 0) {
+          if (target < so) continue; //⬆️
+          return so + h;
+        } else {
+          if (target < so) continue; //⬇️
           return so;
         }
       }
