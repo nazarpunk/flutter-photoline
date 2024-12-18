@@ -34,7 +34,9 @@ class _PhotolineState extends State<_Photoline>
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
-        print('${widget.index}');
+        if (kDebugMode) {
+          print('${widget.index}');
+        }
       },
       child: Placeholder(
         color: colors[widget.index % colors.length],

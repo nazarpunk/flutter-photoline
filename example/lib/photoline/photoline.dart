@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:photoline/photoline.dart';
@@ -154,7 +152,6 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
                     controller: _photolines[index],
                     index: index,
                     constraints: constraints,
-                    //photoStripeColor: const Color.fromRGBO(255, 255, 255, .2),
                   ),
                 ),
                 childCount: _photolines.length,

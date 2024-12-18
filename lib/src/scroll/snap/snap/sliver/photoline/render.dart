@@ -1,8 +1,8 @@
 part of 'list.dart';
 
-class _Render extends RenderSliverMultiBoxAdaptor
+class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor
     implements RenderSliverVariedExtentList {
-  _Render({
+  PhotolineRenderSliverMultiBoxAdaptor({
     required ItemExtentBuilder itemExtentBuilder,
     required super.childManager,
   }) : _itemExtentBuilder = itemExtentBuilder;
@@ -23,7 +23,6 @@ class _Render extends RenderSliverMultiBoxAdaptor
     if (_itemExtentBuilder == value) {
       return;
     }
-
     _itemExtentBuilder = value;
     markNeedsLayout();
   }

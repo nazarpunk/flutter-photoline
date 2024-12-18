@@ -207,6 +207,8 @@ class ScrollSnapPosition extends ScrollPosition
     }
 
     if (hasOverflow) {
+      if (!kProfileMode) return target;
+
       final List<double> anchors = [];
       for (int i = 0; i < offsets.length; i++) {
         final (so, h) = offsets[i];
@@ -975,13 +977,7 @@ class ScrollSnapPosition extends ScrollPosition
         ?.dispose(); // it will be null if it got absorbed by another ScrollPosition
     _activity = null;
     isScrollingNotifier.dispose();
-    try {
-      super.dispose();
-    } catch (e) {
-      if (kDebugMode) {
-        print('⚠️ Value Notifier shit error');
-      }
-    }
+    super.dispose();
   }
 
   @override

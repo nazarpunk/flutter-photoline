@@ -24,14 +24,14 @@ class SliverPhotolineList extends SliverMultiBoxAdaptorWidget {
   RenderSliverVariedExtentList createRenderObject(BuildContext context) {
     final SliverMultiBoxAdaptorElement element =
         context as SliverMultiBoxAdaptorElement;
-    return _Render(
+    return PhotolineRenderSliverMultiBoxAdaptor(
       childManager: element,
       itemExtentBuilder: itemExtentBuilder,
     );
   }
 
   @override
-  void updateRenderObject(BuildContext context, _Render renderObject) {
+  void updateRenderObject(BuildContext context, PhotolineRenderSliverMultiBoxAdaptor renderObject) {
     renderObject.itemExtentBuilder = itemExtentBuilder;
   }
 }

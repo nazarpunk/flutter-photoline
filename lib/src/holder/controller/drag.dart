@@ -102,7 +102,9 @@ class PhotolineHolderDragController implements Drag {
     for (final photoline in holder!.photolines) {
       final controller = photoline.controller;
       if (controller.action.value != PhotolineAction.drag &&
-          controller.action.value != PhotolineAction.close) continue;
+          controller.action.value != PhotolineAction.close) {
+        continue;
+      }
 
       controller
         ..renderBox = photoline.context.findRenderObject()! as RenderBox

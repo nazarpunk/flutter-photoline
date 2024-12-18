@@ -33,7 +33,7 @@ class _PhotolineTestFullscreenWidgetState
                 ),
               ),
             ],
-        getPhotoCount: () => 3,
+        getPhotoCount: () => 30,
         getViewCount: _minPhotoLength,
         rebuilder: () {
           if (mounted) setState(() {});
@@ -50,7 +50,7 @@ class _PhotolineTestFullscreenWidgetState
             Expanded(
               child: Photoline(
                 controller: _photoline,
-                photoStripeColor: Colors.red,
+                photoStripeColor: const Color.fromRGBO(255, 255, 255, .2),
               ),
             ),
             SizedBox(

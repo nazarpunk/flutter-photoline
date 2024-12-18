@@ -606,7 +606,9 @@ class PhotolineState extends State<Photoline>
     }
 
     if (controller.pageTargetOpen.value == 1 &&
-        controller.getPagerIndexOffset() > 0) viewIndex = 1;
+        controller.getPagerIndexOffset() > 0) {
+      viewIndex = 1;
+    }
 
     viewIndex = controller.correctCloseTargetIndex(
         count, closeCount, controller.pageTargetOpen.value, viewIndex);

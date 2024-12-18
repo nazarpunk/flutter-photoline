@@ -400,7 +400,9 @@ class PhotolineController extends ScrollController {
         for (int i = positionDrag.length - 1; i >= 0; i--) {
           final pi = positionDrag[i];
           if ((isDragMain && pi.index == pageDragInitial) ||
-              pi.page < size.viewCount - 1) continue;
+              pi.page < size.viewCount - 1) {
+            continue;
+          }
 
           for (int k = positionDrag.length - 1; k >= 0; k--) {
             positionDrag[k].page -= 1;

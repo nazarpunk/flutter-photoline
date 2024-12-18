@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:photoline/photoline.dart';
 
+@deprecated
 class PhotolineConstrainted extends MultiChildRenderObjectWidget {
+  @deprecated
   PhotolineConstrainted({
     super.key,
     required this.header,
