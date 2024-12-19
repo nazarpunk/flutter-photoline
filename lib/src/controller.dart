@@ -1,11 +1,9 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
-import 'package:flutter/rendering.dart';
 import 'package:photoline/src/holder/controller/drag.dart';
 import 'package:photoline/src/photoline.dart';
 import 'package:photoline/src/scroll/photoline/position.dart';
@@ -20,9 +18,12 @@ int _getCloseCount(double? width) => 3;
 
 int _getPagerIndexOffset() => 0;
 
-double _bottomHeightAddition() => 0;
-
 Color _getPagerColor() => Colors.white;
+
+double _wrapHeight(double w, double h, double t) {
+  const double footer = 64;
+  return w * .7 + footer;
+}
 
 /// Photoline controller
 /// [ClipRect]
@@ -51,8 +52,8 @@ class PhotolineController extends ScrollController {
     this.useOpenSimulation = true,
     this.useOpenSideResize = true,
     this.useOpenSideResizeScale = true,
-    this.bottomHeightAddition = _bottomHeightAddition,
     required this.rebuilder,
+    this.wrapHeight = _wrapHeight,
   });
 
   PhotolineHolderDragController? dragController;
@@ -81,7 +82,6 @@ class PhotolineController extends ScrollController {
   final bool useOpenSideResize;
   final bool useOpenSideResizeScale;
 
-  final double Function() bottomHeightAddition;
   final void Function() rebuilder;
 
   final double openRatio;
@@ -103,19 +103,7 @@ class PhotolineController extends ScrollController {
 
   final aspectRatio = ValueNotifier<double>(0);
 
-  double lerpConstraints(SliverLayoutDimensions dimensions) {
-    final w = dimensions.crossAxisExtent;
-    final h = dimensions.viewportMainAxisExtent;
-    return lerpConstraintsWH(w, h);
-  }
-
-  double lerpConstraintsWH(double width, double height) {
-    final t = fullScreenExpander.value;
-    const double footer = 64;
-    return lerpDouble(width * .7 + footer, height, t)! +
-        20 +
-        bottomHeightAddition();
-  }
+  final double Function(double, double, double) wrapHeight;
 
   @override
   void dispose() {

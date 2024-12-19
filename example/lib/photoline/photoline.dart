@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:photoline/photoline.dart';
@@ -101,8 +103,10 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
             ),
           );
         },
-
-        bottomHeightAddition: () => 0,
+        wrapHeight: (w, h, t) {
+          const double footer = 64;
+          return lerpDouble(w * .7 + footer, h, t)! + 20;
+        },
         rebuilder: () {
           if (mounted) setState(() {});
         },
@@ -156,7 +160,12 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
                 ),
                 childCount: _photolines.length,
                 itemExtentBuilder: (index, dimensions) {
-                  return _photolines[index].lerpConstraints(dimensions);
+                  final p = _photolines[index];
+                  return p.wrapHeight(
+                    dimensions.crossAxisExtent,
+                    dimensions.viewportMainAxisExtent,
+                    p.fullScreenExpander.value,
+                  );
                 },
               ),
             ],

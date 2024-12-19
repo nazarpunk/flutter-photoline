@@ -122,7 +122,7 @@ class ScrollSnapPosition extends ScrollPosition
         dist = d;
         current = offsets.length - 1;
       }
-      so += p.lerpConstraintsWH(mw, vd);
+      so += p.wrapHeight(mw, vd, p.fullScreenExpander.value);
     }
 
     current += direction;
@@ -164,7 +164,7 @@ class ScrollSnapPosition extends ScrollPosition
 
     for (int i = 0; i < list.length; i++) {
       final d = so - newPixels;
-      final h = list[i].lerpConstraintsWH(mw, vd);
+      final h = list[i].wrapHeight(mw, vd, list[i].fullScreenExpander.value);
       if (dist.isInfinite || d.abs() < dist.abs()) {
         dist = d;
         index = i;
@@ -193,7 +193,7 @@ class ScrollSnapPosition extends ScrollPosition
 
     for (int i = 0; i < photolines.length; i++) {
       final p = photolines[i];
-      final h = p.lerpConstraintsWH(mw, vd);
+      final h = p.wrapHeight(mw, vd, p.fullScreenExpander.value);
       if (!viewport(h)) hasOverflow = true;
       offsets.add((so, h));
       so += h;
@@ -273,7 +273,8 @@ class ScrollSnapPosition extends ScrollPosition
 
       for (int i = 0; i < list.length; i++) {
         if (i == _photolineLastScrollIndex) break;
-        newPixels += list[i].lerpConstraintsWH(w, viewportDimension);
+        newPixels += list[i]
+            .wrapHeight(w, viewportDimension, list[i].fullScreenExpander.value);
       }
 
       if (newPixels != oldPixels) {
@@ -347,8 +348,11 @@ class ScrollSnapPosition extends ScrollPosition
       double so = 0;
       final list = controller.snapPhotolines!();
       for (int i = 0; i < list.length - 1; i++) {
-        so += list[i].lerpConstraintsWH(
-            controller.boxConstraints!.maxWidth, _viewportDimension!);
+        so += list[i].wrapHeight(
+          controller.boxConstraints!.maxWidth,
+          _viewportDimension!,
+          list[i].fullScreenExpander.value,
+        );
       }
       maxScrollExtent = math.max(maxScrollExtent, so);
     }
