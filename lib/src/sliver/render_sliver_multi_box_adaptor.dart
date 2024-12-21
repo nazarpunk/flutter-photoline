@@ -90,7 +90,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
               mainAxisDelta + paintExtentOf(child) > 0;
         case PhotolineAction.upload:
       }
-      //if (child.size.width == 0) canPaint = false;
+      if (child.size.width == 0) canPaint = false;
 
       if (canPaint) context.paintChild(child, childOffset);
       controller.canPaint(index, canPaint);
@@ -103,8 +103,8 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
   }
 
   /// --- Perform
-  RenderBox get _firstChild {
-    if (firstChild == null) addInitialChild();
+  RenderBox _firstChild({int index = 0}) {
+    if (firstChild == null) addInitialChild(index: index);
     firstChild!.layout(const BoxConstraints(maxHeight: 0, maxWidth: 0));
     return firstChild!;
   }
@@ -162,7 +162,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
     final double scrollOffset = constraints.scrollOffset;
     final count = _count;
 
-    RenderBox prev = _firstChild;
+    RenderBox prev = _firstChild();
 
     for (int index = 0; index < count; index++) {
       final RenderBox? child = childAfter(prev);
@@ -199,7 +199,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
     //print('$vp | ${scrollOffset.toStringAsFixed(2)} | ${_controller.pos.maxScrollExtent}');
 
-    RenderBox prev = _firstChild;
+    RenderBox prev = _firstChild();
 
     for (int index = 0; index < count; index++) {
       final RenderBox? child = childAfter(prev);
@@ -277,14 +277,21 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
       ..didStartLayout()
       ..setDidUnderflow(false);
 
-    final wc = constraints.viewportMainAxisExtent * _controller.closeRatio;
+    final vw = constraints.viewportMainAxisExtent;
+    final wc = vw * _controller.closeRatio;
     final count = _count;
     final mod = _controller.mod;
 
     double po = 0;
     double pw = 0;
 
-    RenderBox? prev = _firstChild;
+    RenderBox? prev = _firstChild();
+
+    // MAGICK!!! DO NOT REMOVE !!!
+    // ignore: unused_local_variable
+    final viewCount = _controller.getViewCount(vw);
+    //print('$viewCount | ${constraints.scrollOffset}');
+
     for (int i = 0; i < count; i++) {
       final RenderBox? child = childAfter(prev!);
       po = po + pw;
@@ -321,7 +328,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
       return;
     }
 
-    RenderBox prev = _firstChild;
+    RenderBox prev = _firstChild();
 
     for (int index = 0; index < count; index++) {
       final RenderBox? child = childAfter(prev);

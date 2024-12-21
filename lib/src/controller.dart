@@ -14,7 +14,7 @@ import 'package:photoline/src/utils/drag.dart';
 import 'package:photoline/src/utils/mod.dart';
 import 'package:photoline/src/utils/size.dart';
 
-int _getCloseCount(double? width) => 3;
+int _getViewCount(double? width) => 3;
 
 int _getPagerIndexOffset() => 0;
 
@@ -37,7 +37,7 @@ class PhotolineController extends ScrollController {
     required this.getWidget,
     this.getBackside,
     required this.getPhotoCount,
-    this.getViewCount = _getCloseCount,
+    this.getViewCount = _getViewCount,
     this.onAdd,
     this.onRemove,
     this.onReorder,

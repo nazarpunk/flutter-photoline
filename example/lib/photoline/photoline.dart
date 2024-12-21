@@ -31,9 +31,9 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
     _uris.clear();
     ++_min;
 
-    for (int i = _min; i < 7; i++) {
+    for (int i = _min; i < 1; i++) {
       final List<Uri> l = [];
-      for (int k = 0; k < 13 - i; k++) {
+      for (int k = 0; k < 50 - i; k++) {
         l.add(PhotolineDummys.get(i, k));
       }
       _uris.add(l);

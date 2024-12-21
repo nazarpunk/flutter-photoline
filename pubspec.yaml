@@ -4,7 +4,7 @@ version: 1.0.3
 homepage: https://github.com/nazarpunk/flutter-photoline
 
 environment:
-  sdk: ^3.5.4
+  sdk: ^3.6.0
 
 dependencies:
   flutter:
@@ -14,5 +14,5 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  lints: ^5.0.0
+  lints: ^5.1.0
 

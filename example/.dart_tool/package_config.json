@@ -57,9 +57,9 @@
     },
     {
       "name": "http_parser",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/http_parser-4.0.2",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/http_parser-4.1.1",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "3.4"
     },
     {
       "name": "leak_tracker",
@@ -113,7 +113,7 @@
       "name": "photoline",
       "rootUri": "../../",
       "packageUri": "lib/",
-      "languageVersion": "3.5"
+      "languageVersion": "3.6"
     },
     {
       "name": "sky_engine",
@@ -188,7 +188,7 @@
       "languageVersion": "3.3"
     }
   ],
-  "generated": "2024-12-18T08:47:07.493138Z",
+  "generated": "2024-12-19T11:10:52.727128Z",
   "generator": "pub",
   "generatorVersion": "3.6.0",
   "flutterRoot": "file:///Users/nazarpunk/flutter",

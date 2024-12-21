@@ -11,13 +11,14 @@ import 'package:flutter/scheduler.dart';
 import 'package:photoline/photoline.dart';
 import 'package:photoline/src/scroll/snap/snap/box.dart';
 
-/// [PageView], [ScrollPositionWithSingleContext]
-class ScrollSnapPosition extends ScrollPosition
-    implements ScrollActivityDelegate {
+/// [PageView], [ScrollPositionWithSingleContext], [ScrollPosition]
+class ScrollSnapPosition extends ViewportOffset
+    with ScrollMetrics
+    implements ScrollPosition, ScrollActivityDelegate {
   ScrollSnapPosition({
     required this.controller,
-    required super.physics,
-    required super.context,
+    required this.physics,
+    required this.context,
     ScrollPosition? oldPosition,
     double? initialPixels = 0.0,
   }) {
@@ -37,6 +38,11 @@ class ScrollSnapPosition extends ScrollPosition
     }
     assert(activity != null);
   }
+
+  @override
+  final ScrollPhysics physics;
+  @override
+  final ScrollContext context;
 
   final ScrollSnapController controller;
 
@@ -1012,4 +1018,13 @@ class ScrollSnapPosition extends ScrollPosition
   void goIdle() {
     beginActivity(IdleScrollActivity(this));
   }
+
+  @override
+  String? get debugLabel => null;
+
+  @override
+  final ValueNotifier<bool> isScrollingNotifier = ValueNotifier<bool>(false);
+
+  @override
+  bool get keepScrollOffset => true;
 }
