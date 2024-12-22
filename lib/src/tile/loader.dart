@@ -64,7 +64,7 @@ class PhotolineImageLoader {
 
     if (loader == null) return;
 
-    if (i < 3) {
+    if (i < 1) {
       unawaited(loader._load());
     }
   }

@@ -109,26 +109,6 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
     return firstChild!;
   }
 
-  RenderBox _childLayout(
-      {required SliverConstraints constraints,
-      required int index,
-      required RenderBox? prev,
-      required RenderBox? child,
-      required double offset,
-      required double width}) {
-    final c = constraints.asBoxConstraints(minExtent: width, maxExtent: width);
-
-    if (child == null || indexOf(child) != index - 1) {
-      child = insertAndLayoutChild(c, after: prev);
-    } else {
-      child.layout(c);
-    }
-    (child!.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset =
-        offset;
-
-    return child;
-  }
-
   SliverGeometry _geometry(double scrollExtent) => SliverGeometry(
         scrollExtent: scrollExtent,
         paintExtent:
@@ -165,18 +145,22 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
     RenderBox prev = _firstChild();
 
     for (int index = 0; index < count; index++) {
-      final RenderBox? child = childAfter(prev);
+      RenderBox? child = childAfter(prev);
 
       final p = photoline.positionWidth[index];
+      final offset = p.offset.current + scrollOffset;
+      final width = p.width.current;
 
-      prev = _childLayout(
-        constraints: constraints,
-        index: index,
-        prev: prev,
-        child: child,
-        offset: p.offset.current + scrollOffset,
-        width: p.width.current,
-      );
+      final c =
+          constraints.asBoxConstraints(minExtent: width, maxExtent: width);
+      if (child == null || indexOf(child) != index - 1) {
+        child = insertAndLayoutChild(c, after: prev);
+      } else {
+        child.layout(c);
+      }
+      (child!.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset =
+          offset;
+      prev = child;
     }
 
     geometry = _geometry(double.infinity);
@@ -202,7 +186,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
     RenderBox prev = _firstChild();
 
     for (int index = 0; index < count; index++) {
-      final RenderBox? child = childAfter(prev);
+      RenderBox? child = childAfter(prev);
 
       double itemWidth = widthOpen;
       double itemOffset = index * widthOpen;
@@ -257,14 +241,18 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
       if (itemWidth < 0) itemWidth = 0;
 
-      prev = _childLayout(
-        constraints: constraints,
-        index: index,
-        prev: prev,
-        child: child,
-        offset: itemOffset,
-        width: itemWidth,
-      );
+      final c = constraints.asBoxConstraints(
+          minExtent: itemWidth, maxExtent: itemWidth);
+
+      if (child == null || indexOf(child) != index - 1) {
+        child = insertAndLayoutChild(c, after: prev);
+      } else {
+        child.layout(c);
+      }
+      (child!.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset =
+          itemOffset;
+
+      prev = child;
     }
 
     geometry = _geometry(widthOpen * count);
@@ -279,35 +267,39 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
     final vw = constraints.viewportMainAxisExtent;
     final wc = vw * _controller.closeRatio;
-    final count = _count;
+    final count = _controller.getPhotoCount();
     final mod = _controller.mod;
 
-    double po = 0;
-    double pw = 0;
+    double offset = 0;
+    double width = 0;
 
     RenderBox? prev = _firstChild();
 
-    // MAGICK!!! DO NOT REMOVE !!!
-    // ignore: unused_local_variable
-    final viewCount = _controller.getViewCount(vw);
-    //print('$viewCount | ${constraints.scrollOffset}');
+    _controller.getViewCount(vw);
 
-    for (int i = 0; i < count; i++) {
-      final RenderBox? child = childAfter(prev!);
-      po = po + pw;
-      pw = i < mod.length && mod[i] != null ? mod[i]!.t * wc : wc;
+    //final ts = DateTime.now().millisecondsSinceEpoch;
 
-      prev = _childLayout(
-        constraints: constraints,
-        index: i,
-        prev: prev,
-        child: child,
-        offset: po,
-        width: pw,
-      );
+    for (int index = 0; index < count; index++) {
+      RenderBox? child = childAfter(prev!);
+      offset = offset + width;
+      width =
+          index < mod.length && mod[index] != null ? mod[index]!.t * wc : wc;
+      final c =
+          constraints.asBoxConstraints(minExtent: width, maxExtent: width);
+
+      if (child == null || indexOf(child) != index - 1) {
+        child = insertAndLayoutChild(c, after: prev);
+      } else {
+        child.layout(c);
+      }
+      (child!.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset =
+          offset;
+      prev = child;
     }
 
-    geometry = _geometry(po + pw);
+    //print("${DateTime.now().millisecondsSinceEpoch - ts}");
+
+    geometry = _geometry(offset + width);
     childManager.didFinishLayout();
   }
 
@@ -331,7 +323,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
     RenderBox prev = _firstChild();
 
     for (int index = 0; index < count; index++) {
-      final RenderBox? child = childAfter(prev);
+      RenderBox? child = childAfter(prev);
 
       double offset = controller.positionDrag[index].offset;
       if (index == controller.pageDragInitial) {
@@ -339,14 +331,21 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
             offset.clamp(0, constraints.viewportMainAxisExtent - size.close);
       }
 
-      prev = _childLayout(
-        constraints: constraints,
-        index: index,
-        prev: prev,
-        child: child,
-        offset: offset + scrollOffset,
-        width: size.close,
-      );
+      offset += scrollOffset;
+      final width = size.close;
+
+      final c =
+          constraints.asBoxConstraints(minExtent: width, maxExtent: width);
+
+      if (child == null || indexOf(child) != index - 1) {
+        child = insertAndLayoutChild(c, after: prev);
+      } else {
+        child.layout(c);
+      }
+      (child!.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset =
+          offset;
+
+      prev = child;
     }
 
     //scrollExtent: widthOpen * count,

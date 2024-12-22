@@ -23,6 +23,7 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
   final List<PhotolineController> _photolines = [];
 
   final List<List<Uri>> _uris = [];
+  final List<List<Key>> _keys = [];
 
   int _min = -1;
 
@@ -31,18 +32,21 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
     _uris.clear();
     ++_min;
 
-    for (int i = _min; i < 1; i++) {
+    for (int i = _min; i < 10; i++) {
       final List<Uri> l = [];
-      for (int k = 0; k < 50 - i; k++) {
-        l.add(PhotolineDummys.get(i, k));
+      final List<Key> k = [];
+      for (int j = 0; j < 50 - i; j++) {
+        l.add(PhotolineDummys.get(i, j));
+        k.add(ValueKey<String>('$i $j'));
       }
       _uris.add(l);
+      _keys.add(k);
     }
 
     for (int i = 0; i < _uris.length; i++) {
       final c = PhotolineController(
         getUri: (index) => _uris[i][index],
-        getKey: (index) => ValueKey(_uris[i][index]),
+        getKey: (index) => _keys[i][index],
         //getWidget: (index) => const Placeholder(),
         getWidget: (index) => const SizedBox(),
         getPersistentWidgets: (data) {
@@ -152,7 +156,9 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
               ),
               SliverPhotolineList(
                 (context, index) => AutomaticKeepAlive(
+                  key: ValueKey(index),
                   child: _Child(
+                    key: ValueKey(index),
                     controller: _photolines[index],
                     index: index,
                     constraints: constraints,

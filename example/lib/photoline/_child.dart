@@ -2,6 +2,7 @@ part of 'photoline.dart';
 
 class _Child extends StatefulWidget {
   const _Child({
+    super.key,
     required this.index,
     required this.constraints,
     required this.controller,
