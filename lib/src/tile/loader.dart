@@ -95,7 +95,7 @@ class PhotolineImageLoader {
     }
 
     final data = response.bodyBytes;
-    if (kIsWeb) {
+    if (kIsWeb || !kProfileMode) {
       image = await decodeImageFromList(data);
     } else {
       final codec = await ui.instantiateImageCodec(data);
@@ -105,7 +105,6 @@ class PhotolineImageLoader {
 
     _loading = false;
     _next();
-
     PhotolineImageNotifier().update(this);
   }
 }

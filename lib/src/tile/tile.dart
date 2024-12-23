@@ -139,6 +139,7 @@ class PhotolineTileState extends State<PhotolineTile>
   late final AnimationController _animationImage;
   final _notifier = PhotolineImageNotifier();
 
+  @deprecated
   bool get _visible {
     if (_data == null || !mounted) return false;
     final RenderObject? box = context.findRenderObject();
@@ -157,6 +158,7 @@ class PhotolineTileState extends State<PhotolineTile>
     return true;
   }
 
+  @deprecated
   MediaQueryData? _data;
 
   void _imageListener() {
@@ -164,6 +166,11 @@ class PhotolineTileState extends State<PhotolineTile>
       return;
     }
     _image = _notifier.loader!.image;
+    if (!kProfileMode) {
+      _animationImage.value = 1;
+      rebuild();
+      return;
+    }
 
     if (_visible) {
       _animationImage.forward(from: 0);
@@ -180,7 +187,27 @@ class PhotolineTileState extends State<PhotolineTile>
   /// [ReorderableDelayedDragStartListener]
   @override
   Widget build(BuildContext context) {
-    _data = MediaQuery.of(context);
+    if (!kProfileMode) {
+      return GestureDetector(
+        onTap: () => _photoline.toPage(_index),
+        behavior: HitTestBehavior.opaque,
+        child: Placeholder(
+          child: IgnorePointer(
+            child: CustomPaint(
+              painter: ImagePainter(
+                image: _image,
+                imageOpacity: 1,
+                grayOpacity: 0,
+                //imageOpacity: Curves.easeIn.transform(_animationImage.value).clamp(0, 1),
+                //grayOpacity: _controller.isTileOpenGray? _opacityCurrent.clamp(0, 1): 0,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    //_data = MediaQuery.of(context);
     return LayoutBuilder(
       builder: (context, constraints) {
         final size = _controller.size;
@@ -207,7 +234,7 @@ class PhotolineTileState extends State<PhotolineTile>
 
         Widget child = Stack(
           children: [
-            if (_animationImage.value < 1)
+            if (_animationImage.value < 1 && kProfileMode)
               Positioned.fill(
                 key: const ValueKey('blur'),
                 child: IgnorePointer(
@@ -229,9 +256,8 @@ class PhotolineTileState extends State<PhotolineTile>
                 child: CustomPaint(
                   painter: ImagePainter(
                     image: _image,
-                    imageOpacity: Curves.easeIn
-                        .transform(_animationImage.value)
-                        .clamp(0, 1),
+                    imageOpacity: 1,
+                    //imageOpacity: Curves.easeIn.transform(_animationImage.value).clamp(0, 1),
                     grayOpacity: _controller.isTileOpenGray
                         ? _opacityCurrent.clamp(0, 1)
                         : 0,

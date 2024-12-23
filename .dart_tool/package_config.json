@@ -81,7 +81,7 @@
     },
     {
       "name": "lints",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/lints-5.1.0",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/lints-5.1.1",
       "packageUri": "lib/",
       "languageVersion": "3.6"
     },
@@ -182,7 +182,7 @@
       "languageVersion": "3.6"
     }
   ],
-  "generated": "2024-12-19T11:10:52.672121Z",
+  "generated": "2024-12-23T18:53:19.233051Z",
   "generator": "pub",
   "generatorVersion": "3.6.0",
   "flutterRoot": "file:///Users/nazarpunk/flutter",

@@ -35,7 +35,7 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
     for (int i = _min; i < 10; i++) {
       final List<Uri> l = [];
       final List<Key> k = [];
-      for (int j = 0; j < 50 - i; j++) {
+      for (int j = 0; j < 20 - i; j++) {
         l.add(PhotolineDummys.get(i, j));
         k.add(ValueKey<String>('$i $j'));
       }
@@ -50,7 +50,10 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
         //getWidget: (index) => const Placeholder(),
         getWidget: (index) => const SizedBox(),
         getPersistentWidgets: (data) {
+          if (kDebugMode) return [];
+
           final List<Widget> out = [];
+
           if (data.loading < 1) {
             out.add(const Center(
               child: CircularProgressIndicator(),

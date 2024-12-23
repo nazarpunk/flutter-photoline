@@ -76,8 +76,7 @@ class ImagePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(ImagePainter oldDelegate) =>
-      image != oldDelegate.image || //
+  bool shouldRepaint(ImagePainter oldDelegate) => image != oldDelegate.image || //
       imageOpacity != oldDelegate.imageOpacity || //
       grayOpacity != oldDelegate.grayOpacity;
 }
