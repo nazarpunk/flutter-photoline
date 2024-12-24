@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:ui' as ui;
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 Map<Uri, PhotolineUri> _map = {};
@@ -57,28 +59,30 @@ class PhotolineUri {
   }
 }
 
-Future<ui.Image?> _getImage(Uri uri) async {
-  final response = await http.get(uri);
+Future<Uint8List?> _getBytes(String uri) async {
+  final response = await http.get(Uri.parse(uri));
   if (response.statusCode != 200) {
     return null;
   }
 
-  final bytes = response.bodyBytes;
+  return response.bodyBytes;
+}
+
+Future<ui.Image?> _getImage(Uri uri) async {
+  final Uint8List? bytes = await compute(_getBytes, uri.toString());
+  if (bytes == null) return null;
+
   final ui.ImmutableBuffer buffer =
       await ui.ImmutableBuffer.fromUint8List(bytes);
 
   final ui.ImageDescriptor descriptor =
       await ui.ImageDescriptor.encoded(buffer);
 
-  final ui.TargetImageSize targetSize =
-      ui.TargetImageSize(width: descriptor.width, height: descriptor.height);
-
-  final ui.Codec codec = await descriptor.instantiateCodec(
-    targetWidth: targetSize.width,
-    targetHeight: targetSize.height,
-  );
   buffer.dispose();
+  final ui.Codec codec = await descriptor.instantiateCodec();
 
+  int a = _now();
   final ui.FrameInfo frameInfo = await codec.getNextFrame();
+  print('frameInfo [${descriptor.width}|${descriptor.height}]: ${_now() - a}');
   return frameInfo.image;
 }

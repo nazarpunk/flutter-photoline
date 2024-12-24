@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:photoline/photoline.dart';
-import 'package:photoline_example/photoline/dummy.dart';
 
 class PhotolineTestFullscreenWidget extends StatefulWidget {
   const PhotolineTestFullscreenWidget({super.key});

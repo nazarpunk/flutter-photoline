@@ -9,6 +9,7 @@ import 'package:photoline/src/holder/holder.dart';
 import 'package:photoline/src/mixin/state/rebuild.dart';
 import 'package:photoline/src/paginaror/paginator.dart';
 import 'package:photoline/src/scroll/photoline/position.dart';
+import 'package:photoline/src/scroll/physics.dart';
 import 'package:photoline/src/scroll/snap/snap.dart';
 import 'package:photoline/src/scrollable/notification/pointer.dart';
 import 'package:photoline/src/scrollable/scrollable.dart';
@@ -46,8 +47,8 @@ class PhotolineState extends State<Photoline>
 
   int _pageTargetClose = -1;
 
-  //final _physics = const PhotolineScrollPhysics(parent: AlwaysScrollableScrollPhysics());
-  final _physics = const ScrollPhysics(parent: AlwaysScrollableScrollPhysics());
+  final _physics = const PhotolineScrollPhysics(parent: AlwaysScrollableScrollPhysics());
+  //final _physics = const ScrollPhysics(parent: AlwaysScrollableScrollPhysics());
 
   final List<PhotolinePosition> positionWidth = [];
 

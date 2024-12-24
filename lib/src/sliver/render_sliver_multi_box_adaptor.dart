@@ -76,7 +76,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
       switch (controller.action.value) {
         case PhotolineAction.close:
           if (childOffset.dx + child.size.width <= precisionErrorTolerance ||
-              childOffset.dx > vp + precisionErrorTolerance) {
+              childOffset.dx > vp - precisionErrorTolerance) {
             canPaint = false;
           }
         case PhotolineAction.drag:
@@ -147,9 +147,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
           final r = math.min(w / iw, h / ih);
 
           double nw = iw * r, nh = ih * r, ar = 1;
-
           if (nw < w) ar = w / nw;
-
           if ((ar - 1).abs() < 1e-14 && nh < h) ar = h / nh;
 
           nw *= ar;
@@ -160,18 +158,34 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
           final double cx = math.max((iw - cw) * offsetX, 0);
           final double cy = math.max((ih - ch) * offsetY, 0);
 
-          canvas.drawImageRect(
-              image,
+          canvas.drawAtlas(
+            image,
+            [
+              RSTransform.fromComponents(
+                rotation: 0,
+                scale: w / cw,
+                anchorX: cw * .5,
+                anchorY: ch * .5,
+                translateX: cdx + w * .5,
+                translateY: cdy + h * .5,
+              ),
+            ],
+            [
               Rect.fromLTWH(cx, cy, cw, ch),
-              Rect.fromLTWH(cdx, cdy, w, h),
-              Paint()
-                ..isAntiAlias = false
-                ..filterQuality = FilterQuality.medium
-                ..color = const Color.fromRGBO(0, 0, 0, 1));
+            ],
+            null,
+            BlendMode.srcOver,
+            null,
+            Paint()
+              ..isAntiAlias = true
+              ..filterQuality = FilterQuality.medium
+              ..color = const Color.fromRGBO(0, 0, 0, 1),
+          );
         }
 
         context.paintChild(child, childOffset);
       }
+
       //controller.canPaint(index, canPaint);
       child = childAfter(child);
     }
