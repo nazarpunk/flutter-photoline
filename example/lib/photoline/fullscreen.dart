@@ -17,7 +17,7 @@ class _PhotolineTestFullscreenWidgetState
   @override
   void initState() {
     _photoline = PhotolineController(
-        getUri: (index) => PhotolineDummys.get(0, index),
+        getUri: (index) => null,
         getKey: ValueKey.new,
         //getWidget: (index) => const Placeholder(),
         getWidget: (index) => const SizedBox(),

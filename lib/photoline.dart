@@ -23,6 +23,7 @@ export 'src/scrollable/scrollable.dart';
 export 'src/shimmer/container.dart';
 export 'src/shimmer/shimmer.dart';
 export 'src/tile/data.dart';
+export 'src/tile/uri.dart';
 export 'src/utils/action.dart';
 export 'src/utils/gradient.dart';
 export 'src/utils/misc/photo_dummy.dart';

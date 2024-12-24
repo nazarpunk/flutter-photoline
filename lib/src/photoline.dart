@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:photoline/src/backside/backside.dart';
@@ -44,6 +45,7 @@ class PhotolineState extends State<Photoline>
   int _lastReportedPage = 0;
 
   int _pageTargetClose = -1;
+
   //final _physics = const PhotolineScrollPhysics(parent: AlwaysScrollableScrollPhysics());
   final _physics = const ScrollPhysics(parent: AlwaysScrollableScrollPhysics());
 
@@ -816,13 +818,14 @@ class PhotolineState extends State<Photoline>
                               controller: controller,
                               photoline: this,
                               delegate: PhotolineSliverChildBuilderDelegate(
-                                (context, i) => PhotolineTile(
-                                  photoline: this,
-                                  key: controller.getKey(i),
-                                  index: i,
-                                  uri: controller.getUri(i),
-                                  controller: controller,
-                                ),
+                                (context, i) => !kProfileMode
+                                    ? const SizedBox()
+                                    : PhotolineTile(
+                                        photoline: this,
+                                        key: controller.getKey(i),
+                                        index: i,
+                                        controller: controller,
+                                      ),
                                 controller: controller,
                               ),
                               updater: _updater,

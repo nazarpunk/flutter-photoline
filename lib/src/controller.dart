@@ -9,6 +9,7 @@ import 'package:photoline/src/photoline.dart';
 import 'package:photoline/src/scroll/photoline/position.dart';
 import 'package:photoline/src/tile/data.dart';
 import 'package:photoline/src/tile/tile.dart';
+import 'package:photoline/src/tile/uri.dart';
 import 'package:photoline/src/utils/action.dart';
 import 'package:photoline/src/utils/drag.dart';
 import 'package:photoline/src/utils/mod.dart';
@@ -58,9 +59,10 @@ class PhotolineController extends ScrollController {
 
   PhotolineHolderDragController? dragController;
 
+  final PhotolineUri? Function(int index) getUri;
+
   final Uint8List Function(int index)? getBlur;
   final Color? Function(int index)? getColor;
-  final Uri? Function(int) getUri;
   final Widget Function(int) getWidget;
   final Widget Function(int index)? getBackside;
   final Key Function(int) getKey;
@@ -122,6 +124,7 @@ class PhotolineController extends ScrollController {
 
   final canPaintNotifier = ValueNotifier<bool>(false);
 
+  @deprecated
   void canPaint(int i, bool can) {
     canPaintMap[i] = can;
     canPaintNotifier.value = !canPaintNotifier.value;

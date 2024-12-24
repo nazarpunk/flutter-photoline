@@ -1,4 +1,6 @@
+import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:photoline/src/controller.dart';
 import 'package:photoline/src/photoline.dart';
@@ -62,11 +64,11 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
     while (child != null) {
       index++;
-      final double mainAxisDelta = childMainAxisPosition(child);
-      final double crossAxisDelta = childCrossAxisPosition(child);
+      final double cdx = childMainAxisPosition(child);
+      final double cdy = childCrossAxisPosition(child);
       final Offset childOffset = Offset(
-        offset.dx + mainAxisDelta,
-        offset.dy + crossAxisDelta,
+        offset.dx + cdx,
+        offset.dy + cdy,
       );
 
       bool canPaint = true;
@@ -86,17 +88,91 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
         case PhotolineAction.open:
         case PhotolineAction.opening:
         case PhotolineAction.closing:
-          canPaint = mainAxisDelta < constraints.remainingPaintExtent &&
-              mainAxisDelta + paintExtentOf(child) > 0;
+          canPaint = cdx < constraints.remainingPaintExtent &&
+              cdx + paintExtentOf(child) > 0;
         case PhotolineAction.upload:
       }
       if (child.size.width == 0) canPaint = false;
 
+      if (canPaint) {
+        final canvas = context.canvas;
+        final size = child.size;
+        final w = size.width;
+        final h = size.height;
 
+        if (kDebugMode || !kProfileMode) {
+          final colors = [
+            Colors.redAccent,
+            Colors.amberAccent,
+            Colors.deepPurpleAccent,
+            Colors.greenAccent,
+            Colors.blueAccent,
+            Colors.deepOrangeAccent,
+          ];
 
+          final Paint paint = Paint()
+            ..color = colors[index % colors.length]
+            ..style = PaintingStyle.fill;
 
-      if (canPaint) context.paintChild(child, childOffset);
-      controller.canPaint(index, canPaint);
+          final ml = Offset(0, h / 2) + childOffset;
+          final tm = Offset(w / 2, 0) + childOffset;
+          final mr = Offset(w, h / 2) + childOffset;
+          final bm = Offset(w / 2, h) + childOffset;
+
+          final tl = Offset.zero + childOffset;
+          final tr = Offset(w, 0) + childOffset;
+          final br = Offset(w, h) + childOffset;
+          final bl = Offset(0, h) + childOffset;
+
+          canvas.drawPath(
+              Path()
+                ..moveTo(ml.dx, ml.dy)
+                ..conicTo(tl.dx, tl.dy, tm.dx, tm.dy, 2)
+                ..conicTo(tr.dx, tr.dy, mr.dx, mr.dy, 2)
+                ..conicTo(br.dx, br.dy, bm.dx, bm.dy, 2)
+                ..conicTo(bl.dx, bl.dy, ml.dx, ml.dy, 2)
+                ..close(),
+              paint);
+        }
+
+        final u = _controller.getUri(index);
+        if (u?.image != null) {
+          const offsetX = .5;
+          const offsetY = .5;
+
+          final image = u!.image!;
+          final iw = image.width.toDouble();
+          final ih = image.height.toDouble();
+
+          final r = math.min(w / iw, h / ih);
+
+          double nw = iw * r, nh = ih * r, ar = 1;
+
+          if (nw < w) ar = w / nw;
+
+          if ((ar - 1).abs() < 1e-14 && nh < h) ar = h / nh;
+
+          nw *= ar;
+          nh *= ar;
+
+          final double cw = math.min(iw / (nw / w), iw);
+          final double ch = math.min(ih / (nh / h), ih);
+          final double cx = math.max((iw - cw) * offsetX, 0);
+          final double cy = math.max((ih - ch) * offsetY, 0);
+
+          canvas.drawImageRect(
+              image,
+              Rect.fromLTWH(cx, cy, cw, ch),
+              Rect.fromLTWH(cdx, cdy, w, h),
+              Paint()
+                ..isAntiAlias = false
+                ..filterQuality = FilterQuality.medium
+                ..color = const Color.fromRGBO(0, 0, 0, 1));
+        }
+
+        context.paintChild(child, childOffset);
+      }
+      //controller.canPaint(index, canPaint);
       child = childAfter(child);
     }
 

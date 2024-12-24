@@ -7,7 +7,6 @@ import 'package:photoline/src/holder/controller/drag.dart';
 import 'package:photoline/src/mixin/state/rebuild.dart';
 import 'package:photoline/src/photoline.dart';
 import 'package:photoline/src/tile/data.dart';
-import 'package:photoline/src/tile/loader.dart';
 import 'package:photoline/src/tile/painter/blur.dart';
 import 'package:photoline/src/tile/painter/image.dart';
 import 'package:photoline/src/utils/stripe.dart';
@@ -16,13 +15,11 @@ class PhotolineTile extends StatefulWidget {
   const PhotolineTile({
     super.key,
     required this.index,
-    required this.uri,
     required this.controller,
     required this.photoline,
   });
 
   final int index;
-  final Uri? uri;
   final PhotolineController controller;
   final PhotolineState photoline;
 
@@ -43,18 +40,10 @@ class PhotolineTileState extends State<PhotolineTile>
 
   AnimationController get _animation => widget.photoline.animationOpacity;
 
-  ui.Image? _blur;
-  ui.Image? _image;
-
-  @deprecated
-  MediaQueryData? _data;
-
   late final AnimationController _animationImage = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 600),
   )..addListener(_animationListener);
-
-  final _notifier = PhotolineImageNotifier();
 
   void _listenerOpacity(double ax) {
     double no = _opacity;
@@ -76,56 +65,16 @@ class PhotolineTileState extends State<PhotolineTile>
     _listenerOpacity(ax);
   }
 
-  void _reblur() {
-    final blist = _controller.getBlur?.call(_index);
-    if (blist != null && blist.isNotEmpty) {
-      ui.decodeImageFromList(blist, (result) {
-        if (!mounted) return;
-        _blur = result;
-        rebuild();
-      });
-    }
-  }
-
-  void _reimage() {
-    if (!mounted) return;
-    if (widget.uri == null) return;
-    final loader = PhotolineImageLoader.add(widget.uri!);
-    if (loader.image == null) {
-      _animationImage.value = 0;
-    } else {
-      _animationImage.value = 1;
-      if (widget.uri != null) _image = _notifier.image(widget.uri!);
-    }
-  }
-
-  @override
-  void didUpdateWidget(covariant PhotolineTile oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.uri != null && widget.uri != oldWidget.uri) {
-      _reimage();
-    }
-  }
-
-  bool _paint = false;
-
-  void _canPaintListener() {
-    if (!mounted) return;
-    final i = widget.index;
-    final pt = _controller.canPaintMap[i] ?? false;
-    if (pt == _paint) return;
-    _paint = pt;
-    _reimage();
-  }
-
   @override
   void initState() {
     //print('init: ${widget.index}');
-
+/*
     _notifier.addListener(_imageListener);
     _controller
       ..pageActiveOpenComplete.addListener(rebuild)
       ..canPaintNotifier.addListener(_canPaintListener);
+
+ */
 
     //_controller.paintedNotifier(widget.index).addListener(_reimage);
     /*
@@ -145,9 +94,9 @@ class PhotolineTileState extends State<PhotolineTile>
   @override
   void dispose() {
     //print('dispose: ${widget.index}');
-    _animationImage.dispose();
-    _animation.dispose();
-    _notifier.removeListener(_imageListener);
+    //_animationImage.dispose();
+    //_animation.dispose();
+    //_notifier.removeListener(_imageListener);
     /*
     _controller
       ..pageActiveOpenComplete.removeListener(_rebuild)
@@ -156,44 +105,6 @@ class PhotolineTileState extends State<PhotolineTile>
      */
 
     super.dispose();
-  }
-
-  @deprecated
-  bool get _visible {
-    if (_data == null || !mounted) return false;
-    final RenderObject? box = context.findRenderObject();
-    if (box == null) return true;
-    final g = (box as RenderBox).localToGlobal(Offset.zero);
-    final s = _data!.size;
-
-    // left
-    if (g.dx + s.width < 0) return false;
-    // top
-    if (g.dy + s.height < 0) return false;
-    // right
-    if (g.dx > s.width) return false;
-    // bottom
-    if (g.dy > s.height) return false;
-    return true;
-  }
-
-  void _imageListener() {
-    if (!mounted || _notifier.loader!.uri != widget.uri || _image != null) {
-      return;
-    }
-    _image = _notifier.loader!.image;
-    if (!kProfileMode) {
-      _animationImage.value = 1;
-      rebuild();
-      return;
-    }
-
-    if (_visible) {
-      _animationImage.forward(from: 0);
-    } else {
-      _animationImage.value = 1;
-    }
-    rebuild();
   }
 
   PhotolineHolderDragController? get _drag =>
@@ -207,11 +118,18 @@ class PhotolineTileState extends State<PhotolineTile>
       return GestureDetector(
         onTap: () => _photoline.toPage(_index),
         behavior: HitTestBehavior.opaque,
+        child: const SizedBox(),
+      );
+    }
+
+    if (!kProfileMode) {
+      return GestureDetector(
+        onTap: () => _photoline.toPage(_index),
+        behavior: HitTestBehavior.opaque,
         child: Placeholder(
           child: IgnorePointer(
             child: CustomPaint(
               painter: ImagePainter(
-                image: _image,
                 imageOpacity: 1,
                 grayOpacity: 0,
                 //imageOpacity: Curves.easeIn.transform(_animationImage.value).clamp(0, 1),
@@ -259,7 +177,7 @@ class PhotolineTileState extends State<PhotolineTile>
                       color: _controller.getBlur?.call(_index) == null
                           ? _controller.getColor?.call(_index)
                           : Colors.transparent,
-                      blur: _blur,
+                      blur: null,
                       imageOpacity: _animationImage.value,
                       sigma: 30,
                     ),
@@ -271,7 +189,6 @@ class PhotolineTileState extends State<PhotolineTile>
               child: IgnorePointer(
                 child: CustomPaint(
                   painter: ImagePainter(
-                    image: _image,
                     imageOpacity: 1,
                     //imageOpacity: Curves.easeIn.transform(_animationImage.value).clamp(0, 1),
                     grayOpacity: _controller.isTileOpenGray

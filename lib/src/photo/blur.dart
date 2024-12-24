@@ -3,7 +3,6 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:photoline/src/mixin/state/rebuild.dart';
-import 'package:photoline/src/tile/loader.dart';
 import 'package:photoline/src/tile/painter/blur.dart';
 import 'package:photoline/src/tile/painter/image.dart';
 
@@ -48,26 +47,14 @@ class PhotolineBlurPhotoState extends State<PhotolineBlurPhoto>
     }
   }
 
-  void _reimage(PhotolineImageLoader? loader) {
-    if (loader?.image == null) {
-      _animationImage
-        ..value = 0
-        ..addListener(rebuild);
-
-      _notifier
-        ..removeListener(_imageListener)
-        ..addListener(_imageListener);
-    } else {
-      _animationImage.value = 1;
-      if (widget.uri != null) _image = _notifier.image(widget.uri!);
-    }
-  }
-
   @override
   void didUpdateWidget(covariant PhotolineBlurPhoto oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.uri != null && widget.uri != oldWidget.uri) {
+      /*
       _reimage(PhotolineImageLoader.add(widget.uri!));
+
+       */
     }
   }
 
@@ -77,29 +64,22 @@ class PhotolineBlurPhotoState extends State<PhotolineBlurPhoto>
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
+    /*
     _reimage(widget.uri == null ? null : PhotolineImageLoader.add(widget.uri!));
+
+     */
     _reblur();
     super.initState();
   }
 
   @override
   void dispose() {
-    _notifier.removeListener(_imageListener);
     _animationImage.dispose();
     super.dispose();
   }
 
   ui.Image? _image;
   late final AnimationController _animationImage;
-  final _notifier = PhotolineImageNotifier();
-
-  void _imageListener() {
-    if (_notifier.loader!.uri != widget.uri) return;
-    _image = _notifier.loader!.image;
-    if (!_animationImage.isAnimating && _animationImage.value == 0) {
-      _animationImage.forward(from: 0);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
