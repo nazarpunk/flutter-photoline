@@ -2,7 +2,6 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:photoline/src/controller.dart';
 import 'package:photoline/src/holder/controller/drag.dart';
 import 'package:photoline/src/mixin/state/rebuild.dart';
@@ -32,7 +31,7 @@ class PhotolineTile extends StatefulWidget {
 }
 
 class PhotolineTileState extends State<PhotolineTile>
-    with StateRebuildMixin, TickerProviderStateMixin {
+    with TickerProviderStateMixin, StateRebuildMixin {
   double _opacity = 0;
   double _opacityCurrent = 0;
 
@@ -45,6 +44,17 @@ class PhotolineTileState extends State<PhotolineTile>
   AnimationController get _animation => widget.photoline.animationOpacity;
 
   ui.Image? _blur;
+  ui.Image? _image;
+
+  @deprecated
+  MediaQueryData? _data;
+
+  late final AnimationController _animationImage = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 600),
+  )..addListener(_animationListener);
+
+  final _notifier = PhotolineImageNotifier();
 
   void _listenerOpacity(double ax) {
     double no = _opacity;
@@ -61,7 +71,7 @@ class PhotolineTileState extends State<PhotolineTile>
     rebuild();
   }
 
-  void _listener() {
+  void _animationListener() {
     final double ax = _animation.velocity.abs();
     _listenerOpacity(ax);
   }
@@ -79,22 +89,14 @@ class PhotolineTileState extends State<PhotolineTile>
 
   void _reimage() {
     if (!mounted) return;
-    if (!_controller.paintedNotifier(widget.index).value) return;
     if (widget.uri == null) return;
     final loader = PhotolineImageLoader.add(widget.uri!);
     if (loader.image == null) {
-      _animationImage
-        ..value = 0
-        ..addListener(rebuild);
-      _notifier.addListener(_imageListener);
+      _animationImage.value = 0;
     } else {
       _animationImage.value = 1;
       if (widget.uri != null) _image = _notifier.image(widget.uri!);
     }
-  }
-
-  void _reimageCallback() {
-    SchedulerBinding.instance.addPostFrameCallback((d) => _reimage());
   }
 
   @override
@@ -105,15 +107,28 @@ class PhotolineTileState extends State<PhotolineTile>
     }
   }
 
+  bool _paint = false;
+
+  void _canPaintListener() {
+    if (!mounted) return;
+    final i = widget.index;
+    final pt = _controller.canPaintMap[i] ?? false;
+    if (pt == _paint) return;
+    _paint = pt;
+    _reimage();
+  }
+
   @override
   void initState() {
-    _animation.addListener(_listener);
-    _controller.pageActiveOpenComplete.addListener(rebuild);
-    _animationImage = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    );
-    _controller.paintedNotifier(widget.index).addListener(_reimageCallback);
+    //print('init: ${widget.index}');
+
+    _notifier.addListener(_imageListener);
+    _controller
+      ..pageActiveOpenComplete.addListener(rebuild)
+      ..canPaintNotifier.addListener(_canPaintListener);
+
+    //_controller.paintedNotifier(widget.index).addListener(_reimage);
+    /*
     final loader = PhotolineImageLoader.loaded(widget.uri);
     if (loader == null) {
       _reimage();
@@ -122,22 +137,26 @@ class PhotolineTileState extends State<PhotolineTile>
       _animationImage.value = 1;
       if (widget.uri != null) _image = _notifier.image(widget.uri!);
     }
+
+     */
     super.initState();
   }
 
   @override
   void dispose() {
-    _notifier.removeListener(_imageListener);
-    _controller.pageActiveOpenComplete.removeListener(rebuild);
+    //print('dispose: ${widget.index}');
     _animationImage.dispose();
-    _animation.removeListener(_listener);
-    _controller.paintedNotifier(widget.index).removeListener(_reimageCallback);
+    _animation.dispose();
+    _notifier.removeListener(_imageListener);
+    /*
+    _controller
+      ..pageActiveOpenComplete.removeListener(_rebuild)
+      ..canPaintNotifier.removeListener(_canPaintListener);
+
+     */
+
     super.dispose();
   }
-
-  ui.Image? _image;
-  late final AnimationController _animationImage;
-  final _notifier = PhotolineImageNotifier();
 
   @deprecated
   bool get _visible {
@@ -157,9 +176,6 @@ class PhotolineTileState extends State<PhotolineTile>
     if (g.dy > s.height) return false;
     return true;
   }
-
-  @deprecated
-  MediaQueryData? _data;
 
   void _imageListener() {
     if (!mounted || _notifier.loader!.uri != widget.uri || _image != null) {

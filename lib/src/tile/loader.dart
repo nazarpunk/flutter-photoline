@@ -85,7 +85,7 @@ class PhotolineImageLoader {
     _next();
   }
 
-  Future<void> _load() async {
+  Future<void> _load1() async {
     _loading = true;
     _attempt++;
     final response = await http.get(uri);
@@ -95,16 +95,63 @@ class PhotolineImageLoader {
     }
 
     final data = response.bodyBytes;
-    if (kIsWeb || !kProfileMode) {
-      image = await decodeImageFromList(data);
-    } else {
+//    image = await decodeImageFromList(data);
+
+    //image = await _decodeImageFromList(data);
+    /*
       final codec = await ui.instantiateImageCodec(data);
       final frame = await codec.getNextFrame();
       image = frame.image;
+       */
+    _loading = false;
+    _next();
+    PhotolineImageNotifier().update(this);
+  }
+
+  Future<void> _load() async {
+    _loading = true;
+    _attempt++;
+
+    //
+    //final im = await compute(_getImage, uri);
+
+    late final ui.Image? im;
+    im = await _getImage(uri);
+
+    if (im == null) {
+      return _reload();
     }
+
+    image = im;
 
     _loading = false;
     _next();
     PhotolineImageNotifier().update(this);
   }
+}
+
+Future<ui.Image?> _getImage(Uri uri) async {
+  final response = await http.get(uri);
+  if (response.statusCode != 200) {
+    return null;
+  }
+
+  final bytes = response.bodyBytes;
+  final ui.ImmutableBuffer buffer =
+      await ui.ImmutableBuffer.fromUint8List(bytes);
+
+  final ui.ImageDescriptor descriptor =
+      await ui.ImageDescriptor.encoded(buffer);
+
+  final ui.TargetImageSize targetSize =
+      ui.TargetImageSize(width: descriptor.width, height: descriptor.height);
+
+  final ui.Codec codec = await descriptor.instantiateCodec(
+    targetWidth: targetSize.width,
+    targetHeight: targetSize.height,
+  );
+  buffer.dispose();
+
+  final ui.FrameInfo frameInfo = await codec.getNextFrame();
+  return frameInfo.image;
 }

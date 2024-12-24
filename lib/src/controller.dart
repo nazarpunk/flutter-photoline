@@ -118,21 +118,13 @@ class PhotolineController extends ScrollController {
     super.dispose();
   }
 
-  final Map<int, ValueNotifier<bool>> painted = {};
+  final Map<int, bool> canPaintMap = {};
+
+  final canPaintNotifier = ValueNotifier<bool>(false);
 
   void canPaint(int i, bool can) {
-    if (painted[i] == null) {
-      painted[i] = ValueNotifier<bool>(can);
-    } else {
-      painted[i]!.value = can;
-    }
-  }
-
-  ValueNotifier<bool> paintedNotifier(int i) {
-    if (painted[i] == null) {
-      painted[i] = ValueNotifier<bool>(false);
-    }
-    return painted[i]!;
+    canPaintMap[i] = can;
+    canPaintNotifier.value = !canPaintNotifier.value;
   }
 
   double? get page {

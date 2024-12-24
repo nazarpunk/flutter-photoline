@@ -92,6 +92,9 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
       }
       if (child.size.width == 0) canPaint = false;
 
+
+
+
       if (canPaint) context.paintChild(child, childOffset);
       controller.canPaint(index, canPaint);
       child = childAfter(child);

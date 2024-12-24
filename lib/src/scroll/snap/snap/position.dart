@@ -761,13 +761,13 @@ class ScrollSnapPosition extends ViewportOffset
   }
 
   @override
-  void jumpTo(double value) {
+  void jumpTo(double pixels) {
     goIdle();
-    if (pixels != value) {
-      final double oldPixels = pixels;
-      forcePixels(value);
+    if (this.pixels != pixels) {
+      final double oldPixels = this.pixels;
+      forcePixels(pixels);
       didStartScroll();
-      didUpdateScrollPositionBy(pixels - oldPixels);
+      didUpdateScrollPositionBy(this.pixels - oldPixels);
       didEndScroll();
     }
     goBallistic(0.0);

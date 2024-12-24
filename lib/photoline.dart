@@ -1,7 +1,6 @@
 /// Photoline
 library;
 
-export 'src/constrainted/constrainted.dart';
 export 'src/controller.dart';
 export 'src/extension/list.dart';
 export 'src/holder/controller/drag.dart';

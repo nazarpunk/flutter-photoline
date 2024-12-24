@@ -32,7 +32,7 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
     _uris.clear();
     ++_min;
 
-    for (int i = _min; i < 10; i++) {
+    for (int i = _min; i < 1; i++) {
       final List<Uri> l = [];
       final List<Key> k = [];
       for (int j = 0; j < 20 - i; j++) {
@@ -78,6 +78,7 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
         getPhotoCount: () => _uris[i].length,
         onAdd: (index, data) {
           _uris[i].insert(index, data as Uri);
+          _keys[i].insert(index, UniqueKey());
         },
         onRemove: (index) {
           _uris[i].removeAt(index);

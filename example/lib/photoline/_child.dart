@@ -22,25 +22,21 @@ class _ChildState extends State<_Child> with AutomaticKeepAliveClientMixin {
     super.build(context);
     return Column(
       children: [
-        SizedBox(
-          width: double.infinity,
-          child: PhotolineConstrainted(
+        Expanded(
+          child: Photoline(
             controller: widget.controller,
-            constraints: widget.constraints,
-            header: Photoline(
-              controller: widget.controller,
-              photoStripeColor: const Color.fromRGBO(255, 255, 255, .2),
-            ),
-            footer: ElevatedButton(
-              onPressed: () {
-                widget.controller.addItemUpload(0, PhotolineDummys.next());
-                //widget.controller.photoline?.toPage(0);
-                //print();
-              },
-              child: Center(child: Text('Add ${widget.index}')),
-            ),
+            photoStripeColor: const Color.fromRGBO(255, 255, 255, .2),
           ),
         ),
+        ElevatedButton(
+          onPressed: () {
+            widget.controller.addItemUpload(0, PhotolineDummys.next());
+            //widget.controller.photoline?.toPage(0);
+            //print();
+          },
+          child: Center(child: Text('Add ${widget.index}')),
+        ),
+        const SizedBox(height: 20),
       ],
     );
   }
