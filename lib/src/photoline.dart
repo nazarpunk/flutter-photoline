@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:photoline/src/backside/backside.dart';
@@ -47,7 +46,9 @@ class PhotolineState extends State<Photoline>
 
   int _pageTargetClose = -1;
 
-  final _physics = const PhotolineScrollPhysics(parent: AlwaysScrollableScrollPhysics());
+  final _physics =
+      const PhotolineScrollPhysics(parent: AlwaysScrollableScrollPhysics());
+
   //final _physics = const ScrollPhysics(parent: AlwaysScrollableScrollPhysics());
 
   final List<PhotolinePosition> positionWidth = [];
@@ -747,6 +748,11 @@ class PhotolineState extends State<Photoline>
     return false;
   }
 
+  late final animationRepaint = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1000),
+  )..repeat();
+
   @override
   void initState() {
     controller.photoline = this;
@@ -779,6 +785,7 @@ class PhotolineState extends State<Photoline>
 
   @override
   void dispose() {
+    animationRepaint.dispose();
     holder?.photolines.remove(this);
     animationPosition.dispose();
     animationAdd.dispose();
@@ -792,7 +799,7 @@ class PhotolineState extends State<Photoline>
   /// [Viewport]
   @override
   Widget build(BuildContext context) {
-    _updater = !_updater;
+    //_updater = !_updater;
     return LayoutBuilder(builder: (context, constraints) {
       controller.photolineWidth = constraints.maxWidth;
       return Column(
@@ -819,14 +826,12 @@ class PhotolineState extends State<Photoline>
                               controller: controller,
                               photoline: this,
                               delegate: PhotolineSliverChildBuilderDelegate(
-                                (context, i) => !kProfileMode
-                                    ? const SizedBox()
-                                    : PhotolineTile(
-                                        photoline: this,
-                                        key: controller.getKey(i),
-                                        index: i,
-                                        controller: controller,
-                                      ),
+                                (context, i) => PhotolineTile(
+                                  photoline: this,
+                                  key: controller.getKey(i),
+                                  index: i,
+                                  controller: controller,
+                                ),
                                 controller: controller,
                               ),
                               updater: _updater,

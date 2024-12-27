@@ -21,6 +21,7 @@ linter:
     public_member_api_docs: false
 
     #
+    avoid_returning_this: false # https://dart.dev/tools/linter-rules/avoid_returning_this
     prefer_mixin: false # https://dart-lang.github.io/linter/lints/prefer_mixin.html
     always_specify_types: false # https://dart-lang.github.io/linter/lints/always_specify_types.html
     #

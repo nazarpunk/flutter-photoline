@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:photoline/src/controller.dart';
 import 'package:photoline/src/photoline.dart';
@@ -15,6 +14,22 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
   })  : _photoline = photoline,
         _controller = controller,
         _updater = updater;
+
+  @override
+  void attach(PipelineOwner owner) {
+    _controller.photoline?.animationRepaint.addListener(_repaintListener);
+    super.attach(owner);
+  }
+
+  @override
+  void detach() {
+    _controller.photoline?.animationRepaint.removeListener(_repaintListener);
+    super.detach();
+  }
+
+  void _repaintListener() {
+    markNeedsLayout();
+  }
 
   int get _count => _controller.count;
 
@@ -94,53 +109,35 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
       }
       if (child.size.width == 0) canPaint = false;
 
+      final velocity = _controller.photoline?.animationRepaint.velocity ?? 0;
+      final uri = _controller.getUri(index).cached;
       if (canPaint) {
+        uri.spawn();
+
+        if (uri.image != null) {
+          uri.opacity = velocity;
+        }
+        final double opacity = uri.opacity;
+
         final canvas = context.canvas;
         final size = child.size;
         final w = size.width;
         final h = size.height;
 
-        if (kDebugMode || !kProfileMode) {
-          final colors = [
-            Colors.redAccent,
-            Colors.amberAccent,
-            Colors.deepPurpleAccent,
-            Colors.greenAccent,
-            Colors.blueAccent,
-            Colors.deepOrangeAccent,
-          ];
-
-          final Paint paint = Paint()
-            ..color = colors[index % colors.length]
-            ..style = PaintingStyle.fill;
-
-          final ml = Offset(0, h / 2) + childOffset;
-          final tm = Offset(w / 2, 0) + childOffset;
-          final mr = Offset(w, h / 2) + childOffset;
-          final bm = Offset(w / 2, h) + childOffset;
-
-          final tl = Offset.zero + childOffset;
-          final tr = Offset(w, 0) + childOffset;
-          final br = Offset(w, h) + childOffset;
-          final bl = Offset(0, h) + childOffset;
-
-          canvas.drawPath(
-              Path()
-                ..moveTo(ml.dx, ml.dy)
-                ..conicTo(tl.dx, tl.dy, tm.dx, tm.dy, 2)
-                ..conicTo(tr.dx, tr.dy, mr.dx, mr.dy, 2)
-                ..conicTo(br.dx, br.dy, bm.dx, bm.dy, 2)
-                ..conicTo(bl.dx, bl.dy, ml.dx, ml.dy, 2)
-                ..close(),
-              paint);
+        if (uri.color != null) {
+          canvas.drawRect(
+            Rect.fromLTWH(childOffset.dx, childOffset.dy, w, h),
+            Paint()
+              ..color = uri.color!.withValues(alpha: 1 - opacity)
+              ..style = PaintingStyle.fill,
+          );
         }
 
-        final u = _controller.getUri(index);
-        if (u?.image != null) {
+        if (uri.image != null) {
           const offsetX = .5;
           const offsetY = .5;
 
-          final image = u!.image!;
+          final image = uri.image!;
           final iw = image.width.toDouble();
           final ih = image.height.toDouble();
 
@@ -179,11 +176,15 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
             Paint()
               ..isAntiAlias = true
               ..filterQuality = FilterQuality.medium
-              ..color = const Color.fromRGBO(0, 0, 0, 1),
+              ..color = Color.fromRGBO(0, 0, 0, opacity),
           );
         }
 
         context.paintChild(child, childOffset);
+      } else {
+        if (uri.image != null) {
+          uri.opacity = -1;
+        }
       }
 
       //controller.canPaint(index, canPaint);

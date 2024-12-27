@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:math' as math;
+import 'dart:typed_data';
 import 'dart:ui' as ui;
-import 'package:flutter/foundation.dart';
+
+import 'package:flutter/foundation.dart' show compute;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -11,21 +14,50 @@ int _now() => DateTime.now().millisecondsSinceEpoch;
 int _count = 0;
 
 class PhotolineUri {
-  PhotolineUri._(this.uri);
+  PhotolineUri({
+    this.uri,
+    this.color,
+    this.width = 0,
+    this.height = 0,
+  });
 
-  factory PhotolineUri.spawn(Uri uri) {
-    var cur = _map[uri];
-    if (cur != null) return cur.._ts = _now();
-    _map[uri] = cur = PhotolineUri._(uri).._ts = _now();
-    _next();
-    return cur;
+  PhotolineUri get cached {
+    if (uri == null) {
+      return this;
+    }
+    final cur = _map[uri] ?? this;
+    return cur
+      ..color = color
+      ..width = width
+      ..height = height;
   }
 
-  final Uri uri;
+  void spawn() {
+    if (uri == null || _map[uri] != null) return;
+    _ts = _now();
+    _map[uri!] = this;
+    _next();
+  }
+
+  final Uri? uri;
   ui.Image? image;
   bool _loading = false;
   int _ts = 0;
   int _attempt = -1;
+
+  Color? color;
+
+  int width = 0;
+  int height = 0;
+
+  static const double _mo = 50;
+  double _opacity = 0;
+
+  double get opacity => _opacity / _mo;
+
+  set opacity(double value) {
+    _opacity = value < 0 ? _mo : math.min(_mo, _opacity + value);
+  }
 
   static void _next() {
     if (_count > 0) return;
@@ -34,7 +66,7 @@ class PhotolineUri {
 
     for (final cur in _map.values) {
       if (cur._loading || cur.image != null || cur._attempt > 10) continue;
-      if (nxt == null || (cur._ts - cur._attempt * 100) > nxt._ts) {
+      if (nxt == null || nxt._ts < (cur._ts - cur._attempt * -100)) {
         nxt = cur;
       }
     }
@@ -44,11 +76,13 @@ class PhotolineUri {
   }
 
   Future<void> _load() async {
+    if (uri == null) return;
+
     _attempt++;
     _loading = true;
     _count++;
 
-    final im = await _getImage(uri);
+    final im = await _getImage(uri!);
     if (im != null) {
       image = im;
     }
@@ -80,9 +114,6 @@ Future<ui.Image?> _getImage(Uri uri) async {
 
   buffer.dispose();
   final ui.Codec codec = await descriptor.instantiateCodec();
-
-  int a = _now();
   final ui.FrameInfo frameInfo = await codec.getNextFrame();
-  print('frameInfo [${descriptor.width}|${descriptor.height}]: ${_now() - a}');
   return frameInfo.image;
 }

@@ -45,7 +45,9 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
 
     for (int i = 0; i < _uris.length; i++) {
       final c = PhotolineController(
-        getUri: (index) => PhotolineUri.spawn(_uris[i][index]),
+        getUri: (index) => PhotolineUri(
+          uri: _uris[i][index],
+        ),
         getKey: (index) => _keys[i][index],
         //getWidget: (index) => const Placeholder(),
         getWidget: (index) => const SizedBox(),
