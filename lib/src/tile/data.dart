@@ -1,10 +1,11 @@
 import 'package:flutter/cupertino.dart';
+import 'package:photoline/photoline.dart';
 
 @immutable
 class PhotolineTileData {
   const PhotolineTileData({
     required this.index,
-    required this.loading,
+    required this.uri,
     required this.closeDw,
     required this.openDw,
     required this.dragging,
@@ -12,7 +13,7 @@ class PhotolineTileData {
   });
 
   final int index;
-  final double loading;
+  final PhotolineUri uri;
   final double closeDw;
   final double openDw;
   final bool dragging;
@@ -24,7 +25,7 @@ class PhotolineTileData {
       other is PhotolineTileData &&
           runtimeType == other.runtimeType &&
           index == other.index &&
-          loading == other.loading &&
+          uri == other.uri &&
           closeDw == other.closeDw &&
           openDw == other.openDw &&
           dragging == other.dragging &&
@@ -32,5 +33,5 @@ class PhotolineTileData {
 
   @override
   int get hashCode =>
-      Object.hash(index, loading, closeDw, openDw, dragging, isRemove);
+      Object.hash(index, closeDw, openDw, dragging, isRemove, uri);
 }

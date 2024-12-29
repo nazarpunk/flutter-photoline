@@ -9,12 +9,10 @@ class PhotolineSliverMultiBoxAdaptorWidget extends SliverMultiBoxAdaptorWidget {
     required super.delegate,
     required this.controller,
     required this.photoline,
-    required this.updater,
   });
 
   final PhotolineController controller;
   final PhotolineState photoline;
-  final bool updater;
 
   @override
   PhotolineRenderSliverMultiBoxAdaptor createRenderObject(
@@ -23,7 +21,6 @@ class PhotolineSliverMultiBoxAdaptorWidget extends SliverMultiBoxAdaptorWidget {
         childManager: context as SliverMultiBoxAdaptorElement,
         controller: controller,
         photoline: photoline,
-        updater: updater,
       );
 
   @override
@@ -31,7 +28,6 @@ class PhotolineSliverMultiBoxAdaptorWidget extends SliverMultiBoxAdaptorWidget {
       BuildContext context, PhotolineRenderSliverMultiBoxAdaptor renderObject) {
     renderObject
       ..controller = controller
-      ..photoline = photoline
-      ..updater = updater;
+      ..photoline = photoline;
   }
 }

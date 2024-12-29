@@ -1,4 +1,6 @@
 import 'dart:math' as math;
+import 'dart:ui' as ui;
+import 'package:flutter/animation.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:photoline/src/controller.dart';
@@ -10,10 +12,8 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
     required PhotolineState photoline,
     required PhotolineController controller,
     required super.childManager,
-    required bool updater,
   })  : _photoline = photoline,
-        _controller = controller,
-        _updater = updater;
+        _controller = controller;
 
   @override
   void attach(PipelineOwner owner) {
@@ -32,15 +32,6 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
   }
 
   int get _count => _controller.count;
-
-  /// -- updater
-  bool _updater;
-
-  set updater(bool value) {
-    if (_updater == value) return;
-    _updater = value;
-    markNeedsLayout();
-  }
 
   /// -- photoline
   PhotolineState _photoline;
@@ -108,36 +99,31 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
         case PhotolineAction.upload:
       }
       if (child.size.width == 0) canPaint = false;
+      if (dragBox != null && child == dragBox) canPaint = false;
 
       final velocity = _controller.photoline?.animationRepaint.velocity ?? 0;
       final uri = _controller.getUri(index).cached;
+
       if (canPaint) {
         uri.spawn();
-
-        if (uri.image != null) {
-          uri.opacity = velocity;
-        }
-        final double opacity = uri.opacity;
 
         final canvas = context.canvas;
         final size = child.size;
         final w = size.width;
         final h = size.height;
+        final imrect = Rect.fromLTWH(childOffset.dx, childOffset.dy, w, h);
 
-        if (uri.color != null) {
-          canvas.drawRect(
-            Rect.fromLTWH(childOffset.dx, childOffset.dy, w, h),
-            Paint()
-              ..color = uri.color!.withValues(alpha: 1 - opacity)
-              ..style = PaintingStyle.fill,
-          );
-        }
+        canvas
+          ..save()
+          ..clipRect(imrect);
 
-        if (uri.image != null) {
+        void img({
+          required ui.Image image,
+          required double opacity,
+          ui.ImageFilter? filter,
+        }) {
           const offsetX = .5;
           const offsetY = .5;
-
-          final image = uri.image!;
           final iw = image.width.toDouble();
           final ih = image.height.toDouble();
 
@@ -176,9 +162,65 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
             Paint()
               ..isAntiAlias = true
               ..filterQuality = FilterQuality.medium
-              ..color = Color.fromRGBO(0, 0, 0, opacity),
+              ..color = Color.fromRGBO(0, 0, 0, opacity)
+              ..imageFilter = filter,
           );
         }
+
+        if (uri.image != null) {
+          uri.opacity = velocity;
+        }
+
+        final double opacity = uri.opacity;
+        final double opacityback = 1 - opacity;
+        if (opacity < 1) {
+          if (uri.blur != null) {
+            img(
+                image: uri.blur!,
+                //opacity: Curves.easeOut.transform(opacityback),
+                opacity: 1,
+                filter: ui.ImageFilter.blur(
+                  sigmaX: 30,
+                  sigmaY: 30,
+                  tileMode: TileMode.mirror,
+                ));
+          } else {
+            if (uri.color != null) {
+              canvas.drawRect(
+                imrect,
+                Paint()
+                  ..color = uri.color!.withValues(alpha: opacityback)
+                  ..style = PaintingStyle.fill,
+              );
+            }
+          }
+        }
+
+        if (uri.image == null) {
+          final im = _controller.getImage?.call(index);
+          if (im != null) {
+            img(
+              image: im,
+              opacity: 1,
+            );
+          }
+        } else {
+          img(
+            image: uri.image!,
+            opacity: Curves.easeOut.transform(opacity),
+          );
+        }
+
+        if (uri.stripe != null) {
+          context.canvas.drawRect(
+            Rect.fromLTWH(cdx, cdy, math.min(w, 10), h),
+            Paint()
+              ..color = uri.stripe!
+              ..style = PaintingStyle.fill,
+          );
+        }
+
+        canvas.restore();
 
         context.paintChild(child, childOffset);
       } else {
@@ -187,7 +229,6 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
         }
       }
 
-      //controller.canPaint(index, canPaint);
       child = childAfter(child);
     }
 

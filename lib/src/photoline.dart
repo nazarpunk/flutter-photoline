@@ -794,8 +794,6 @@ class PhotolineState extends State<Photoline>
     super.dispose();
   }
 
-  bool _updater = false;
-
   /// [Viewport]
   @override
   Widget build(BuildContext context) {
@@ -834,7 +832,6 @@ class PhotolineState extends State<Photoline>
                                 ),
                                 controller: controller,
                               ),
-                              updater: _updater,
                             ),
                           ],
                         ),

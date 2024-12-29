@@ -16,9 +16,11 @@ int _count = 0;
 class PhotolineUri {
   PhotolineUri({
     this.uri,
+    this.blur,
     this.color,
     this.width = 0,
     this.height = 0,
+    this.stripe,
   });
 
   PhotolineUri get cached {
@@ -41,11 +43,14 @@ class PhotolineUri {
 
   final Uri? uri;
   ui.Image? image;
+  ui.Image? blur;
+
   bool _loading = false;
   int _ts = 0;
   int _attempt = -1;
 
   Color? color;
+  Color? stripe;
 
   int width = 0;
   int height = 0;

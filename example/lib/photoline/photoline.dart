@@ -56,11 +56,14 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
 
           final List<Widget> out = [];
 
+          /*
           if (data.loading < 1) {
             out.add(const Center(
               child: CircularProgressIndicator(),
             ));
           }
+
+           */
           out.add(Center(
             child: ColoredBox(
               color: Colors.black,

@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -31,9 +32,8 @@ double _wrapHeight(double w, double h, double t) {
 class PhotolineController extends ScrollController {
   PhotolineController({
     this.openRatio = .8,
-    this.getBlur,
-    this.getColor,
     required this.getUri,
+    this.getImage,
     required this.getKey,
     required this.getWidget,
     this.getBackside,
@@ -60,8 +60,8 @@ class PhotolineController extends ScrollController {
   PhotolineHolderDragController? dragController;
 
   final PhotolineUri Function(int index) getUri;
-  final Uint8List Function(int index)? getBlur;
-  final Color? Function(int index)? getColor;
+  final ui.Image? Function(int)? getImage;
+
   final Widget Function(int) getWidget;
   final Widget Function(int index)? getBackside;
   final Key Function(int) getKey;
@@ -117,16 +117,6 @@ class PhotolineController extends ScrollController {
     aspectRatio.dispose();
 
     super.dispose();
-  }
-
-  final Map<int, bool> canPaintMap = {};
-
-  final canPaintNotifier = ValueNotifier<bool>(false);
-
-  @deprecated
-  void canPaint(int i, bool can) {
-    canPaintMap[i] = can;
-    canPaintNotifier.value = !canPaintNotifier.value;
   }
 
   double? get page {
