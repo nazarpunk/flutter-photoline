@@ -81,9 +81,9 @@
     },
     {
       "name": "lints",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/lints-3.0.0",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/lints-5.1.1",
       "packageUri": "lib/",
-      "languageVersion": "3.0"
+      "languageVersion": "3.6"
     },
     {
       "name": "matcher",
@@ -185,10 +185,10 @@
       "name": "photoline_example",
       "rootUri": "../",
       "packageUri": "lib/",
-      "languageVersion": "3.3"
+      "languageVersion": "3.6"
     }
   ],
-  "generated": "2024-12-25T21:27:45.130703Z",
+  "generated": "2024-12-30T13:50:17.534694Z",
   "generator": "pub",
   "generatorVersion": "3.7.0-209.1.beta",
   "flutterRoot": "file:///Users/nazarpunk/flutter",

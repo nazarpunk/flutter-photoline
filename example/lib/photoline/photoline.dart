@@ -54,25 +54,17 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
         getPersistentWidgets: (data) {
           if (kDebugMode) return [];
 
-          final List<Widget> out = [];
-
-          /*
-          if (data.loading < 1) {
-            out.add(const Center(
-              child: CircularProgressIndicator(),
-            ));
-          }
-
-           */
-          out.add(Center(
-            child: ColoredBox(
-              color: Colors.black,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text('${data.index}'),
+          final List<Widget> out = [
+            Center(
+              child: ColoredBox(
+                color: Colors.black,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text('${data.index}'),
+                ),
               ),
-            ),
-          ));
+            )
+          ];
 
           if (data.dragging) {
             out.add(const Placeholder());

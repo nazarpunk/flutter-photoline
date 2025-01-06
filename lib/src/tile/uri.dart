@@ -13,6 +13,22 @@ int _now() => DateTime.now().millisecondsSinceEpoch;
 
 int _count = 0;
 
+class PhotolineUriNotifier extends ChangeNotifier {
+  factory PhotolineUriNotifier() => _instance;
+
+  PhotolineUriNotifier._();
+
+  Uri uri = Uri();
+
+  static final _instance = PhotolineUriNotifier._();
+
+  set notify(Uri? uri) {
+    if (uri == null || uri == this.uri) return;
+    this.uri = uri;
+    notifyListeners();
+  }
+}
+
 class PhotolineUri {
   PhotolineUri({
     this.uri,
@@ -29,6 +45,7 @@ class PhotolineUri {
     }
     final cur = _map[uri] ?? this;
     return cur
+      .._opacity = math.max(_opacity, cur._opacity)
       ..color = color
       ..width = width
       ..height = height;
@@ -55,7 +72,7 @@ class PhotolineUri {
   int width = 0;
   int height = 0;
 
-  static const double _mo = 50;
+  static const double _mo = 100;
   double _opacity = 0;
 
   double get opacity => _opacity / _mo;
@@ -90,6 +107,7 @@ class PhotolineUri {
     final im = await _getImage(uri!);
     if (im != null) {
       image = im;
+      PhotolineUriNotifier().notify = uri;
     }
 
     _count--;

@@ -5,17 +5,17 @@ homepage: https://github.com/nazarpunk/flutter-photoline
 publish_to: none
 
 environment:
-  sdk: ^3.3.1
-  flutter: ^3.19.3
+  sdk: ^3.6.0
 
 dependencies:
   flutter:
     sdk: flutter
+  http: ^1.2.2
   photoline:
     path: ../
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  lints: ^3.0.0
+  lints: ^5.1.1
 

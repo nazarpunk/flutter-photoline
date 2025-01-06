@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:photoline_example/nested_scroll/nested_widget.dart';
 import 'package:photoline_example/photoline/fullscreen.dart';
+import 'package:photoline_example/photoline/photo.dart';
 import 'package:photoline_example/photoline/photoline.dart';
 import 'package:photoline_example/snap/snap.dart';
 import 'package:photoline_example/widget/scroll.dart';
@@ -41,13 +42,14 @@ class MyApp extends StatelessWidget {
         );
       },
       home: Scaffold(
-        appBar: AppBar(title: const Text('Photoline')),
-        body:
-            const PhotolineTestWidget(),
-            //const PhotolineTestFullscreenWidget(),
-            //const PageViewExample(),
-            //const SnapExampleList(),
-      ),
+          appBar: AppBar(title: const Text('Photoline')),
+          body:
+              //const PhotolineTestWidget(),
+              const PhotolinePhotoWidget()
+          //const PhotolineTestFullscreenWidget(),
+          //const PageViewExample(),
+          //const SnapExampleList(),
+          ),
     );
   }
 }

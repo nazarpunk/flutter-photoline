@@ -5,7 +5,7 @@ export 'src/controller.dart';
 export 'src/extension/list.dart';
 export 'src/holder/controller/drag.dart';
 export 'src/holder/holder.dart';
-export 'src/photo/blur.dart';
+export 'src/photo/photo.dart';
 export 'src/photoline.dart';
 export 'src/scroll/extent/physics.dart';
 export 'src/scroll/extent/view.dart';

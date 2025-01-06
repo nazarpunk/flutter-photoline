@@ -17,18 +17,14 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
   @override
   void attach(PipelineOwner owner) {
-    _controller.photoline?.animationRepaint.addListener(_repaintListener);
+    _controller.photoline?.animationRepaint.addListener(markNeedsLayout);
     super.attach(owner);
   }
 
   @override
   void detach() {
-    _controller.photoline?.animationRepaint.removeListener(_repaintListener);
+    _controller.photoline?.animationRepaint.removeListener(markNeedsLayout);
     super.detach();
-  }
-
-  void _repaintListener() {
-    markNeedsLayout();
   }
 
   int get _count => _controller.count;
@@ -180,8 +176,8 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
                 //opacity: Curves.easeOut.transform(opacityback),
                 opacity: 1,
                 filter: ui.ImageFilter.blur(
-                  sigmaX: 30,
-                  sigmaY: 30,
+                  sigmaX: 10,
+                  sigmaY: 10,
                   tileMode: TileMode.mirror,
                 ));
           } else {
@@ -199,10 +195,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
         if (uri.image == null) {
           final im = _controller.getImage?.call(index);
           if (im != null) {
-            img(
-              image: im,
-              opacity: 1,
-            );
+            img(image: im, opacity: 1);
           }
         } else {
           img(
@@ -412,8 +405,6 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
     _controller.getViewCount(vw);
 
-    //final ts = DateTime.now().millisecondsSinceEpoch;
-
     for (int index = 0; index < count; index++) {
       RenderBox? child = childAfter(prev!);
       offset = offset + width;
@@ -431,8 +422,6 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
           offset;
       prev = child;
     }
-
-    //print("${DateTime.now().millisecondsSinceEpoch - ts}");
 
     geometry = _geometry(offset + width);
     childManager.didFinishLayout();
