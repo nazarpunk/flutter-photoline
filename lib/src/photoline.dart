@@ -220,42 +220,53 @@ class PhotolineState extends State<Photoline>
     final List<int> visible = [];
     positionWidth.clear();
 
-    for (int i = 0; i < controller.count; i++) {
-      final double o = -size.pixels + (size.close * i);
-      if (o + size.close > 0 && o < size.viewport) {
-        visible.add(i + 1);
+    if (controller.count == 0) {
+    } else {
+      for (int i = 0; i < controller.count; i++) {
+        final double o = -size.pixels + (size.close * i);
+        if (o + size.close > 0 && o < size.viewport) {
+          visible.add(i + 1);
+        }
+        positionWidth.add(PhotolinePosition(size.close, o));
       }
-
-      positionWidth.add(PhotolinePosition(size.close, o));
     }
 
     controller.action.value = PhotolineAction.upload;
-    positionWidth.insert(0, PhotolinePosition(size.close, -size.close));
+
+    if (controller.count == 0) {
+      positionWidth.insert(0, PhotolinePosition(0, 0)..end(0, size.close));
+    } else {
+      positionWidth.insert(0, PhotolinePosition(size.close, -size.close));
+    }
+
     controller.onAdd?.call(index, data);
 
-    if (visible.isNotEmpty) {
-      for (int i = visible.first; i >= 0; i--) {
-        if (i <= 2 && !visible.contains(i)) {
-          visible.insert(0, i);
+    if (controller.count == 0) {
+    } else {
+      if (visible.isNotEmpty) {
+        for (int i = visible.first; i >= 0; i--) {
+          if (i <= 2 && !visible.contains(i)) {
+            visible.insert(0, i);
+          }
         }
       }
-    }
 
-    for (int i = 0; i < controller.count; i++) {
-      if (!visible.contains(i)) {
-        positionWidth[i].width.all = 0;
+      for (int i = 0; i < controller.count; i++) {
+        if (!visible.contains(i)) {
+          positionWidth[i].width.all = 0;
+        }
       }
-    }
 
-    for (int i = visible.length - 2; i >= 0; i--) {
-      positionWidth[visible[i]].offset.start =
-          positionWidth[visible[i + 1]].offset.start - size.close;
-    }
+      for (int i = visible.length - 2; i >= 0; i--) {
+        positionWidth[visible[i]].offset.start =
+            positionWidth[visible[i + 1]].offset.start - size.close;
+      }
 
-    for (int i = 0; i < visible.length; i++) {
-      final c = positionWidth[visible[i]];
-      c.offset.end =
-          i == 0 ? 0 : positionWidth[visible[i - 1]].offset.end + size.close;
+      for (int i = 0; i < visible.length; i++) {
+        final c = positionWidth[visible[i]];
+        c.offset.end =
+            i == 0 ? 0 : positionWidth[visible[i - 1]].offset.end + size.close;
+      }
     }
 
     //final double dx = positionWidth[0].offset.start.abs();

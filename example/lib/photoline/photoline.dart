@@ -30,12 +30,13 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
   void _reload() {
     _photolines.clear();
     _uris.clear();
+    _keys.clear();
     ++_min;
 
-    for (int i = _min; i < 10; i++) {
+    for (int i = _min; i < 3; i++) {
       final List<Uri> l = [];
       final List<Key> k = [];
-      for (int j = 0; j < 15 - i; j++) {
+      for (int j = 0; j < 0 - i; j++) {
         l.add(PhotolineDummys.get(i, j));
         k.add(ValueKey<String>('$i $j'));
       }
@@ -47,12 +48,13 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
       final c = PhotolineController(
         getUri: (index) => PhotolineUri(
           uri: _uris[i][index],
+          stripe: const Color.fromRGBO(10, 10, 10, .5),
         ),
         getKey: (index) => _keys[i][index],
         //getWidget: (index) => const Placeholder(),
         getWidget: (index) => const SizedBox(),
         getPersistentWidgets: (data) {
-          if (kDebugMode) return [];
+          //if (kDebugMode) return [];
 
           final List<Widget> out = [
             Center(
@@ -93,18 +95,14 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
             Colors.tealAccent
           ];
 
-          if (kDebugMode) {
-            return Container(
-              width: 500,
-              height: 1,
-              color: colors[index % colors.length],
-            );
-          }
-          return PhotolineAlbumPhotoDummy(
-            child: Container(
-              width: 500,
-              height: 1,
-              color: colors[index % colors.length],
+          return PhotolineStripe(
+            stripeColor: const Color.fromRGBO(10, 10, 10, .5),
+            child: PhotolineAlbumPhotoDummy(
+              child: Container(
+                width: 500,
+                height: 1,
+                color: colors[index % colors.length],
+              ),
             ),
           );
         },

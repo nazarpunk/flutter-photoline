@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:photoline/photoline.dart';
 import 'package:photoline/src/mixin/state/rebuild.dart';
@@ -93,7 +95,7 @@ class _PhotolineBacksideState extends State<PhotolineBackside>
             key: ValueKey(i),
             top: 0,
             bottom: 0,
-            left: o[i],
+            left: math.max(o[i], 0),
             width: close,
             child: SizedBox(
               width: close,
