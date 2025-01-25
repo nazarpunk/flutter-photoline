@@ -28,17 +28,50 @@ class _ChildState extends State<_Child> with AutomaticKeepAliveClientMixin {
             photoStripeColor: const Color.fromRGBO(255, 255, 255, .2),
           ),
         ),
-        ElevatedButton(
-          onPressed: () {
-            widget.controller.addItemUpload(0, PhotolineDummys.next());
-            //widget.controller.photoline?.toPage(0);
-            //print();
-          },
-          child: Center(child: Text('Add ${widget.index}')),
+        Row(
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  widget.controller.addItemUpload(0, PhotolineDummys.next());
+                  //widget.controller.photoline?.toPage(0);
+                  //print();
+                },
+                child: Center(child: Text('Add ${widget.index}')),
+              ),
+            ),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  unawaited(pickForUpload());
+                },
+                child: const Center(child: Text('Upload')),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 20),
       ],
     );
+  }
+
+  final _picker = ImagePicker();
+
+  Future<void> pickForUpload() async {
+    final List<XFile> files = await _picker.pickMultiImage();
+    if (files.isEmpty) return;
+
+    for (int i = 0; i < files.length; i++) {
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      final pos = widget.controller.pos;
+      if (pos.pixels > 0) {
+        unawaited(widget.controller.pos.animateTo(0,
+            duration: Duration(milliseconds: (pos.pixels * 1.5).toInt()),
+            curve: Curves.easeIn));
+      }
+      widget.controller.addItemUpload(0, files[i]);
+    }
   }
 
   @override

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 106 107">
+    <g fill="none" stroke="#014548" fill-rule="evenodd" stroke-width="2">
+        <path stroke-dasharray="6 9" stroke-linecap="round" d="M53 106c29 0 52-24 52-52S82 1 53 1 1 25 1 54s23 52 52 52z"/>
+        <g stroke="#014548" transform="translate(38 37)">
+            <circle  cx="15" cy="15" r="15"/>
+            <circle cx="15" cy="15" r="6"/>
+            <path stroke-linecap="round" d="M28 35a21 21 0 00-13-5c-6 0-10 2-14 5"/>
+        </g>
+    </g>
+</svg>

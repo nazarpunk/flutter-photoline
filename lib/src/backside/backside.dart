@@ -23,8 +23,12 @@ class _PhotolineBacksideState extends State<PhotolineBackside>
 
   PhotolineController get _controller => _photoline.controller;
 
+  late final PhotolineHolderState? _holder;
+
   @override
   void initState() {
+    _holder = context.findAncestorStateOfType<PhotolineHolderState>();
+    _holder?.active.addListener(rebuild);
     _photoline.animationPosition.addListener(rebuild);
     super.initState();
   }
@@ -32,11 +36,14 @@ class _PhotolineBacksideState extends State<PhotolineBackside>
   @override
   void dispose() {
     _photoline.animationPosition.removeListener(rebuild);
+    _holder?.active.removeListener(rebuild);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final drag = _holder?.active.value ?? false;
+
     return LayoutBuilder(builder: (context, contstraints) {
       final List<Widget> child = [];
       final count = _controller.count;
@@ -54,14 +61,14 @@ class _PhotolineBacksideState extends State<PhotolineBackside>
       switch (_controller.action.value) {
         case PhotolineAction.close:
         case PhotolineAction.drag:
+        case PhotolineAction.upload:
           for (int i = 0; i < viewCount; i++) {
-            if (i < count) continue;
+            //if (i < count) continue;
             w[i] = close;
             o[i] = i * close;
           }
         case PhotolineAction.opening:
         case PhotolineAction.closing:
-        case PhotolineAction.upload:
           final List<PhotolinePosition> po = _photoline.positionWidth;
           if (count > po.length || po.isEmpty) break;
           final f = po[count - 1];
@@ -100,28 +107,11 @@ class _PhotolineBacksideState extends State<PhotolineBackside>
             child: SizedBox(
               width: close,
               height: double.infinity,
-              child: _controller.getBackside?.call(i) ?? const SizedBox(),
+              child:
+                  _controller.getBackside?.call(i, !drag) ?? const SizedBox(),
             ),
           ),
         );
-      }
-
-      if (_controller.action.value == PhotolineAction.drag) {
-        for (int i = 0; i < viewCount; i++) {
-          child.add(
-            Positioned(
-              key: ValueKey('stripe$i'),
-              top: 0,
-              bottom: 0,
-              left: close * i,
-              width: close,
-              child: PhotolineStripe(
-                stripeColor: _controller.photoline?.widget.photoStripeColor ??
-                    Colors.transparent,
-              ),
-            ),
-          );
-        }
       }
 
       if (child.isEmpty) return const SizedBox();

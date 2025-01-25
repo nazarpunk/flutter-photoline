@@ -220,7 +220,9 @@ class PhotolineState extends State<Photoline>
     final List<int> visible = [];
     positionWidth.clear();
 
-    if (controller.count == 0) {
+    final isZero = controller.count == 0;
+
+    if (isZero) {
     } else {
       for (int i = 0; i < controller.count; i++) {
         final double o = -size.pixels + (size.close * i);
@@ -233,15 +235,16 @@ class PhotolineState extends State<Photoline>
 
     controller.action.value = PhotolineAction.upload;
 
-    if (controller.count == 0) {
-      positionWidth.insert(0, PhotolinePosition(0, 0)..end(0, size.close));
+    if (isZero) {
+      positionWidth.insert(
+          0, PhotolinePosition(size.close, -size.close)..end(size.close, 0));
     } else {
       positionWidth.insert(0, PhotolinePosition(size.close, -size.close));
     }
 
     controller.onAdd?.call(index, data);
 
-    if (controller.count == 0) {
+    if (isZero) {
     } else {
       if (visible.isNotEmpty) {
         for (int i = visible.first; i >= 0; i--) {

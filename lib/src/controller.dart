@@ -63,7 +63,7 @@ class PhotolineController extends ScrollController {
   final ui.Image? Function(int)? getImage;
 
   final Widget Function(int) getWidget;
-  final Widget Function(int index)? getBackside;
+  final Widget Function(int index, bool show)? getBackside;
   final Key Function(int) getKey;
   final ValueGetter<int> getPhotoCount;
   final int Function(double? width) getViewCount;
@@ -255,6 +255,7 @@ class PhotolineController extends ScrollController {
     if (!isDragMain) pageDragInitial = -1;
 
     isDragStart = true;
+    photoline?.holder?.active.value = true;
 
     final size = this.size;
 
@@ -455,6 +456,7 @@ class PhotolineController extends ScrollController {
     pageDragTile = 0;
     isDragMain = false;
     isDragStart = false;
+    photoline?.holder?.active.value = false;
   }
 
   Offset get closeOffsetEnd {

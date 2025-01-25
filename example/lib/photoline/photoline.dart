@@ -1,13 +1,22 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:photoline/photoline.dart';
+import 'package:photoline_example/generated/assets.gen.dart';
 import 'package:photoline_example/photoline/dummy.dart';
 
 part '_child.dart';
 
 part '_photoline.dart';
+
+final List<Widget> dummys = [
+  Assets.svg.v2.carousel.dummy0.svg(),
+  Assets.svg.v2.carousel.dummy1.svg(),
+  Assets.svg.v2.carousel.dummy2.svg(),
+];
 
 class PhotolineTestWidget extends StatefulWidget {
   const PhotolineTestWidget({super.key});
@@ -87,21 +96,18 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
           _uris[i].reorder(oldIndex, newIndex);
           //print('onReorder|$oldIndex|$newIndex');
         },
-        getBackside: (index) {
-          final List<Color> colors = [
-            Colors.red,
-            Colors.green,
-            Colors.purple,
-            Colors.tealAccent
-          ];
-
+        getBackside: (index, show) {
           return PhotolineStripe(
             stripeColor: const Color.fromRGBO(10, 10, 10, .5),
-            child: PhotolineAlbumPhotoDummy(
-              child: Container(
-                width: 500,
-                height: 1,
-                color: colors[index % colors.length],
+            child: AnimatedOpacity(
+              opacity: show ? 1 : 0,
+              duration: const Duration(milliseconds: 200),
+              child: PhotolineAlbumPhotoDummy(
+                child: SizedBox(
+                  width: 500,
+                  height: 1,
+                  child: dummys[index % dummys.length],
+                ),
               ),
             ),
           );

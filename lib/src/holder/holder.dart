@@ -23,6 +23,8 @@ class PhotolineHolderState extends State<PhotolineHolder>
 
   late final AnimationController animationDrag;
 
+  final active = ValueNotifier<bool>(false);
+
   @override
   void initState() {
     dragController?.holder = this;
@@ -41,7 +43,5 @@ class PhotolineHolderState extends State<PhotolineHolder>
   }
 
   @override
-  Widget build(BuildContext context) {
-    return widget.child;
-  }
+  Widget build(BuildContext context) => widget.child;
 }
