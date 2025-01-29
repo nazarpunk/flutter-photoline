@@ -206,10 +206,16 @@ class ScrollSnapPosition extends ViewportOffset
     }
 
     if (velocity == 0) {
+      print('🔥 shit');
+      return target;
+      /*
       if (kDebugMode) return target;
-      final (_, nT, h) = _photolineClosestTop(target);
+      final (_, nT, h) = _photolineClosestCenter(target);
+      print('T: $nT');
       final snap = viewport(h);
       return snap ? nT : target;
+
+       */
     }
 
     if (hasOverflow) {

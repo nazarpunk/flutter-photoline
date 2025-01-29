@@ -150,36 +150,39 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
     return LayoutBuilder(
       builder: (context, constraints) {
         _controller.boxConstraints = constraints;
-        return PhotolineHolder(
-          dragController: _photolineHolderDragController,
-          child: ScrollSnap(
-            controller: _controller,
-            cacheExtent: .1,
-            slivers: [
-              ScrollSnapRefresh(
-                controller: _controller,
-              ),
-              SliverPhotolineList(
-                (context, index) => AutomaticKeepAlive(
-                  key: ValueKey(index),
-                  child: _Child(
-                    key: ValueKey(index),
-                    controller: _photolines[index],
-                    index: index,
-                    constraints: constraints,
-                  ),
+        return SizedBox(
+          width: 500,
+          child: PhotolineHolder(
+            dragController: _photolineHolderDragController,
+            child: ScrollSnap(
+              controller: _controller,
+              cacheExtent: .1,
+              slivers: [
+                ScrollSnapRefresh(
+                  controller: _controller,
                 ),
-                childCount: _photolines.length,
-                itemExtentBuilder: (index, dimensions) {
-                  final p = _photolines[index];
-                  return p.wrapHeight(
-                    dimensions.crossAxisExtent,
-                    dimensions.viewportMainAxisExtent,
-                    p.fullScreenExpander.value,
-                  );
-                },
-              ),
-            ],
+                SliverPhotolineList(
+                  (context, index) => AutomaticKeepAlive(
+                    key: ValueKey(index),
+                    child: _Child(
+                      key: ValueKey(index),
+                      controller: _photolines[index],
+                      index: index,
+                      constraints: constraints,
+                    ),
+                  ),
+                  childCount: _photolines.length,
+                  itemExtentBuilder: (index, dimensions) {
+                    final p = _photolines[index];
+                    return p.wrapHeight(
+                      dimensions.crossAxisExtent,
+                      dimensions.viewportMainAxisExtent,
+                      p.fullScreenExpander.value,
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         );
       },
