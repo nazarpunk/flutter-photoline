@@ -620,10 +620,10 @@
       "languageVersion": "3.6"
     }
   ],
-  "generated": "2025-01-29T19:07:26.519041Z",
+  "generated": "2025-02-07T12:26:22.451432Z",
   "generator": "pub",
-  "generatorVersion": "3.7.0-323.1.beta",
+  "generatorVersion": "3.7.0-323.2.beta",
   "flutterRoot": "file:///Users/nazarpunk/flutter",
-  "flutterVersion": "3.29.0-0.2.pre",
+  "flutterVersion": "3.29.0-0.3.pre",
   "pubCache": "file:///Users/nazarpunk/.pub-cache"
 }

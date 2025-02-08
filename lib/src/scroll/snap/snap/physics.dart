@@ -92,14 +92,15 @@ class ScrollSnapPhysics extends ScrollPhysics {
         }
         if (position is ScrollSnapPosition) {
           final c = controller as ScrollSnapController;
-          final list = c.snapPhotolines!();
+          final list = c.snapPhotolines?.call();
 
-          if (list.isNotEmpty) {
+          if (list != null && list.isNotEmpty) {
             final vd = position.viewportDimension;
             final mw = c.boxConstraints!.maxWidth;
             double so = -pp;
             double area = double.infinity;
             double? target;
+            double wH = 0;
 
             for (final i in list) {
               final h = i.wrapHeight(mw, vd, i.fullScreenExpander.value);
@@ -108,12 +109,15 @@ class ScrollSnapPhysics extends ScrollPhysics {
 
               if (a > 0 && (area.isInfinite || a > area)) {
                 area = a;
+                wH = h;
                 target = so + pp;
               }
               so = se;
             }
 
             if (target == null || target == pp) return null;
+            if (wH >= vd + c.photolineGap) return null;
+
             return ScrollSpringSimulation(
               spring,
               position.pixels,
@@ -127,6 +131,7 @@ class ScrollSnapPhysics extends ScrollPhysics {
         if (dist == 0 || dist.isInfinite) {
           return null;
         }
+
         return ScrollSpringSimulation(
           spring,
           position.pixels,

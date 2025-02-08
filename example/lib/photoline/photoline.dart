@@ -151,7 +151,7 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
       builder: (context, constraints) {
         _controller.boxConstraints = constraints;
         return SizedBox(
-          width: 500,
+          width: 800,
           child: PhotolineHolder(
             dragController: _photolineHolderDragController,
             child: ScrollSnap(

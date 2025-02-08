@@ -3,15 +3,15 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:flutter/foundation.dart' show compute;
+import 'package:flutter/foundation.dart' show compute, kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 Map<Uri, PhotolineUri> _map = {};
 
-int _now() => DateTime.now().millisecondsSinceEpoch;
-
 int _count = 0;
+
+int _counter = 0;
 
 class PhotolineUriNotifier extends ChangeNotifier {
   factory PhotolineUriNotifier() => _instance;
@@ -53,7 +53,7 @@ class PhotolineUri {
 
   void spawn() {
     if (uri == null || _map[uri] != null) return;
-    _ts = _now();
+    _index = ++_counter;
     _map[uri!] = this;
     _next();
   }
@@ -63,7 +63,7 @@ class PhotolineUri {
   ui.Image? blur;
 
   bool _loading = false;
-  int _ts = 0;
+  int _index = 0;
   int _attempt = -1;
 
   Color? color;
@@ -83,12 +83,11 @@ class PhotolineUri {
 
   static void _next() {
     if (_count > 0) return;
-
     PhotolineUri? nxt;
 
     for (final cur in _map.values) {
-      if (cur._loading || cur.image != null || cur._attempt > 10) continue;
-      if (nxt == null || nxt._ts < (cur._ts - cur._attempt * -100)) {
+      if (cur._loading || cur.image != null) continue;
+      if (nxt == null || cur._index < nxt._index) {
         nxt = cur;
       }
     }
@@ -100,11 +99,21 @@ class PhotolineUri {
   Future<void> _load() async {
     if (uri == null) return;
 
-    _attempt++;
     _loading = true;
+    _attempt++;
+    _index = ++_counter + 10;
     _count++;
+    ui.Image? im;
 
-    final im = await _getImage(uri!);
+    if (_attempt > 1) await Future.delayed(const Duration(milliseconds: 200));
+    try {
+      im = await _getImage(uri!);
+    } catch (e) {
+      if (kDebugMode) {
+        print('⚠️PhotolineUri: $e');
+      }
+    }
+
     if (im != null) {
       image = im;
       PhotolineUriNotifier().notify = uri;
@@ -117,7 +126,22 @@ class PhotolineUri {
 }
 
 Future<Uint8List?> _getBytes(String uri) async {
-  final response = await http.get(Uri.parse(uri));
+  http.Response? response;
+
+  try {
+    response = await http.get(Uri.parse(uri)).timeout(
+      const Duration(seconds: 10),
+      onTimeout: () {
+        return http.Response('Error', 408);
+      },
+    );
+  } catch (e) {
+    if (kDebugMode) {
+      print('⚠️PhotolineUri: $e');
+    }
+  }
+
+  if (response == null) return null;
   if (response.statusCode != 200) {
     return null;
   }
