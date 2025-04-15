@@ -42,6 +42,7 @@ class PhotolineController extends ScrollController {
     this.onAdd,
     this.onRemove,
     this.onReorder,
+    this.getPagerSize,
     this.getPagerItem,
     this.getPagerIndexOffset = _getPagerIndexOffset,
     this.getPagerColor = _getPagerColor,
@@ -71,6 +72,7 @@ class PhotolineController extends ScrollController {
   final void Function(int index)? onRemove;
   final List<Widget> Function(PhotolineTileData data)? getPersistentWidgets;
   final void Function(int oldIndex, int newIndex)? onReorder;
+  final double Function()? getPagerSize;
   final List<Widget> Function(int index, Color color)? getPagerItem;
   final int Function() getPagerIndexOffset;
   final Color Function() getPagerColor;
@@ -124,7 +126,7 @@ class PhotolineController extends ScrollController {
         'PageController.page cannot be accessed before a PageView is built with it.');
     assert(positions.length == 1,
         'The page property cannot be read when multiple PageViews are attached to the same PageController.');
-    final PhotolineScrollPosition position =
+    final position =
         this.position as PhotolineScrollPosition;
     return position.page;
   }
@@ -147,7 +149,7 @@ class PhotolineController extends ScrollController {
     if (photoline == null || mod.isEmpty) return;
     final double dx = photoline!.animationAdd.velocity * .7;
 
-    for (int i = 0; i < mod.length; i++) {
+    for (var i = 0; i < mod.length; i++) {
       if (mod[i] == null) continue;
       mod[i]!.dx = dx;
       if (mod[i]!.dt > 0) {
@@ -264,7 +266,7 @@ class PhotolineController extends ScrollController {
     final count = this.count;
     mod.clear();
 
-    for (int i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
       final double w = size.close;
       final double o = i == 0 ? -size.pixels : os[i - 1] + ws[i - 1];
       os.add(o);
@@ -307,7 +309,7 @@ class PhotolineController extends ScrollController {
       return pi;
     }
 
-    for (int i = 0; i < positionDrag.length; i++) {
+    for (var i = 0; i < positionDrag.length; i++) {
       // head
       final pi = get(i);
       if (isDragMain) {
@@ -350,7 +352,7 @@ class PhotolineController extends ScrollController {
     }
 
     /// right
-    for (int i = 0; i < r.length; i++) {
+    for (var i = 0; i < r.length; i++) {
       final cur = get(r[i]);
       cur.offset = math.min(cur.offset + moveDx(cur), cur.pos * size.close);
 
@@ -385,12 +387,12 @@ class PhotolineController extends ScrollController {
       }
 
       if (direction < 0) {
-        for (int i = 0; i < positionDrag.length; i++) {
+        for (var i = 0; i < positionDrag.length; i++) {
           final pi = positionDrag[i];
           if ((isDragMain && pi.index == pageDragInitial) || pi.page >= 0) {
             continue;
           }
-          for (int k = 0; k < positionDrag.length; k++) {
+          for (var k = 0; k < positionDrag.length; k++) {
             positionDrag[k].page += 1;
           }
           break;
@@ -418,7 +420,7 @@ class PhotolineController extends ScrollController {
 
   void onDragEndReorder() {
     if (pageDragInitial >= 0 && pageDragInitial < positionDrag.length) {
-      for (int i = 0; i < positionDrag.length; i++) {
+      for (var i = 0; i < positionDrag.length; i++) {
         final pi = positionDrag[i];
         if (pi.index == pageDragInitial) continue;
         int page = pi.page;
@@ -444,7 +446,7 @@ class PhotolineController extends ScrollController {
 
   void onDragEndEnd() {
     action.value = PhotolineAction.close;
-    for (int i = 0; i < positionDrag.length; i++) {
+    for (var i = 0; i < positionDrag.length; i++) {
       final pi = positionDrag[i];
       if (pi.page == 0) {
         pos.jumpToPage(i);

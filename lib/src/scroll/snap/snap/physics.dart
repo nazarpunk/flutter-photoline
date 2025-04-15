@@ -253,7 +253,7 @@ class ScrollSnapPhysics extends ScrollPhysics {
   static double _applyFriction(
       double extentOutside, double absDelta, double gamma) {
     assert(absDelta > 0);
-    double total = 0.0;
+    var total = 0.0;
     if (extentOutside > 0) {
       final double deltaToLimit = extentOutside / gamma;
       if (absDelta < deltaToLimit) {

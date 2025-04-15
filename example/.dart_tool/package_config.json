@@ -3,31 +3,31 @@
   "packages": [
     {
       "name": "_fe_analyzer_shared",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/_fe_analyzer_shared-76.0.0",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/_fe_analyzer_shared-80.0.0",
       "packageUri": "lib/",
       "languageVersion": "3.3"
-    },
-    {
-      "name": "_macros",
-      "rootUri": "file:///Users/nazarpunk/flutter/bin/cache/dart-sdk/pkg/_macros",
-      "packageUri": "lib/",
-      "languageVersion": "3.4"
     },
     {
       "name": "analyzer",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/analyzer-6.11.0",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/analyzer-7.3.0",
       "packageUri": "lib/",
       "languageVersion": "3.3"
     },
     {
+      "name": "archive",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/archive-4.0.5",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
       "name": "args",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/args-2.6.0",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/args-2.7.0",
       "packageUri": "lib/",
       "languageVersion": "3.3"
     },
     {
       "name": "async",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/async-2.12.0",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/async-2.13.0",
       "packageUri": "lib/",
       "languageVersion": "3.4"
     },
@@ -51,19 +51,19 @@
     },
     {
       "name": "build_daemon",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/build_daemon-4.0.3",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/build_daemon-4.0.4",
       "packageUri": "lib/",
       "languageVersion": "3.6"
     },
     {
       "name": "build_resolvers",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/build_resolvers-2.4.3",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/build_resolvers-2.4.4",
       "packageUri": "lib/",
       "languageVersion": "3.6"
     },
     {
       "name": "build_runner",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/build_runner-2.4.14",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/build_runner-2.4.15",
       "packageUri": "lib/",
       "languageVersion": "3.6"
     },
@@ -81,7 +81,7 @@
     },
     {
       "name": "built_value",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/built_value-8.9.3",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/built_value-8.9.5",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
@@ -141,9 +141,9 @@
     },
     {
       "name": "dart_style",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/dart_style-2.3.7",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/dart_style-3.0.1",
       "packageUri": "lib/",
-      "languageVersion": "3.0"
+      "languageVersion": "3.4"
     },
     {
       "name": "dartx",
@@ -153,9 +153,15 @@
     },
     {
       "name": "fake_async",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/fake_async-1.3.2",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/fake_async-1.3.3",
       "packageUri": "lib/",
       "languageVersion": "3.3"
+    },
+    {
+      "name": "ffi",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/ffi-2.1.4",
+      "packageUri": "lib/",
+      "languageVersion": "3.7"
     },
     {
       "name": "file",
@@ -183,9 +189,9 @@
     },
     {
       "name": "file_selector_windows",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/file_selector_windows-0.9.3+3",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/file_selector_windows-0.9.3+4",
       "packageUri": "lib/",
-      "languageVersion": "3.3"
+      "languageVersion": "3.4"
     },
     {
       "name": "fixnum",
@@ -201,27 +207,27 @@
     },
     {
       "name": "flutter_gen",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/flutter_gen-5.8.0",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/flutter_gen-5.10.0",
       "packageUri": "lib/",
-      "languageVersion": "2.17"
+      "languageVersion": "3.0"
     },
     {
       "name": "flutter_gen_core",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/flutter_gen_core-5.8.0",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/flutter_gen_core-5.10.0",
       "packageUri": "lib/",
-      "languageVersion": "2.17"
+      "languageVersion": "3.0"
     },
     {
       "name": "flutter_gen_runner",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/flutter_gen_runner-5.8.0",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/flutter_gen_runner-5.10.0",
       "packageUri": "lib/",
-      "languageVersion": "2.17"
+      "languageVersion": "3.0"
     },
     {
       "name": "flutter_plugin_android_lifecycle",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.24",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.27",
       "packageUri": "lib/",
-      "languageVersion": "3.5"
+      "languageVersion": "3.6"
     },
     {
       "name": "flutter_svg",
@@ -291,9 +297,9 @@
     },
     {
       "name": "image_picker_android",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+20",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+22",
       "packageUri": "lib/",
-      "languageVersion": "3.5"
+      "languageVersion": "3.6"
     },
     {
       "name": "image_picker_for_web",
@@ -309,9 +315,9 @@
     },
     {
       "name": "image_picker_linux",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/image_picker_linux-0.2.1+1",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/image_picker_linux-0.2.1+2",
       "packageUri": "lib/",
-      "languageVersion": "2.19"
+      "languageVersion": "3.4"
     },
     {
       "name": "image_picker_macos",
@@ -345,9 +351,9 @@
     },
     {
       "name": "js",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/js-0.7.1",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/js-0.7.2",
       "packageUri": "lib/",
-      "languageVersion": "3.1"
+      "languageVersion": "3.7"
     },
     {
       "name": "json_annotation",
@@ -357,7 +363,7 @@
     },
     {
       "name": "leak_tracker",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/leak_tracker-10.0.8",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/leak_tracker-10.0.9",
       "packageUri": "lib/",
       "languageVersion": "3.2"
     },
@@ -382,12 +388,6 @@
     {
       "name": "logging",
       "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/logging-1.3.0",
-      "packageUri": "lib/",
-      "languageVersion": "3.4"
-    },
-    {
-      "name": "macros",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/macros-0.1.3-main.0",
       "packageUri": "lib/",
       "languageVersion": "3.4"
     },
@@ -417,7 +417,7 @@
     },
     {
       "name": "package_config",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/package_config-2.1.1",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/package_config-2.2.0",
       "packageUri": "lib/",
       "languageVersion": "3.4"
     },
@@ -435,15 +435,15 @@
     },
     {
       "name": "petitparser",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/petitparser-6.0.2",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/petitparser-6.1.0",
       "packageUri": "lib/",
-      "languageVersion": "3.2"
+      "languageVersion": "3.5"
     },
     {
       "name": "photoline",
       "rootUri": "../../",
       "packageUri": "lib/",
-      "languageVersion": "3.6"
+      "languageVersion": "3.7"
     },
     {
       "name": "plugin_platform_interface",
@@ -458,8 +458,14 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "posix",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/posix-6.0.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
       "name": "pub_semver",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/pub_semver-2.1.5",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/pub_semver-2.2.0",
       "packageUri": "lib/",
       "languageVersion": "3.4"
     },
@@ -477,9 +483,9 @@
     },
     {
       "name": "shelf_web_socket",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/shelf_web_socket-2.0.1",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/shelf_web_socket-3.0.0",
       "packageUri": "lib/",
-      "languageVersion": "3.3"
+      "languageVersion": "3.5"
     },
     {
       "name": "sky_engine",
@@ -549,7 +555,7 @@
     },
     {
       "name": "vector_graphics",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/vector_graphics-1.1.15",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/vector_graphics-1.1.18",
       "packageUri": "lib/",
       "languageVersion": "3.4"
     },
@@ -573,7 +579,7 @@
     },
     {
       "name": "vm_service",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/vm_service-14.3.1",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/vm_service-15.0.0",
       "packageUri": "lib/",
       "languageVersion": "3.3"
     },
@@ -585,7 +591,7 @@
     },
     {
       "name": "web",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/web-1.1.0",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/web-1.1.1",
       "packageUri": "lib/",
       "languageVersion": "3.4"
     },
@@ -620,10 +626,9 @@
       "languageVersion": "3.6"
     }
   ],
-  "generated": "2025-02-07T12:26:22.451432Z",
   "generator": "pub",
-  "generatorVersion": "3.7.0-323.2.beta",
+  "generatorVersion": "3.8.0-278.1.beta",
   "flutterRoot": "file:///Users/nazarpunk/flutter",
-  "flutterVersion": "3.29.0-0.3.pre",
+  "flutterVersion": "3.32.0-0.1.pre",
   "pubCache": "file:///Users/nazarpunk/.pub-cache"
 }

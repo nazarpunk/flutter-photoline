@@ -17,24 +17,31 @@ linter:
   # https://dart.dev/tools/analysis
 
   rules:
-    # need to pub points?
-    public_member_api_docs: false
-
+    document_ignores: false
+    avoid_field_initializers_in_const_classes: false
+    avoid_implementing_value_types: false
     #
-    avoid_returning_this: false # https://dart.dev/tools/linter-rules/avoid_returning_this
     prefer_mixin: false # https://dart-lang.github.io/linter/lints/prefer_mixin.html
     always_specify_types: false # https://dart-lang.github.io/linter/lints/always_specify_types.html
     #
-    avoid_field_initializers_in_const_classes: false # https://dart.dev/tools/linter-rules/avoid_field_initializers_in_const_classes
-    avoid_implementing_value_types: false # https://dart.dev/tools/linter-rules/avoid_implementing_value_types
     avoid_final_parameters: false # https://dart-lang.github.io/linter/lints/avoid_final_parameters.html
     prefer_final_parameters: false # https://dart-lang.github.io/linter/lints/prefer_final_parameters.html
     parameter_assignments: false # https://dart-lang.github.io/linter/lints/parameter_assignments.html
     #
+    avoid_bool_literals_in_conditional_expressions: false # https://dart.dev/tools/linter-rules/avoid_bool_literals_in_conditional_expressions
     always_put_control_body_on_new_line: false # https://dart-lang.github.io/linter/lints/always_put_control_body_on_new_line.html
+    avoid_equals_and_hash_code_on_mutable_classes: false # https://dart.dev/tools/linter-rules/avoid_equals_and_hash_code_on_mutable_classes
+    empty_catches: false # https://dart.dev/tools/diagnostic-messages?utm_source=dartdev&utm_medium=redir&utm_id=diagcode&utm_content=empty_catches#empty_catches
+    specify_nonobvious_local_variable_types: false # https://dart.dev/tools/linter-rules/specify_nonobvious_local_variable_types
+    strict_top_level_inference: false # https://dart.dev/tools/linter-rules/strict_top_level_inference
+    omit_obvious_property_types: false # https://dart.dev/tools/linter-rules/omit_obvious_property_types
+    specify_nonobvious_property_types: false # https://dart.dev/tools/linter-rules/specify_nonobvious_property_types
+    unsafe_variance: false # https://dart.dev/tools/diagnostic-messages?utm_source=dartdev&utm_medium=redir&utm_id=diagcode&utm_content=unsafe_variance#unsafe_variance
+    unnecessary_async: false # https://dart.dev/tools/linter-rules/unnecessary_async
     avoid_private_typedef_functions: false
     prefer_double_quotes: false
     unnecessary_final: false
+    public_member_api_docs: false
     prefer_expression_function_bodies: false
     lines_longer_than_80_chars: false
     avoid_dynamic_calls: false

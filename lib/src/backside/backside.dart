@@ -53,7 +53,7 @@ class _PhotolineBacksideState extends State<PhotolineBackside>
       final List<double> w = [];
       final List<double> o = [];
 
-      for (int i = 0; i < viewCount; i++) {
+      for (var i = 0; i < viewCount; i++) {
         w.add(0);
         o.add(0);
       }
@@ -62,7 +62,7 @@ class _PhotolineBacksideState extends State<PhotolineBackside>
         case PhotolineAction.close:
         case PhotolineAction.drag:
         case PhotolineAction.upload:
-          for (int i = 0; i < viewCount; i++) {
+          for (var i = 0; i < viewCount; i++) {
             //if (i < count) continue;
             w[i] = close;
             o[i] = i * close;
@@ -73,7 +73,7 @@ class _PhotolineBacksideState extends State<PhotolineBackside>
           if (count > po.length || po.isEmpty) break;
           final f = po[count - 1];
           final fo = f.offset.current + f.width.current;
-          for (int i = count; i < viewCount; i++) {
+          for (var i = count; i < viewCount; i++) {
             w[i] = close;
             o[i] = fo + (i - count) * close;
           }
@@ -95,7 +95,7 @@ class _PhotolineBacksideState extends State<PhotolineBackside>
            */
       }
 
-      for (int i = 0; i < viewCount; i++) {
+      for (var i = 0; i < viewCount; i++) {
         if (w[i] == 0 && o[i] == 0) continue;
         child.add(
           Positioned(

@@ -95,7 +95,7 @@ class PhotolineHolderDragController implements Drag {
 
     const curDh = .55;
 
-    final RenderBox overlayBox =
+    final overlayBox =
         _overlayState!.context.findRenderObject()! as RenderBox;
 
     PhotolineController? current;
@@ -133,7 +133,7 @@ class PhotolineHolderDragController implements Drag {
     final prb = phc.findRenderObject()! as RenderBox;
     final pro = prb.localToGlobal(Offset.zero, ancestor: overlayBox);
 
-    int direction = 0;
+    var direction = 0;
     const double preciese = 10;
     if ((_tileOffset.dx + _tileSize.width) - (pro.dx + prb.size.width) >=
         preciese) {
@@ -189,9 +189,9 @@ class PhotolineHolderDragController implements Drag {
 
     _overlayState = Overlay.of(holder!.context);
 
-    final RenderBox tileBox =
+    final tileBox =
         _initialTile.context.findRenderObject()! as RenderBox;
-    final RenderBox overlayBox =
+    final overlayBox =
         _overlayState!.context.findRenderObject()! as RenderBox;
 
     _tileSize = tileBox.size;
@@ -283,7 +283,7 @@ class PhotolineHolderDragController implements Drag {
     }
 
     // dy
-    int snapDir = 0;
+    var snapDir = 0;
     if (dy < 0) {
       //dy = 0;
       snapDir = -1;

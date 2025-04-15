@@ -56,8 +56,8 @@ class BlurPainter extends CustomPainter {
     final double cx = math.max((iw - cw) * offsetX, 0);
     final double cy = math.max((ih - ch) * offsetY, 0);
 
-    final Rect ra = Rect.fromLTWH(cx + p, cy + p, cw, ch);
-    final Rect rb = Rect.fromLTWH(0, 0, w, h);
+    final ra = Rect.fromLTWH(cx + p, cy + p, cw, ch);
+    final rb = Rect.fromLTWH(0, 0, w, h);
 
     canvas
       ..clipRect(rb)

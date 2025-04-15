@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:photoline/src/mixin/state/rebuild.dart';
 import 'package:photoline/src/tile/uri.dart';
 
 part 'render.dart';
@@ -22,11 +23,25 @@ class PhotolinePhoto extends StatefulWidget {
 }
 
 class _PhotolinePhotoState extends State<PhotolinePhoto>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, StateRebuildMixin {
   late final _animationRepaint = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 1000),
-  )..repeat();
+  );
+
+  @override
+  void didUpdateWidget(covariant PhotolinePhoto oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.uri != oldWidget.uri) {
+      rebuild();
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _animationRepaint..repeat()..addListener(rebuild);
+  }
 
   @override
   void dispose() {

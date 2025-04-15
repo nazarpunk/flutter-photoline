@@ -165,7 +165,7 @@ class RenderViewportPhotoline extends RenderBox
     final int maxLayoutCycles = _maxLayoutCyclesPerChild * childCount;
 
     double correction;
-    int count = 0;
+    var count = 0;
     do {
       correction = _attemptLayout(mainAxisExtent, crossAxisExtent,
           offset.pixels + centerOffsetAdjustment);
@@ -209,7 +209,7 @@ class RenderViewportPhotoline extends RenderBox
         clampDouble(mainAxisExtent - centerOffset, 0.0, mainAxisExtent);
 
     _calculatedCacheExtent = mainAxisExtent * _cacheExtent;
-    
+
     final double fullCacheExtent = mainAxisExtent + 2 * _calculatedCacheExtent!;
     final double centerCacheOffset = centerOffset + _calculatedCacheExtent!;
     final double reverseDirectionRemainingCacheExtent =
@@ -345,7 +345,7 @@ class RenderViewportPhotoline extends RenderBox
     final ScrollDirection adjustedUserScrollDirection =
         offset.userScrollDirection;
     double maxPaintOffset = layoutOffset + overlap;
-    double precedingScrollExtent = 0.0;
+    var precedingScrollExtent = 0.0;
 
     while (child != null) {
       final double sliverScrollOffset =
@@ -484,12 +484,12 @@ class RenderViewportPhotoline extends RenderBox
       Axis.vertical => (position.dy, position.dx),
       Axis.horizontal => (position.dx, position.dy),
     };
-    final SliverHitTestResult sliverResult = SliverHitTestResult.wrap(result);
+    final sliverResult = SliverHitTestResult.wrap(result);
     for (final RenderSliver child in childrenInHitTestOrder) {
       if (!child.geometry!.visible) {
         continue;
       }
-      final Matrix4 transform = Matrix4.identity();
+      final transform = Matrix4.identity();
       applyPaintTransform(child, transform); // must be invertible
       final bool isHit = result.addWithOutOfBandPosition(
         paintTransform: transform,
@@ -518,10 +518,10 @@ class RenderViewportPhotoline extends RenderBox
   }) {
     axis = this.axis;
 
-    double leadingScrollOffset = 0.0;
+    var leadingScrollOffset = 0.0;
     RenderObject child = target;
     RenderBox? pivot;
-    bool onlySlivers = target is RenderSliver;
+    var onlySlivers = target is RenderSliver;
     while (child.parent != this) {
       final RenderObject parent = child.parent!;
       if (child is RenderBox) {
@@ -546,7 +546,7 @@ class RenderViewportPhotoline extends RenderBox
       rect ??= target.paintBounds;
       rectLocal = MatrixUtils.transformRect(target.getTransformTo(pivot), rect);
     } else if (onlySlivers) {
-      final RenderSliver targetSliver = target as RenderSliver;
+      final targetSliver = target as RenderSliver;
 
       if (rect == null) {
         switch (axis) {
@@ -574,7 +574,7 @@ class RenderViewportPhotoline extends RenderBox
 
     assert(child.parent == this);
     assert(child is RenderSliver);
-    final RenderSliver sliver = child as RenderSliver;
+    final sliver = child as RenderSliver;
 
     leadingScrollOffset += rectLocal.top;
 
@@ -655,7 +655,7 @@ class RenderViewportPhotoline extends RenderBox
 
   @override
   Offset paintOffsetOf(RenderSliver child) {
-    final SliverPhysicalParentData childParentData =
+    final childParentData =
         child.parentData! as SliverPhysicalParentData;
     return childParentData.paintOffset;
   }
@@ -666,7 +666,7 @@ class RenderViewportPhotoline extends RenderBox
     final GrowthDirection growthDirection = child.constraints.growthDirection;
     switch (growthDirection) {
       case GrowthDirection.forward:
-        double scrollOffsetToChild = 0.0;
+        var scrollOffsetToChild = 0.0;
         RenderSliver? current = center;
         while (current != child) {
           scrollOffsetToChild += current!.geometry!.scrollExtent;
@@ -674,7 +674,7 @@ class RenderViewportPhotoline extends RenderBox
         }
         return scrollOffsetToChild + scrollOffsetWithinChild;
       case GrowthDirection.reverse:
-        double scrollOffsetToChild = 0.0;
+        var scrollOffsetToChild = 0.0;
         RenderSliver? current = childBefore(center!);
         while (current != child) {
           scrollOffsetToChild -= current!.geometry!.scrollExtent;
@@ -690,7 +690,7 @@ class RenderViewportPhotoline extends RenderBox
     final GrowthDirection growthDirection = child.constraints.growthDirection;
     switch (growthDirection) {
       case GrowthDirection.forward:
-        double pinnedExtent = 0.0;
+        var pinnedExtent = 0.0;
         RenderSliver? current = center;
         while (current != child) {
           pinnedExtent += current!.geometry!.maxScrollObstructionExtent;
@@ -698,7 +698,7 @@ class RenderViewportPhotoline extends RenderBox
         }
         return pinnedExtent;
       case GrowthDirection.reverse:
-        double pinnedExtent = 0.0;
+        var pinnedExtent = 0.0;
         RenderSliver? current = childBefore(center!);
         while (current != child) {
           pinnedExtent += current!.geometry!.maxScrollObstructionExtent;
@@ -721,7 +721,7 @@ class RenderViewportPhotoline extends RenderBox
     assert(center != null);
     assert(center!.parent == this);
     assert(firstChild != null);
-    int count = 0;
+    var count = 0;
     RenderSliver? child = center;
     while (child != firstChild) {
       count -= 1;
@@ -740,7 +740,7 @@ class RenderViewportPhotoline extends RenderBox
 
   @override
   Iterable<RenderSliver> get childrenInPaintOrder {
-    final List<RenderSliver> children = <RenderSliver>[];
+    final children = <RenderSliver>[];
     if (firstChild == null) {
       return children;
     }
@@ -761,7 +761,7 @@ class RenderViewportPhotoline extends RenderBox
 
   @override
   Iterable<RenderSliver> get childrenInHitTestOrder {
-    final List<RenderSliver> children = <RenderSliver>[];
+    final children = <RenderSliver>[];
     if (firstChild == null) {
       return children;
     }

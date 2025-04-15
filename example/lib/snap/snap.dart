@@ -11,22 +11,21 @@ class SnapExampleList extends StatefulWidget {
 class _SnapExampleListState extends State<SnapExampleList> {
   late final ScrollSnapController _controller = ScrollSnapController(
     snap: true,
-  )..snapCage = 5;
+    //snapLast: true,
+    onRefresh: () async {},
+  );
 
   @override
   Widget build(BuildContext context) {
-
     return Column(
       children: [
-        const Expanded(
-            child: Placeholder(
-          color: Colors.red,
-        )),
+        const SizedBox(height: 100, child: Placeholder(color: Colors.red)),
         Expanded(
           child: ScrollSnap(
             controller: _controller,
             cacheExtent: double.infinity,
             slivers: [
+              ScrollSnapRefresh(controller: _controller),
               SliverSnapList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) => SizedBox(
@@ -40,17 +39,14 @@ class _SnapExampleListState extends State<SnapExampleList> {
                       ),
                     ),
                   ),
-                  childCount: 30,
+                  childCount: 3000000000,
                 ),
                 controller: _controller,
               )
             ],
           ),
         ),
-        const Expanded(
-            child: Placeholder(
-          color: Colors.purple,
-        )),
+        const SizedBox(height: 70, child: Placeholder(color: Colors.purple)),
       ],
     );
   }

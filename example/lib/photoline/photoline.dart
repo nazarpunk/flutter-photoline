@@ -45,7 +45,7 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
     for (int i = _min; i < 3; i++) {
       final List<Uri> l = [];
       final List<Key> k = [];
-      for (int j = 0; j < 0 - i; j++) {
+      for (var j = 0; j < 0 - i; j++) {
         l.add(PhotolineDummys.get(i, j));
         k.add(ValueKey<String>('$i $j'));
       }
@@ -53,7 +53,7 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
       _keys.add(k);
     }
 
-    for (int i = 0; i < _uris.length; i++) {
+    for (var i = 0; i < _uris.length; i++) {
       final c = PhotolineController(
         getUri: (index) => PhotolineUri(
           uri: _uris[i][index],

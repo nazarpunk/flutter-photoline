@@ -61,7 +61,7 @@ class _ChildState extends State<_Child> with AutomaticKeepAliveClientMixin {
     final List<XFile> files = await _picker.pickMultiImage();
     if (files.isEmpty) return;
 
-    for (int i = 0; i < files.length; i++) {
+    for (var i = 0; i < files.length; i++) {
       await Future.delayed(const Duration(milliseconds: 100));
 
       final pos = widget.controller.pos;

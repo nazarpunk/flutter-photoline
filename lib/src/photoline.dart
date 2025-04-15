@@ -98,7 +98,7 @@ class PhotolineState extends State<Photoline>
     controller.fullScreenExpander.value =
         math.min(controller.fullScreenExpander.value, 1 - t);
 
-    for (int i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
       positionWidth[i].lerp(t);
     }
   }
@@ -224,7 +224,7 @@ class PhotolineState extends State<Photoline>
 
     if (isZero) {
     } else {
-      for (int i = 0; i < controller.count; i++) {
+      for (var i = 0; i < controller.count; i++) {
         final double o = -size.pixels + (size.close * i);
         if (o + size.close > 0 && o < size.viewport) {
           visible.add(i + 1);
@@ -254,7 +254,7 @@ class PhotolineState extends State<Photoline>
         }
       }
 
-      for (int i = 0; i < controller.count; i++) {
+      for (var i = 0; i < controller.count; i++) {
         if (!visible.contains(i)) {
           positionWidth[i].width.all = 0;
         }
@@ -265,7 +265,7 @@ class PhotolineState extends State<Photoline>
             positionWidth[visible[i + 1]].offset.start - size.close;
       }
 
-      for (int i = 0; i < visible.length; i++) {
+      for (var i = 0; i < visible.length; i++) {
         final c = positionWidth[visible[i]];
         c.offset.end =
             i == 0 ? 0 : positionWidth[visible[i - 1]].offset.end + size.close;
@@ -286,7 +286,7 @@ class PhotolineState extends State<Photoline>
     controller.action.value = PhotolineAction.upload;
     final size = controller.size;
 
-    for (int i = 0; i < controller.count; i++) {
+    for (var i = 0; i < controller.count; i++) {
       final p = positionWidth[i];
 
       final double o = p.offset.current;
@@ -311,7 +311,7 @@ class PhotolineState extends State<Photoline>
     positionWidth.insert(0, PhotolinePosition(size.close, -size.close));
     controller.onAdd?.call(index, data);
 
-    for (int i = 0; i < visible.length; i++) {
+    for (var i = 0; i < visible.length; i++) {
       final c = positionWidth[visible[i]];
       c.width.start = c.width.current;
       c.width.end = size.close;
@@ -323,7 +323,7 @@ class PhotolineState extends State<Photoline>
       c.offset.all = r.offset.current - c.width.current;
     }
 
-    for (int i = 0; i < visible.length; i++) {
+    for (var i = 0; i < visible.length; i++) {
       final c = positionWidth[visible[i]];
       c.offset.end =
           i == 0 ? 0 : positionWidth[visible[i - 1]].offset.end + size.close;
@@ -389,7 +389,7 @@ class PhotolineState extends State<Photoline>
 
     assert(positionWidth.isNotEmpty);
 
-    for (int i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
       final c = positionWidth[i];
       final double offset = c.offset.current;
       c.width.all = c.width.current;
@@ -419,7 +419,7 @@ class PhotolineState extends State<Photoline>
     // <->
     final c = positionWidth[pto]..end(size.open, isFirst ? 0 : lend);
 
-    for (int i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
       if ((i - pto).abs() <= 1) continue;
       final p = positionWidth[i];
       p.width.start = p.width.current;
@@ -451,7 +451,7 @@ class PhotolineState extends State<Photoline>
     final List<double> os = [];
 
     final mod = controller.mod;
-    for (int i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
       final double w;
       if (i < mod.length && mod[i] != null) {
         w = mod[i]!.t * size.close;
@@ -484,7 +484,7 @@ class PhotolineState extends State<Photoline>
 
       // <->
       c = positionWidth[pto]..end(size.open, isFirst ? 0 : lend);
-      for (int i = 0; i < count; i++) {
+      for (var i = 0; i < count; i++) {
         if ((i - pto).abs() <= 1) continue;
         final p = positionWidth[i];
         p.width.start = p.width.current;
@@ -496,7 +496,7 @@ class PhotolineState extends State<Photoline>
 
       // <->
       c = positionWidth[pto]..end(size.open, isFirst ? 0 : lend);
-      for (int i = 0; i < count; i++) {
+      for (var i = 0; i < count; i++) {
         if ((i - pto).abs() <= 1) continue;
         final p = positionWidth[i];
         p.width.start = p.width.current;
@@ -583,7 +583,7 @@ class PhotolineState extends State<Photoline>
     final count = controller.count;
 
     double sz = 0;
-    for (int i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
       final c = positionWidth[i];
       c.width.begin = c.width.current;
       c.width.end = size.close;
@@ -603,11 +603,11 @@ class PhotolineState extends State<Photoline>
     final bigRight = (big.offset.current + big.width.current)
         .clamp(0, size.viewport)
         .toDouble();
-    int viewIndex = 0;
+    var viewIndex = 0;
     sz = 0;
     final closeCount = controller.getViewCount(controller.photolineWidth);
 
-    for (int i = 0; i < closeCount; i++) {
+    for (var i = 0; i < closeCount; i++) {
       final sizz =
           controller.useOpenSideResize && !controller.useOpenSideResizeScale
               ? size.open
@@ -642,7 +642,7 @@ class PhotolineState extends State<Photoline>
     final size = controller.size;
     final count = controller.count;
 
-    for (int i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
       final c = positionWidth[i];
       c
         ..offsetL = math.min(0, c.offset.current)
@@ -661,7 +661,7 @@ class PhotolineState extends State<Photoline>
     final List<int> visible = [];
 
     final bool toAdd = positionWidth.isEmpty;
-    for (int i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
       double width = size.open;
       double offset = -size.pixels + size.open * i;
       if (offset + width > 0 && offset < size.viewport) {
@@ -856,7 +856,7 @@ class PhotolineState extends State<Photoline>
               ),
             ),
           ),
-          if (controller.getPagerItem != null) PhotolinePager(photoline: this),
+          if (controller.getPagerItem != null && controller.getPagerSize != null) PhotolinePager(photoline: this),
         ],
       );
     });

@@ -91,9 +91,9 @@ class _ViewportElement extends MultiChildRenderObjectElement
   }
 
   void _updateCenter() {
-    final Viewport viewport = widget as Viewport;
+    final viewport = widget as Viewport;
     if (viewport.center != null) {
-      int elementIndex = 0;
+      var elementIndex = 0;
       for (final Element e in children) {
         if (e.widget.key == viewport.center) {
           renderObject.center = e.renderObject as RenderSliver?;
@@ -138,7 +138,7 @@ class _ViewportElement extends MultiChildRenderObjectElement
   @override
   void debugVisitOnstageChildren(ElementVisitor visitor) {
     children.where((e) {
-      final RenderSliver renderSliver = e.renderObject! as RenderSliver;
+      final renderSliver = e.renderObject! as RenderSliver;
       return renderSliver.geometry!.visible;
     }).forEach(visitor);
   }

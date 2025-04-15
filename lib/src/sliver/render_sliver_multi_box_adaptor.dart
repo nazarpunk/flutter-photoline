@@ -62,18 +62,18 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
     final vp = constraints.viewportMainAxisExtent;
 
-    int index = -1;
+    var index = -1;
 
     while (child != null) {
       index++;
       final double cdx = childMainAxisPosition(child);
       final double cdy = childCrossAxisPosition(child);
-      final Offset childOffset = Offset(
+      final childOffset = Offset(
         offset.dx + cdx,
         offset.dy + cdy,
       );
 
-      bool canPaint = true;
+      var canPaint = true;
 
       switch (controller.action.value) {
         case PhotolineAction.close:
@@ -281,7 +281,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
     RenderBox prev = _firstChild();
 
-    for (int index = 0; index < count; index++) {
+    for (var index = 0; index < count; index++) {
       RenderBox? child = childAfter(prev);
 
       final p = photoline.positionWidth[index];
@@ -322,15 +322,15 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
     RenderBox prev = _firstChild();
 
-    for (int index = 0; index < count; index++) {
+    for (var index = 0; index < count; index++) {
       RenderBox? child = childAfter(prev);
 
-      double itemWidth = widthOpen;
+      var itemWidth = widthOpen;
       double itemOffset = index * widthOpen;
 
       if (_controller.useOpenSideResize) {
         final double itemViewOffset = itemOffset - scrollOffset;
-        final int firstIndex = controller.getPagerIndexOffset() > 0 ? 1 : 0;
+        final firstIndex = controller.getPagerIndexOffset() > 0 ? 1 : 0;
         final int lastIndex = count - 1;
 
         if (_controller.useOpenSideResizeScale) {
@@ -414,7 +414,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
     _controller.getViewCount(vw);
 
-    for (int index = 0; index < count; index++) {
+    for (var index = 0; index < count; index++) {
       RenderBox? child = childAfter(prev!);
       offset = offset + width;
       width =
@@ -455,7 +455,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
     RenderBox prev = _firstChild();
 
-    for (int index = 0; index < count; index++) {
+    for (var index = 0; index < count; index++) {
       RenderBox? child = childAfter(prev);
 
       double offset = controller.positionDrag[index].offset;

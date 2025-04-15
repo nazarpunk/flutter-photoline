@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:photoline/photoline.dart';
 import 'package:photoline/src/paginaror/item.dart';
-import 'package:photoline/src/photoline.dart';
-import 'package:photoline/src/scroll/extent/view.dart';
 
 class PhotolinePager extends StatefulWidget {
   const PhotolinePager({
@@ -9,7 +8,6 @@ class PhotolinePager extends StatefulWidget {
     required this.photoline,
   });
 
-  static const double height = 60;
   static const double starHeight = 40;
   final PhotolineState photoline;
 
@@ -20,9 +18,11 @@ class PhotolinePager extends StatefulWidget {
 class PhotolinePagerState extends State<PhotolinePager> {
   final List<Widget> children = [];
 
+  PhotolineController get _controller => widget.photoline.controller;
+
   @override
   void initState() {
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       children.add(PhotolinePaginatorItem(
         index: i,
         photoline: widget.photoline,
@@ -32,17 +32,20 @@ class PhotolinePagerState extends State<PhotolinePager> {
   }
 
   @override
-  Widget build(BuildContext context) => LayoutBuilder(
-        builder: (context, constraints) => Container(
-          width: double.infinity,
-          color: widget.photoline.controller.getPagerColor(),
-          height: PhotolinePager.height,
-          child: PhotolineScrollExtentView(
-            axisDirection: AxisDirection.right,
-            itemExtent: constraints.maxWidth /
-                (constraints.maxWidth ~/ PhotolinePager.height),
-            children: children,
-          ),
+  Widget build(BuildContext context) {
+    final h = _controller.getPagerSize?.call() ?? 0;
+
+    return LayoutBuilder(
+      builder: (context, constraints) => Container(
+        width: double.infinity,
+        color: _controller.getPagerColor(),
+        height: h,
+        child: PhotolineScrollExtentView(
+          axisDirection: AxisDirection.right,
+          itemExtent: constraints.maxWidth / (constraints.maxWidth ~/ h),
+          children: children,
         ),
-      );
+      ),
+    );
+  }
 }

@@ -22,7 +22,7 @@ class RenderSliverSnapList extends RenderSliverList {
       RenderBox? child = firstChild;
       controller.box.clear();
       while (true) {
-        final SliverMultiBoxAdaptorParentData childParentData =
+        final childParentData =
             child!.parentData! as SliverMultiBoxAdaptorParentData;
         final so = childScrollOffset(child);
         if (so != null) {

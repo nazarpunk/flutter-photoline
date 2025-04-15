@@ -37,7 +37,10 @@ class PhotolineUri {
     this.width = 0,
     this.height = 0,
     this.stripe,
-  });
+    double? opacity
+  }) {
+    if (opacity != null) _opacity = opacity * _mo;
+  }
 
   PhotolineUri get cached {
     if (uri == null) {
@@ -50,6 +53,8 @@ class PhotolineUri {
       ..width = width
       ..height = height;
   }
+
+  bool get loaded => uri != null && _map[uri]?.image != null;
 
   void spawn() {
     if (uri == null || _map[uri] != null) return;
@@ -154,10 +159,10 @@ Future<ui.Image?> _getImage(Uri uri) async {
   if (bytes == null) return null;
 
   final ui.ImmutableBuffer buffer =
-      await ui.ImmutableBuffer.fromUint8List(bytes);
+  await ui.ImmutableBuffer.fromUint8List(bytes);
 
   final ui.ImageDescriptor descriptor =
-      await ui.ImageDescriptor.encoded(buffer);
+  await ui.ImageDescriptor.encoded(buffer);
 
   buffer.dispose();
   final ui.Codec codec = await descriptor.instantiateCodec();

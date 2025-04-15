@@ -29,9 +29,9 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor
     double itemExtent,
     int index,
   ) {
-    double offset = 0.0;
+    var offset = 0.0;
     double? itemExtent;
-    for (int i = 0; i < index; i++) {
+    for (var i = 0; i < index; i++) {
       final int? childCount = childManager.estimatedChildCount;
       if (childCount != null && i > childCount - 1) {
         break;
@@ -84,9 +84,9 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor
     SliverConstraints constraints,
     double itemExtent,
   ) {
-    double offset = 0.0;
+    var offset = 0.0;
     double? itemExtent;
-    for (int i = 0; i < childManager.childCount; i++) {
+    for (var i = 0; i < childManager.childCount; i++) {
       itemExtent = itemExtentBuilder(i, _currentLayoutDimensions);
       if (itemExtent == null) {
         break;
@@ -101,8 +101,8 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor
     if (scrollOffset == 0.0) {
       return 0;
     }
-    double position = 0.0;
-    int index = 0;
+    var position = 0.0;
+    var index = 0;
     double? itemExtent;
     while (position < scrollOffset) {
       final int? childCount = childManager.estimatedChildCount;
@@ -194,7 +194,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor
             scrollOffsetCorrection: indexToLayoutOffset(-1, index));
         return;
       }
-      final SliverMultiBoxAdaptorParentData childParentData = (child.parentData!
+      final childParentData = (child.parentData!
           as SliverMultiBoxAdaptorParentData)
         ..layoutOffset = indexToLayoutOffset(-1, index);
       assert(childParentData.index == index);
@@ -225,7 +225,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor
         child.layout(_getChildConstraints(index));
       }
       trailingChildWithLayout = child;
-      final SliverMultiBoxAdaptorParentData childParentData =
+      final childParentData =
           child.parentData! as SliverMultiBoxAdaptorParentData;
       assert(childParentData.index == index);
       childParentData.layoutOffset =

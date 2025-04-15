@@ -433,7 +433,7 @@ class PhotolineScrollPosition extends ScrollPosition
       return Future<void>.value();
     }
 
-    final DrivenScrollActivity activity = DrivenScrollActivity(
+    final activity = DrivenScrollActivity(
       this,
       from: pixels,
       to: to,
@@ -509,7 +509,7 @@ class PhotolineScrollPosition extends ScrollPosition
   @override
   ScrollHoldController hold(VoidCallback holdCancelCallback) {
     final double previousVelocity = activity!.velocity;
-    final HoldScrollActivity holdActivity = HoldScrollActivity(
+    final holdActivity = HoldScrollActivity(
       delegate: this,
       onHoldCanceled: holdCancelCallback,
     );
@@ -522,7 +522,7 @@ class PhotolineScrollPosition extends ScrollPosition
 
   @override
   Drag drag(DragStartDetails details, VoidCallback dragCancelCallback) {
-    final ScrollDragController drag = ScrollDragController(
+    final drag = ScrollDragController(
       delegate: this,
       details: details,
       onDragCanceled: dragCancelCallback,
@@ -790,7 +790,7 @@ class PhotolineScrollPosition extends ScrollPosition
         ),
     };
 
-    final Set<SemanticsAction> actions = <SemanticsAction>{};
+    final actions = <SemanticsAction>{};
     if (pixels > minScrollExtent) {
       actions.add(backward);
     }

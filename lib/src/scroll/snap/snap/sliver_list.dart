@@ -18,8 +18,7 @@ class SliverSnapList extends SliverList {
 
   @override
   RenderSliverSnapList createRenderObject(BuildContext context) {
-    final SliverMultiBoxAdaptorElement element =
-        context as SliverMultiBoxAdaptorElement;
+    final element = context as SliverMultiBoxAdaptorElement;
     return RenderSliverSnapList(
       childManager: element,
       controller: controller,

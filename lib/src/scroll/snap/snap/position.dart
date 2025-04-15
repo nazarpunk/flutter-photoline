@@ -115,7 +115,7 @@ class ScrollSnapPosition extends ViewportOffset
 
     double dist = double.infinity;
     double so = 0;
-    int current = -1;
+    var current = -1;
     final List<double> offsets = [];
 
     final mw = controller.boxConstraints!.maxWidth;
@@ -164,11 +164,11 @@ class ScrollSnapPosition extends ViewportOffset
 
     double dist = double.infinity;
     double so = 0;
-    int index = 0;
+    var index = 0;
     double target = 0;
     double height = 0;
 
-    for (int i = 0; i < list.length; i++) {
+    for (var i = 0; i < list.length; i++) {
       final d = so - newPixels;
       final h = list[i].wrapHeight(mw, vd, list[i].fullScreenExpander.value);
       if (dist.isInfinite || d.abs() < dist.abs()) {
@@ -195,9 +195,9 @@ class ScrollSnapPosition extends ViewportOffset
     final photolines = controller.snapPhotolines!();
     double so = 0;
     final List<(double, double)> offsets = [];
-    bool hasOverflow = false;
+    var hasOverflow = false;
 
-    for (int i = 0; i < photolines.length; i++) {
+    for (var i = 0; i < photolines.length; i++) {
       final p = photolines[i];
       final h = p.wrapHeight(mw, vd, p.fullScreenExpander.value);
       if (!viewport(h)) hasOverflow = true;
@@ -213,14 +213,14 @@ class ScrollSnapPosition extends ViewportOffset
       if (!kProfileMode) return target;
 
       final List<double> anchors = [];
-      for (int i = 0; i < offsets.length; i++) {
+      for (var i = 0; i < offsets.length; i++) {
         final (so, h) = offsets[i];
         if (!viewport(h)) continue;
         anchors.add(so);
       }
 
       if (velocity > 0) {
-        for (int i = 0; i < anchors.length; i++) {
+        for (var i = 0; i < anchors.length; i++) {
           final a = anchors[i];
           if (a < target) continue; //⬆️
           return (a - target).abs() > vd ? target : a;
@@ -274,7 +274,7 @@ class ScrollSnapPosition extends ViewportOffset
       final w = controller.boxConstraints!.maxWidth;
       final list = controller.snapPhotolines!();
 
-      for (int i = 0; i < list.length; i++) {
+      for (var i = 0; i < list.length; i++) {
         if (i == _photolineLastScrollIndex) break;
         newPixels += list[i]
             .wrapHeight(w, viewportDimension, list[i].fullScreenExpander.value);
@@ -350,7 +350,7 @@ class ScrollSnapPosition extends ViewportOffset
         _viewportDimension != null) {
       double so = 0;
       final list = controller.snapPhotolines!();
-      for (int i = 0; i < list.length - 1; i++) {
+      for (var i = 0; i < list.length - 1; i++) {
         so += list[i].wrapHeight(
           controller.boxConstraints!.maxWidth,
           _viewportDimension!,
@@ -745,7 +745,7 @@ class ScrollSnapPosition extends ViewportOffset
       return Future<void>.value();
     }
 
-    final DrivenScrollActivity activity = DrivenScrollActivity(
+    final activity = DrivenScrollActivity(
       this,
       from: pixels,
       to: to,
@@ -832,7 +832,7 @@ class ScrollSnapPosition extends ViewportOffset
   @override
   ScrollHoldController hold(VoidCallback holdCancelCallback) {
     final double previousVelocity = activity!.velocity;
-    final HoldScrollActivity holdActivity = HoldScrollActivity(
+    final holdActivity = HoldScrollActivity(
       delegate: this,
       onHoldCanceled: holdCancelCallback,
     );
@@ -845,7 +845,7 @@ class ScrollSnapPosition extends ViewportOffset
 
   @override
   Drag drag(DragStartDetails details, VoidCallback dragCancelCallback) {
-    final ScrollDragController drag = ScrollDragController(
+    final drag = ScrollDragController(
       delegate: this,
       details: details,
       onDragCanceled: dragCancelCallback,
