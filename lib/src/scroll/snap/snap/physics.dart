@@ -7,10 +7,7 @@ import 'package:photoline/src/scroll/snap/snap/box.dart';
 import 'package:photoline/src/scroll/snap/snap/position.dart';
 
 class ScrollSnapPhysics extends ScrollPhysics {
-  const ScrollSnapPhysics({
-    super.parent,
-    required this.controller,
-  });
+  const ScrollSnapPhysics({super.parent, required this.controller});
 
   final ScrollController controller;
 
@@ -26,10 +23,8 @@ class ScrollSnapPhysics extends ScrollPhysics {
   double get maxFlingVelocity => 8000;
 
   @override
-  ScrollSnapPhysics applyTo(ScrollPhysics? ancestor) => ScrollSnapPhysics(
-        parent: buildParent(ancestor),
-        controller: controller,
-      );
+  ScrollSnapPhysics applyTo(ScrollPhysics? ancestor) =>
+      ScrollSnapPhysics(parent: buildParent(ancestor), controller: controller);
 
   @override
   double adjustPositionForNewDimensions({
@@ -49,7 +44,9 @@ class ScrollSnapPhysics extends ScrollPhysics {
   /// [BouncingScrollSimulation]
   @override
   Simulation? createBallisticSimulation(
-      ScrollMetrics position, double velocity) {
+    ScrollMetrics position,
+    double velocity,
+  ) {
     //print('☢️ createBallisticSimulation | $velocity');
 
     final ScrollSnapPosition? pPos =
@@ -162,7 +159,8 @@ class ScrollSnapPhysics extends ScrollPhysics {
     }
 
     if (position is ScrollSnapPosition) {
-      double target = pp +
+      double target =
+          pp +
           200 *
               math.exp(1.2 * math.log(.6 * velocity.abs() / 800)) *
               velocity.sign;
@@ -172,8 +170,10 @@ class ScrollSnapPhysics extends ScrollPhysics {
 
         /// snap box
         if (c.snap && c.box.isNotEmpty) {
-          final box = SplayTreeMap<int, ScrollSnapBox>.from(c.box,
-              toBottom ? (a, b) => a.compareTo(b) : (a, b) => b.compareTo(a));
+          final box = SplayTreeMap<int, ScrollSnapBox>.from(
+            c.box,
+            toBottom ? (a, b) => a.compareTo(b) : (a, b) => b.compareTo(a),
+          );
           for (final b in box.entries) {
             final so = b.value.scrollOffset;
             if ((toBottom && so >= target) || (!toBottom && so <= target)) {
@@ -188,7 +188,11 @@ class ScrollSnapPhysics extends ScrollPhysics {
         if (nT != null) target = nT;
       }
       return ScrollSnapSpringSimulation(
-          spring, position.pixels, target, velocity);
+        spring,
+        position.pixels,
+        target,
+        velocity,
+      );
     }
 
     return ClampingScrollSimulation(
@@ -206,8 +210,10 @@ class ScrollSnapPhysics extends ScrollPhysics {
   @override
   double carriedMomentum(double existingVelocity) {
     return existingVelocity.sign *
-        math.min(0.000816 * math.pow(existingVelocity.abs(), 1.967).toDouble(),
-            40000.0);
+        math.min(
+          0.000816 * math.pow(existingVelocity.abs(), 1.967).toDouble(),
+          40000.0,
+        );
   }
 
   ScrollDecelerationRate get decelerationRate => ScrollDecelerationRate.normal;
@@ -219,20 +225,29 @@ class ScrollSnapPhysics extends ScrollPhysics {
 
     if (!position.outOfRange) return offset;
 
-    final double overscrollPastStart =
-        math.max(position.minScrollExtent - position.pixels, 0.0);
-    final double overscrollPastEnd =
-        math.max(position.pixels - position.maxScrollExtent, 0.0);
-    final double overscrollPast =
-        math.max(overscrollPastStart, overscrollPastEnd);
-    final bool easing = (overscrollPastStart > 0.0 && offset < 0.0) ||
+    final double overscrollPastStart = math.max(
+      position.minScrollExtent - position.pixels,
+      0.0,
+    );
+    final double overscrollPastEnd = math.max(
+      position.pixels - position.maxScrollExtent,
+      0.0,
+    );
+    final double overscrollPast = math.max(
+      overscrollPastStart,
+      overscrollPastEnd,
+    );
+    final bool easing =
+        (overscrollPastStart > 0.0 && offset < 0.0) ||
         (overscrollPastEnd > 0.0 && offset > 0.0);
 
-    final double friction = easing
-        // Apply less resistance when easing the overscroll vs tensioning.
-        ? frictionFactor(
-            (overscrollPast - offset.abs()) / position.viewportDimension)
-        : frictionFactor(overscrollPast / position.viewportDimension);
+    final double friction =
+        easing
+            // Apply less resistance when easing the overscroll vs tensioning.
+            ? frictionFactor(
+              (overscrollPast - offset.abs()) / position.viewportDimension,
+            )
+            : frictionFactor(overscrollPast / position.viewportDimension);
     final double direction = offset.sign;
 
     if (easing && decelerationRate == ScrollDecelerationRate.fast) {
@@ -251,7 +266,10 @@ class ScrollSnapPhysics extends ScrollPhysics {
   }
 
   static double _applyFriction(
-      double extentOutside, double absDelta, double gamma) {
+    double extentOutside,
+    double absDelta,
+    double gamma,
+  ) {
     assert(absDelta > 0);
     var total = 0.0;
     if (extentOutside > 0) {

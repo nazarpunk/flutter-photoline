@@ -7,6 +7,7 @@ import 'package:photoline_example/photoline/fullscreen.dart';
 import 'package:photoline_example/photoline/photo.dart';
 import 'package:photoline_example/photoline/photoline.dart';
 import 'package:photoline_example/snap/snap.dart';
+import 'package:photoline_example/snap/snap2.dart';
 import 'package:photoline_example/widget/scroll.dart';
 
 void main() => runApp(const MyApp());
@@ -41,15 +42,15 @@ class MyApp extends StatelessWidget {
           ),
         );
       },
-      home: Scaffold(
-          appBar: AppBar(title: const Text('Photoline')),
-          body:
-              //const PhotolineTestWidget(),
-              //const PhotolinePhotoWidget()
-          //const PhotolineTestFullscreenWidget(),
-          //const PageViewExample(),
-          const SnapExampleList(),
-          ),
+      home: Material(
+        child:
+            //const PhotolineTestWidget(),
+            //const PhotolinePhotoWidget()
+            //const PhotolineTestFullscreenWidget(),
+            //const PageViewExample(),
+            //const SnapExampleList(),
+            const SnapExampleList2(),
+      ),
     );
   }
 }
