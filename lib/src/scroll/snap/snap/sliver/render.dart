@@ -1,8 +1,8 @@
 part of 'list.dart';
 
-class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor
+class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor
     implements RenderSliverVariedExtentList {
-  PhotolineRenderSliverMultiBoxAdaptor({
+  RenderSliverSnapMultiBoxAdaptor({
     required ItemExtentBuilder itemExtentBuilder,
     required super.childManager,
   }) : _itemExtentBuilder = itemExtentBuilder;
@@ -17,9 +17,6 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor
 
   @override
   set itemExtentBuilder(ItemExtentBuilder value) {
-    if (_itemExtentBuilder == value) {
-      return;
-    }
     _itemExtentBuilder = value;
     markNeedsLayout();
   }

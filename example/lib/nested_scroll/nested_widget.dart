@@ -29,6 +29,7 @@ class _NestedScrollWidgetExampleState extends State<NestedScrollWidgetExample> {
   /// [NestedScrollView]
   @override
   Widget build(BuildContext context) {
+    /*
     final delegate = SliverChildBuilderDelegate(
       (context, index) => Container(
         padding: const EdgeInsets.all(40),
@@ -37,6 +38,8 @@ class _NestedScrollWidgetExampleState extends State<NestedScrollWidgetExample> {
       ),
       childCount: 50,
     );
+
+     */
     return ScrollSnapHeaderMultiChild(
       header: IgnorePointer(
         ignoring: false,
@@ -69,16 +72,16 @@ class _NestedScrollWidgetExampleState extends State<NestedScrollWidgetExample> {
           _KeepAlive(
             child: ScrollSnap(
               controller: _ca,
-              slivers: [
-                SliverSnapList(controller: _ca, delegate: delegate),
+              slivers: const [
+                //SliverSnapList(controller: _ca, delegate: delegate),
               ],
             ),
           ),
           _KeepAlive(
             child: ScrollSnap(
               controller: _cb,
-              slivers: [
-                SliverSnapList(controller: _cb, delegate: delegate),
+              slivers: const [
+                //SliverSnapList(controller: _cb, delegate: delegate),
               ],
             ),
           ),

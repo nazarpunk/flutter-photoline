@@ -5,7 +5,7 @@ import 'package:photoline/src/scroll/snap/snap/physics.dart';
 import 'package:photoline/src/scroll/snap/snap/position.dart';
 import 'package:photoline/src/scroll/snap/snap/viewport/viewport.dart';
 
-export './snap/sliver/photoline/list.dart';
+export 'snap/sliver/list.dart';
 
 class ScrollSnap extends StatefulWidget {
   const ScrollSnap({

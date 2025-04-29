@@ -6,15 +6,15 @@ import 'package:flutter/rendering.dart';
 
 part 'render.dart';
 
-class SliverPhotolineList extends SliverMultiBoxAdaptorWidget {
-  SliverPhotolineList(
-    this.builder, {
-    super.key,
-    required this.itemExtentBuilder,
-    required int childCount,
-  }) : super(
-          delegate: _Delegate(builder, childCount: childCount),
-        );
+class SliverSnapList extends SliverMultiBoxAdaptorWidget {
+  SliverSnapList(
+      this.builder, {
+        super.key,
+        required this.itemExtentBuilder,
+        required int childCount,
+      }) : super(
+    delegate: _Delegate(builder, childCount: childCount),
+  );
 
   final NullableIndexedWidgetBuilder builder;
 
@@ -23,22 +23,21 @@ class SliverPhotolineList extends SliverMultiBoxAdaptorWidget {
   @override
   RenderSliverVariedExtentList createRenderObject(BuildContext context) {
     final element =
-        context as SliverMultiBoxAdaptorElement;
-    return PhotolineRenderSliverMultiBoxAdaptor(
+    context as SliverMultiBoxAdaptorElement;
+    return RenderSliverSnapMultiBoxAdaptor(
       childManager: element,
       itemExtentBuilder: itemExtentBuilder,
     );
   }
 
   @override
-  void updateRenderObject(BuildContext context, PhotolineRenderSliverMultiBoxAdaptor renderObject) {
+  void updateRenderObject(BuildContext context, RenderSliverSnapMultiBoxAdaptor renderObject) {
     renderObject.itemExtentBuilder = itemExtentBuilder;
   }
 }
 
 class _Delegate extends SliverChildDelegate {
-  const _Delegate(
-    this.builder, {
+  const _Delegate(this.builder, {
     required this.childCount,
   });
 

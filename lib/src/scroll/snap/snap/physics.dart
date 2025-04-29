@@ -1,9 +1,7 @@
-import 'dart:collection';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:photoline/photoline.dart';
-import 'package:photoline/src/scroll/snap/snap/box.dart';
 import 'package:photoline/src/scroll/snap/snap/position.dart';
 
 class ScrollSnapPhysics extends ScrollPhysics {
@@ -78,7 +76,8 @@ class ScrollSnapPhysics extends ScrollPhysics {
     /// end scroll
     if (velocity.abs() < tolerance.velocity) {
       /// snap box
-      if (pPos != null && pPos.controller.snap) {
+      if (pPos != null) {
+        /*
         double dist = double.infinity;
         for (final b in pPos.controller.box.entries) {
           final so = b.value.scrollOffset;
@@ -87,6 +86,8 @@ class ScrollSnapPhysics extends ScrollPhysics {
             dist = d;
           }
         }
+
+         */
         if (position is ScrollSnapPosition) {
           final c = controller as ScrollSnapController;
           final list = c.snapPhotolines?.call();
@@ -125,14 +126,11 @@ class ScrollSnapPhysics extends ScrollPhysics {
           }
         }
 
-        if (dist == 0 || dist.isInfinite) {
-          return null;
-        }
-
         return ScrollSpringSimulation(
           spring,
           position.pixels,
-          position.pixels + dist,
+          position.pixels,
+          //position.pixels + dist,
           math.min(0.0, velocity),
           tolerance: tolerance,
         );
@@ -165,24 +163,6 @@ class ScrollSnapPhysics extends ScrollPhysics {
               math.exp(1.2 * math.log(.6 * velocity.abs() / 800)) *
               velocity.sign;
       if (controller is ScrollSnapController) {
-        final c = controller as ScrollSnapController;
-        final toBottom = velocity > 0;
-
-        /// snap box
-        if (c.snap && c.box.isNotEmpty) {
-          final box = SplayTreeMap<int, ScrollSnapBox>.from(
-            c.box,
-            toBottom ? (a, b) => a.compareTo(b) : (a, b) => b.compareTo(a),
-          );
-          for (final b in box.entries) {
-            final so = b.value.scrollOffset;
-            if ((toBottom && so >= target) || (!toBottom && so <= target)) {
-              target = so;
-              break;
-            }
-          }
-        }
-
         /// snap photoline
         final nT = pPos?.photolinePhysicSnap(velocity, target);
         if (nT != null) target = nT;

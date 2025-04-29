@@ -26,9 +26,6 @@ class PhotolineTestWidget extends StatefulWidget {
 }
 
 class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
-  late final ScrollSnapController _controller;
-  late final PhotolineHolderDragController _photolineHolderDragController;
-
   final List<PhotolineController> _photolines = [];
 
   final List<List<Uri>> _uris = [];
@@ -128,64 +125,84 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
   @override
   void initState() {
     _reload();
-
-    _controller = ScrollSnapController(
-      snapLast: true,
-      snapPhotolines: () => _photolines,
-      onRefresh: () async {
-        await Future.delayed(const Duration(milliseconds: 500));
-        _reload();
-        setState(() {});
-      },
-    );
-    _photolineHolderDragController = PhotolineHolderDragController(
-      snapController: _controller,
-    );
-
     super.initState();
   }
 
+  late final ScrollSnapController _controller = ScrollSnapController(
+    snapLast: true,
+    snapPhotolines: () => _photolines,
+    onRefresh: () async {
+      await Future.delayed(const Duration(milliseconds: 500));
+      _reload();
+      setState(() {});
+    },
+    snapBuilder: (index, dimensions) {
+      final p = _photolines[index];
+      return p.wrapHeight(
+        dimensions.crossAxisExtent,
+        dimensions.viewportMainAxisExtent,
+        p.fullScreenExpander.value,
+      );
+    },
+  );
+
+  late final PhotolineHolderDragController _photolineHolderDragController =
+      PhotolineHolderDragController(
+    snapController: _controller,
+  );
+
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        _controller.boxConstraints = constraints;
-        return SizedBox(
-          width: 800,
-          child: PhotolineHolder(
-            dragController: _photolineHolderDragController,
-            child: ScrollSnap(
-              controller: _controller,
-              cacheExtent: .1,
-              slivers: [
-                ScrollSnapRefresh(
-                  controller: _controller,
-                ),
-                SliverPhotolineList(
-                  (context, index) => AutomaticKeepAlive(
-                    key: ValueKey(index),
-                    child: _Child(
-                      key: ValueKey(index),
-                      controller: _photolines[index],
-                      index: index,
-                      constraints: constraints,
-                    ),
-                  ),
-                  childCount: _photolines.length,
-                  itemExtentBuilder: (index, dimensions) {
-                    final p = _photolines[index];
-                    return p.wrapHeight(
-                      dimensions.crossAxisExtent,
-                      dimensions.viewportMainAxisExtent,
-                      p.fullScreenExpander.value,
-                    );
-                  },
-                ),
-              ],
-            ),
+    return Column(
+      children: [
+        const SizedBox(
+          height: 60,
+          child: Placeholder(
+            color: Colors.green,
           ),
-        );
-      },
+        ),
+        Expanded(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              _controller.boxConstraints = constraints;
+              return SizedBox(
+                width: 800,
+                child: PhotolineHolder(
+                  dragController: _photolineHolderDragController,
+                  child: ScrollSnap(
+                    controller: _controller,
+                    cacheExtent: .1,
+                    slivers: [
+                      ScrollSnapRefresh(
+                        controller: _controller,
+                      ),
+                      SliverSnapList(
+                        (context, index) => AutomaticKeepAlive(
+                          key: ValueKey(index),
+                          child: _Child(
+                            key: ValueKey(index),
+                            controller: _photolines[index],
+                            index: index,
+                            constraints: constraints,
+                          ),
+                        ),
+                        childCount: _photolines.length,
+                        itemExtentBuilder: _controller.snapBuilder!,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(
+          height: 60,
+          child: Placeholder(
+            color: Colors.red,
+          ),
+        ),
+      ],
     );
   }
 }

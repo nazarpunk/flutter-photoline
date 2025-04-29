@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:photoline/photoline.dart';
-import 'package:photoline/src/scroll/snap/snap/box.dart';
 import 'package:photoline/src/scroll/snap/snap/position.dart';
-
-double _photolineHeight(double width) => width * .7 + 64;
 
 class ScrollSnapController extends ScrollController {
   ScrollSnapController({
@@ -12,13 +10,16 @@ class ScrollSnapController extends ScrollController {
     super.debugLabel,
     super.onAttach,
     super.onDetach,
-    this.snap = false,
     this.snapLast = false,
-    this.snapPhotolines,
+
     this.headerHolder,
     this.onRefresh,
+
+    this.snapBuilder,
+
+    @deprecated this.snapPhotolines,
+    //@deprecated
     this.photolineGap = 20,
-    this.photolineHeight = _photolineHeight,
   });
 
   @override
@@ -42,15 +43,17 @@ class ScrollSnapController extends ScrollController {
     );
   }
 
-  final Map<int, ScrollSnapBox> box = {};
   BoxConstraints? boxConstraints;
-  int? snapCage;
 
-  final bool snap;
   final bool snapLast;
+
+  final ItemExtentBuilder? snapBuilder;
+
+  @deprecated
   final List<PhotolineController> Function()? snapPhotolines;
+
+  //@deprecated
   final double photolineGap;
-  final double Function(double) photolineHeight;
 
   final RefreshCallback? onRefresh;
   final isUserDrag = ValueNotifier<bool>(false);
