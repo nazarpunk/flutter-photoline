@@ -39,7 +39,7 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
     _keys.clear();
     ++_min;
 
-    for (int i = _min; i < 3; i++) {
+    for (int i = _min; i < 20; i++) {
       final List<Uri> l = [];
       final List<Key> k = [];
       for (var j = 0; j < 0 - i; j++) {

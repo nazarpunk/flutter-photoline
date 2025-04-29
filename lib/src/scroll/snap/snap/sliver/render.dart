@@ -56,8 +56,7 @@ class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor
 
   @override
   @protected
-  double estimateMaxScrollOffset(
-    SliverConstraints constraints, {
+  double estimateMaxScrollOffset(SliverConstraints constraints, {
     int? firstIndex,
     int? lastIndex,
     double? leadingScrollOffset,
@@ -75,10 +74,8 @@ class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor
   @override
   @visibleForTesting
   @protected
-  double computeMaxScrollOffset(
-    SliverConstraints constraints,
-    double itemExtent,
-  ) {
+  double computeMaxScrollOffset(SliverConstraints constraints,
+      double itemExtent,) {
     var offset = 0.0;
     double? itemExtent;
     for (var i = 0; i < childManager.childCount; i++) {
@@ -91,10 +88,8 @@ class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor
     return offset;
   }
 
-  int _getChildIndexForScrollOffset(
-    double scrollOffset,
-    ItemExtentBuilder callback,
-  ) {
+  int _getChildIndexForScrollOffset(double scrollOffset,
+      ItemExtentBuilder callback,) {
     if (scrollOffset == 0.0) {
       return 0;
     }
@@ -117,8 +112,8 @@ class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor
   }
 
   BoxConstraints _getChildConstraints(int index) {
-    double extent;
-    extent = controller.snapBuilder!(index, _currentLayoutDimensions)!;
+    final double extent = controller.snapBuilder!(
+        index, _currentLayoutDimensions) ?? 0;
     return constraints.asBoxConstraints(minExtent: extent, maxExtent: extent);
   }
 
@@ -147,18 +142,18 @@ class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor
 
     final int firstIndex = getMinChildIndexForScrollOffset(scrollOffset, -1);
     final int? targetLastIndex =
-        targetEndScrollOffset.isFinite
-            ? getMaxChildIndexForScrollOffset(targetEndScrollOffset, -1)
-            : null;
+    targetEndScrollOffset.isFinite
+        ? getMaxChildIndexForScrollOffset(targetEndScrollOffset, -1)
+        : null;
 
     if (firstChild != null) {
       final int leadingGarbage = calculateLeadingGarbage(
         firstIndex: firstIndex,
       );
       final int trailingGarbage =
-          targetLastIndex != null
-              ? calculateTrailingGarbage(lastIndex: targetLastIndex)
-              : 0;
+      targetLastIndex != null
+          ? calculateTrailingGarbage(lastIndex: targetLastIndex)
+          : 0;
       collectGarbage(leadingGarbage, trailingGarbage);
     } else {
       collectGarbage(0, 0);
@@ -192,8 +187,8 @@ class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor
         return;
       }
       final childParentData =
-          (child.parentData! as SliverMultiBoxAdaptorParentData)
-            ..layoutOffset = indexToLayoutOffset(-1, index);
+      (child.parentData! as SliverMultiBoxAdaptorParentData)
+        ..layoutOffset = indexToLayoutOffset(-1, index);
       assert(childParentData.index == index);
       trailingChildWithLayout ??= child;
     }
@@ -207,9 +202,9 @@ class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor
 
     double estimatedMaxScrollOffset = double.infinity;
     for (
-      int index = indexOf(trailingChildWithLayout!) + 1;
-      targetLastIndex == null || index <= targetLastIndex;
-      ++index
+    int index = indexOf(trailingChildWithLayout!) + 1;
+    targetLastIndex == null || index <= targetLastIndex;
+    ++index
     ) {
       RenderBox? child = childAfter(trailingChildWithLayout!);
       if (child == null || indexOf(child) != index) {
@@ -227,7 +222,7 @@ class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor
       }
       trailingChildWithLayout = child;
       final childParentData =
-          child.parentData! as SliverMultiBoxAdaptorParentData;
+      child.parentData! as SliverMultiBoxAdaptorParentData;
       assert(childParentData.index == index);
       childParentData.layoutOffset = indexToLayoutOffset(
         -1,
@@ -240,9 +235,9 @@ class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor
     final double trailingScrollOffset = indexToLayoutOffset(-1, lastIndex + 1);
 
     assert(
-      firstIndex == 0 ||
-          childScrollOffset(firstChild!)! - scrollOffset <=
-              precisionErrorTolerance,
+    firstIndex == 0 ||
+        childScrollOffset(firstChild!)! - scrollOffset <=
+            precisionErrorTolerance,
     );
     assert(debugAssertChildListIsNonEmptyAndContiguous());
     assert(indexOf(firstChild!) == firstIndex);
@@ -274,9 +269,9 @@ class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor
     final double targetEndScrollOffsetForPaint =
         constraints.scrollOffset + constraints.remainingPaintExtent;
     final int? targetLastIndexForPaint =
-        targetEndScrollOffsetForPaint.isFinite
-            ? getMaxChildIndexForScrollOffset(targetEndScrollOffsetForPaint, -1)
-            : null;
+    targetEndScrollOffsetForPaint.isFinite
+        ? getMaxChildIndexForScrollOffset(targetEndScrollOffsetForPaint, -1)
+        : null;
 
     geometry = SliverGeometry(
       scrollExtent: estimatedMaxScrollOffset,
@@ -284,8 +279,8 @@ class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor
       cacheExtent: cacheExtent,
       maxPaintExtent: estimatedMaxScrollOffset,
       hasVisualOverflow:
-          (targetLastIndexForPaint != null &&
-              lastIndex >= targetLastIndexForPaint) ||
+      (targetLastIndexForPaint != null &&
+          lastIndex >= targetLastIndexForPaint) ||
           constraints.scrollOffset > 0.0,
     );
 
