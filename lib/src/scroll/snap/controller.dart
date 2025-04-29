@@ -17,7 +17,6 @@ class ScrollSnapController extends ScrollController {
 
     this.snapBuilder,
 
-    @deprecated this.snapPhotolines,
     //@deprecated
     this.photolineGap = 20,
   });
@@ -48,9 +47,6 @@ class ScrollSnapController extends ScrollController {
   final bool snapLast;
 
   final ItemExtentBuilder? snapBuilder;
-
-  @deprecated
-  final List<PhotolineController> Function()? snapPhotolines;
 
   //@deprecated
   final double photolineGap;

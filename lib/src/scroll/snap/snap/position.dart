@@ -110,8 +110,7 @@ class ScrollSnapPosition extends ViewportOffset
   }
 
   void photolineScrollToNext(int direction) {
-    final photolines = controller.snapPhotolines;
-    if (photolines == null) return;
+    if (controller.snapBuilder == null) return;
 
     double dist = double.infinity;
     double so = 0;
@@ -121,14 +120,25 @@ class ScrollSnapPosition extends ViewportOffset
     final mw = controller.boxConstraints!.maxWidth;
     final vd = _viewportDimension!;
 
-    for (final p in photolines()) {
+    for (var i = 0; i >= 0; i++) {
+      final pix = controller.snapBuilder!(
+        i,
+        SliverLayoutDimensions(
+          scrollOffset: 0,
+          precedingScrollExtent: 0,
+          viewportMainAxisExtent: vd,
+          crossAxisExtent: mw,
+        ),
+      );
+      if (pix == null) break;
+
       final d = so - pixels;
       offsets.add(so);
       if (dist.isInfinite || d.abs() < dist.abs()) {
         dist = d;
         current = offsets.length - 1;
       }
-      so += p.wrapHeight(mw, vd, p.fullScreenExpander.value);
+      so += pix;
     }
 
     current += direction;
@@ -163,7 +173,6 @@ class ScrollSnapPosition extends ViewportOffset
 
     final mw = controller.boxConstraints!.maxWidth;
     final vd = _viewportDimension!;
-    final list = controller.snapPhotolines!();
 
     double dist = double.infinity;
     double so = 0;
@@ -171,9 +180,19 @@ class ScrollSnapPosition extends ViewportOffset
     double target = 0;
     double height = 0;
 
-    for (var i = 0; i < list.length; i++) {
+    for (var i = 0; i >= 0; i++) {
       final d = so - newPixels;
-      final h = list[i].wrapHeight(mw, vd, list[i].fullScreenExpander.value);
+      final h = controller.snapBuilder!(
+        i,
+        SliverLayoutDimensions(
+          scrollOffset: 0,
+          precedingScrollExtent: 0,
+          viewportMainAxisExtent: vd,
+          crossAxisExtent: mw,
+        ),
+      );
+      if (h == null) break;
+
       if (dist.isInfinite || d.abs() < dist.abs()) {
         dist = d;
         index = i;
@@ -195,14 +214,21 @@ class ScrollSnapPosition extends ViewportOffset
 
     bool viewport(double a) => a - controller.photolineGap <= vd;
 
-    final photolines = controller.snapPhotolines!();
     double so = 0;
     final List<(double, double)> offsets = [];
     var hasOverflow = false;
 
-    for (var i = 0; i < photolines.length; i++) {
-      final p = photolines[i];
-      final h = p.wrapHeight(mw, vd, p.fullScreenExpander.value);
+    for (var i = 0; i >= 0; i++) {
+      final h = controller.snapBuilder!(
+        i,
+        SliverLayoutDimensions(
+          scrollOffset: 0,
+          precedingScrollExtent: 0,
+          viewportMainAxisExtent: vd,
+          crossAxisExtent: mw,
+        ),
+      );
+      if (h == null) break;
       if (!viewport(h)) hasOverflow = true;
       offsets.add((so, h));
       so += h;
@@ -268,22 +294,26 @@ class ScrollSnapPosition extends ViewportOffset
     }
 
     /// snap photolines
-    if (controller.snapPhotolines != null &&
-        controller.boxConstraints != null) {
+    if (controller.snapBuilder != null && controller.boxConstraints != null) {
       final double? oldPixels = hasPixels ? pixels : null;
 
       double newPixels = 0;
 
-      final w = controller.boxConstraints!.maxWidth;
-      final list = controller.snapPhotolines!();
+      final mw = controller.boxConstraints!.maxWidth;
 
-      for (var i = 0; i < list.length; i++) {
-        if (i == _photolineLastScrollIndex) break;
-        newPixels += list[i].wrapHeight(
-          w,
-          viewportDimension,
-          list[i].fullScreenExpander.value,
+      for (var i = 0; i >= 0; i++) {
+        final h = controller.snapBuilder!(
+          i,
+          SliverLayoutDimensions(
+            scrollOffset: 0,
+            precedingScrollExtent: 0,
+            viewportMainAxisExtent: viewportDimension,
+            crossAxisExtent: mw,
+          ),
         );
+        if (h == null) break;
+        if (i == _photolineLastScrollIndex) break;
+        newPixels += h;
       }
 
       if (newPixels != oldPixels) {
@@ -356,17 +386,25 @@ class ScrollSnapPosition extends ViewportOffset
      */
 
     /// snap last photolines
-    if (controller.snapPhotolines != null &&
+    if (controller.snapBuilder != null &&
         controller.boxConstraints != null &&
         _viewportDimension != null) {
       double so = 0;
-      final list = controller.snapPhotolines!();
-      for (var i = 0; i < list.length - 1; i++) {
-        so += list[i].wrapHeight(
-          controller.boxConstraints!.maxWidth,
-          _viewportDimension!,
-          list[i].fullScreenExpander.value,
-        );
+
+      final dim = SliverLayoutDimensions(
+        scrollOffset: 0,
+        precedingScrollExtent: 0,
+        viewportMainAxisExtent: _viewportDimension!,
+        crossAxisExtent: controller.boxConstraints!.maxWidth,
+      );
+
+      for (var i = 0; i >= 0; i++) {
+        if (controller.snapBuilder!(i + 1, dim) == null) {
+          break;
+        }
+        final h = controller.snapBuilder!(i, dim);
+        if (h == null) break;
+        so += h;
       }
       maxScrollExtent = math.max(maxScrollExtent, so);
     }

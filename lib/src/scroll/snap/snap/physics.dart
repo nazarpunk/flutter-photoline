@@ -88,7 +88,7 @@ class ScrollSnapPhysics extends ScrollPhysics {
           double? target;
           double wH = 0;
 
-          for (var i = 0; i > 0; i++) {
+          for (var i = 0; i >= 0; i++) {
             final h = c.snapBuilder!(
               i,
               SliverLayoutDimensions(
@@ -98,7 +98,6 @@ class ScrollSnapPhysics extends ScrollPhysics {
                 crossAxisExtent: mw,
               ),
             );
-
             if (h == null) break;
             final se = so + h;
             final a = math.min(se, vd) - math.max(so, 0);
