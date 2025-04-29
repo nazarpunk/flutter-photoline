@@ -9,8 +9,11 @@ class SnapExampleList extends StatefulWidget {
 }
 
 class _SnapExampleListState extends State<SnapExampleList> {
+  final _max = 10;
+
   late final ScrollSnapController _controller = ScrollSnapController(
     snapBuilder: (index, dimensions) {
+      if (index >= _max) return null;
       return 100;
     },
     snapLast: true,
@@ -23,24 +26,26 @@ class _SnapExampleListState extends State<SnapExampleList> {
       children: [
         const SizedBox(height: 100, child: Placeholder(color: Colors.red)),
         Expanded(
-          child: ScrollSnap(
-            controller: _controller,
-            cacheExtent: double.infinity,
-            slivers: [
-              ScrollSnapRefresh(controller: _controller),
-              SliverSnapList(
-                controller: _controller,
-                builder: (context, index) {
-                  final k = ValueKey<int>(Object.hash(index, true));
-                  return AutomaticKeepAlive(
-                    key: k,
-                    child: const Placeholder(),
-                  );
-                },
-                childCount: 10,
-              )
-            ],
-          ),
+          child: LayoutBuilder(builder: (context, constraints) {
+            _controller.boxConstraints = constraints;
+            return ScrollSnap(
+              controller: _controller,
+              slivers: [
+                ScrollSnapRefresh(controller: _controller),
+                SliverSnapList(
+                  controller: _controller,
+                  builder: (context, index) {
+                    final k = ValueKey<int>(Object.hash(index, true));
+                    return AutomaticKeepAlive(
+                      key: k,
+                      child: const Placeholder(),
+                    );
+                  },
+                  childCount: _max,
+                )
+              ],
+            );
+          }),
         ),
         const SizedBox(height: 70, child: Placeholder(color: Colors.purple)),
       ],

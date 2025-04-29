@@ -83,6 +83,7 @@ class ScrollSnapPhysics extends ScrollPhysics {
         if (c.snapBuilder != null) {
           final vd = position.viewportDimension;
           final mw = c.boxConstraints!.maxWidth;
+
           double so = -pp;
           double area = double.infinity;
           double? target;

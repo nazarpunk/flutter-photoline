@@ -38,35 +38,33 @@ class ScrollSnapState extends State<ScrollSnap> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return NotificationListener(
-      onNotification: (notification) {
-        if (notification is PhotolinePointerScrollNotification) {
-          if (controller.position is ScrollSnapPosition) {
-            final dx = notification.event.scrollDelta.dy;
-            final double velocity = (math.max(dx.abs(), 50) * dx.sign) * 10;
-            (controller.position as ScrollSnapPosition).goBallistic(velocity);
-          }
-          return false;
-        }
-
-        if (notification is ScrollUpdateNotification) {
-          controller.isUserDrag.value = notification.dragDetails != null;
+  Widget build(BuildContext context) => NotificationListener(
+    onNotification: (notification) {
+      if (notification is PhotolinePointerScrollNotification) {
+        if (controller.position is ScrollSnapPosition) {
+          final dx = notification.event.scrollDelta.dy;
+          final double velocity = (math.max(dx.abs(), 50) * dx.sign) * 10;
+          (controller.position as ScrollSnapPosition).goBallistic(velocity);
         }
         return false;
+      }
+
+      if (notification is ScrollUpdateNotification) {
+        controller.isUserDrag.value = notification.dragDetails != null;
+      }
+      return false;
+    },
+    child: PhotolineScrollable(
+      controller: controller,
+      physics: _physics,
+      viewportBuilder: (context, position) {
+        //print('😍 $position');
+        return ScrollSnapViewport(
+          cacheExtent: widget.cacheExtent,
+          offset: position,
+          children: widget.slivers,
+        );
       },
-      child: PhotolineScrollable(
-        controller: controller,
-        physics: _physics,
-        viewportBuilder: (context, position) {
-          //print('😍 $position');
-          return ScrollSnapViewport(
-            cacheExtent: widget.cacheExtent,
-            offset: position,
-            children: widget.slivers,
-          );
-        },
-      ),
-    );
-  }
+    ),
+  );
 }
