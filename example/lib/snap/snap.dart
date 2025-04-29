@@ -29,7 +29,8 @@ class _SnapExampleListState extends State<SnapExampleList> {
             slivers: [
               ScrollSnapRefresh(controller: _controller),
               SliverSnapList(
-                (context, index) {
+                controller: _controller,
+                builder: (context, index) {
                   final k = ValueKey<int>(Object.hash(index, true));
                   return AutomaticKeepAlive(
                     key: k,
@@ -37,7 +38,6 @@ class _SnapExampleListState extends State<SnapExampleList> {
                   );
                 },
                 childCount: 10,
-                itemExtentBuilder: _controller.snapBuilder!,
               )
             ],
           ),

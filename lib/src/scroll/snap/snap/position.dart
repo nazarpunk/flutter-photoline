@@ -94,7 +94,7 @@ class ScrollSnapPosition extends ViewportOffset
     final double? mw = controller.boxConstraints?.maxWidth;
     final double? vd = _viewportDimension;
     if (mw == null || vd == null) return false;
-    return controller.snapPhotolines != null;
+    return controller.snapBuilder != null;
   }
 
   void photolineScrollToOpen(double delta) {

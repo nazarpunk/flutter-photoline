@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:photoline/photoline.dart';
 import 'package:photoline/src/scroll/snap/snap/position.dart';
 
@@ -47,7 +48,7 @@ class ScrollSnapPhysics extends ScrollPhysics {
   ) {
     //print('☢️ createBallisticSimulation | $velocity');
 
-    final ScrollSnapPosition? pPos =
+    final ScrollSnapPosition? spos =
         position is ScrollSnapPosition ? position : null;
     final pp = position.pixels;
 
@@ -76,54 +77,50 @@ class ScrollSnapPhysics extends ScrollPhysics {
     /// end scroll
     if (velocity.abs() < tolerance.velocity) {
       /// snap box
-      if (pPos != null) {
-        /*
-        double dist = double.infinity;
-        for (final b in pPos.controller.box.entries) {
-          final so = b.value.scrollOffset;
-          final d = so - position.pixels;
-          if (dist.isInfinite || d.abs() < dist.abs()) {
-            dist = d;
-          }
-        }
+      if (spos != null) {
+        final c = controller as ScrollSnapController;
 
-         */
-        if (position is ScrollSnapPosition) {
-          final c = controller as ScrollSnapController;
-          final list = c.snapPhotolines?.call();
+        if (c.snapBuilder != null) {
+          final vd = position.viewportDimension;
+          final mw = c.boxConstraints!.maxWidth;
+          double so = -pp;
+          double area = double.infinity;
+          double? target;
+          double wH = 0;
 
-          if (list != null && list.isNotEmpty) {
-            final vd = position.viewportDimension;
-            final mw = c.boxConstraints!.maxWidth;
-            double so = -pp;
-            double area = double.infinity;
-            double? target;
-            double wH = 0;
-
-            for (final i in list) {
-              final h = i.wrapHeight(mw, vd, i.fullScreenExpander.value);
-              final se = so + h;
-              final a = math.min(se, vd) - math.max(so, 0);
-
-              if (a > 0 && (area.isInfinite || a > area)) {
-                area = a;
-                wH = h;
-                target = so + pp;
-              }
-              so = se;
-            }
-
-            if (target == null || target == pp) return null;
-            if (wH >= vd + c.photolineGap) return null;
-
-            return ScrollSpringSimulation(
-              spring,
-              position.pixels,
-              target,
-              0.0,
-              tolerance: tolerance,
+          for (var i = 0; i > 0; i++) {
+            final h = c.snapBuilder!(
+              i,
+              SliverLayoutDimensions(
+                scrollOffset: 0,
+                precedingScrollExtent: 0,
+                viewportMainAxisExtent: vd,
+                crossAxisExtent: mw,
+              ),
             );
+
+            if (h == null) break;
+            final se = so + h;
+            final a = math.min(se, vd) - math.max(so, 0);
+
+            if (a > 0 && (area.isInfinite || a > area)) {
+              area = a;
+              wH = h;
+              target = so + pp;
+            }
+            so = se;
           }
+
+          if (target == null || target == pp) return null;
+          if (wH >= vd + c.photolineGap) return null;
+
+          return ScrollSpringSimulation(
+            spring,
+            position.pixels,
+            target,
+            0.0,
+            tolerance: tolerance,
+          );
         }
 
         return ScrollSpringSimulation(
@@ -137,7 +134,7 @@ class ScrollSnapPhysics extends ScrollPhysics {
       }
 
       /// snap photoline at end
-      final target = pPos?.photolinePhysicSnap(velocity, pp);
+      final target = spos?.photolinePhysicSnap(velocity, pp);
 
       if (target == null || pp == target) return null;
       return ScrollSpringSimulation(
@@ -164,7 +161,7 @@ class ScrollSnapPhysics extends ScrollPhysics {
               velocity.sign;
       if (controller is ScrollSnapController) {
         /// snap photoline
-        final nT = pPos?.photolinePhysicSnap(velocity, target);
+        final nT = spos?.photolinePhysicSnap(velocity, target);
         if (nT != null) target = nT;
       }
       return ScrollSnapSpringSimulation(
@@ -178,6 +175,7 @@ class ScrollSnapPhysics extends ScrollPhysics {
     return ClampingScrollSimulation(
       position: position.pixels,
       velocity: velocity,
+
       tolerance: tolerance,
     );
   }

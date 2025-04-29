@@ -177,7 +177,8 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
                         controller: _controller,
                       ),
                       SliverSnapList(
-                        (context, index) => AutomaticKeepAlive(
+                        controller: _controller,
+                        builder: (context, index) => AutomaticKeepAlive(
                           key: ValueKey(index),
                           child: _Child(
                             key: ValueKey(index),
@@ -187,7 +188,6 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
                           ),
                         ),
                         childCount: _photolines.length,
-                        itemExtentBuilder: _controller.snapBuilder!,
                       ),
                     ],
                   ),
