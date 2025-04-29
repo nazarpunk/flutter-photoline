@@ -27,7 +27,7 @@ class _SnapExampleListState extends State<SnapExampleList> {
         const SizedBox(height: 100, child: Placeholder(color: Colors.red)),
         Expanded(
           child: LayoutBuilder(builder: (context, constraints) {
-            _controller.boxConstraints = constraints;
+
             return ScrollSnap(
               controller: _controller,
               slivers: [

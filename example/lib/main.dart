@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
           PhotolineTestWidget(),
           PhotolinePhotoWidget(),
           PhotolineTestFullscreenWidget(),
-        ][0],
+        ][1],
       ),
     );
   }

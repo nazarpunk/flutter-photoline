@@ -112,7 +112,7 @@ class ScrollSnapPhysics extends ScrollPhysics {
           }
 
           if (target == null || target == pp) return null;
-          if (wH >= vd + c.photolineGap) return null;
+          if (wH >= vd + c.snapGap) return null;
 
           return ScrollSpringSimulation(
             spring,

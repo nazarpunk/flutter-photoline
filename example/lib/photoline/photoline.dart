@@ -130,6 +130,7 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
 
   late final ScrollSnapController _controller = ScrollSnapController(
     snapLast: true,
+    snapGap: 20,
     onRefresh: () async {
       await Future.delayed(const Duration(milliseconds: 500));
       _reload();

@@ -23,6 +23,7 @@ class ScrollSnapPosition extends ViewportOffset
     if (oldPosition != null) {
       absorb(oldPosition);
     }
+
     if (keepScrollOffset) {
       restoreScrollOffset();
     }
@@ -212,7 +213,7 @@ class ScrollSnapPosition extends ViewportOffset
     final mw = controller.boxConstraints!.maxWidth;
     final vd = _viewportDimension!;
 
-    bool viewport(double a) => a - controller.photolineGap <= vd;
+    bool viewport(double a) => a - controller.snapGap <= vd;
 
     double so = 0;
     final List<(double, double)> offsets = [];
