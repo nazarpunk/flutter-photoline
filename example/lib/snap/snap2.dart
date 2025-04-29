@@ -10,12 +10,12 @@ class SnapExampleList2 extends StatefulWidget {
 
 class _SnapExampleList2State extends State<SnapExampleList2> {
   late final ScrollSnapController _ca = ScrollSnapController(
-    //snap: true,
-  );
+      //snap: true,
+      );
 
   late final ScrollSnapController _cb = ScrollSnapController(
-    //snap: true,
-  );
+      //snap: true,
+      );
 
   @override
   Widget build(BuildContext context) {

@@ -49,7 +49,7 @@ class MyApp extends StatelessWidget {
             //const PhotolineTestFullscreenWidget(),
             //const PageViewExample(),
             //const SnapExampleList(),
-            const SnapExampleList2(),
+            const SnapExampleList(),
       ),
     );
   }

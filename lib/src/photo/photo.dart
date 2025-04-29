@@ -11,10 +11,7 @@ part 'render.dart';
 part 'paint.dart';
 
 class PhotolinePhoto extends StatefulWidget {
-  const PhotolinePhoto({
-    super.key,
-    required this.uri,
-  });
+  const PhotolinePhoto({super.key, required this.uri});
 
   final PhotolineUri? uri;
 
@@ -40,7 +37,9 @@ class _PhotolinePhotoState extends State<PhotolinePhoto>
   @override
   void initState() {
     super.initState();
-    _animationRepaint..repeat()..addListener(rebuild);
+    _animationRepaint
+      ..repeat()
+      ..addListener(rebuild);
   }
 
   @override

@@ -97,9 +97,7 @@ class _PhotolinePhotoPaint extends RenderProxyBox {
             translateY: cdy + h * .5,
           ),
         ],
-        [
-          Rect.fromLTWH(cx, cy, cw, ch),
-        ],
+        [Rect.fromLTWH(cx, cy, cw, ch)],
         null,
         BlendMode.srcOver,
         null,
@@ -122,13 +120,14 @@ class _PhotolinePhotoPaint extends RenderProxyBox {
     if (opacity < 1) {
       if (uri.blur != null) {
         img(
-            image: uri.blur!,
-            opacity: 1,
-            filter: ui.ImageFilter.blur(
-              sigmaX: 30,
-              sigmaY: 30,
-              tileMode: TileMode.mirror,
-            ));
+          image: uri.blur!,
+          opacity: 1,
+          filter: ui.ImageFilter.blur(
+            sigmaX: 30,
+            sigmaY: 30,
+            tileMode: TileMode.mirror,
+          ),
+        );
       } else {
         if (uri.color != null) {
           canvas.drawRect(
@@ -142,10 +141,7 @@ class _PhotolinePhotoPaint extends RenderProxyBox {
     }
 
     if (uri.image != null) {
-      img(
-        image: uri.image!,
-        opacity: Curves.easeOut.transform(opacity),
-      );
+      img(image: uri.image!, opacity: Curves.easeOut.transform(opacity));
     }
 
     canvas.restore();
