@@ -219,16 +219,15 @@ class ScrollSnapPosition extends ViewportOffset
     final List<(double, double)> offsets = [];
     var hasOverflow = false;
 
+    final dim = SliverLayoutDimensions(
+      scrollOffset: 0,
+      precedingScrollExtent: 0,
+      viewportMainAxisExtent: vd,
+      crossAxisExtent: mw,
+    );
+
     for (var i = 0; i >= 0; i++) {
-      final h = controller.snapBuilder!(
-        i,
-        SliverLayoutDimensions(
-          scrollOffset: 0,
-          precedingScrollExtent: 0,
-          viewportMainAxisExtent: vd,
-          crossAxisExtent: mw,
-        ),
-      );
+      final h = controller.snapBuilder!(i, dim);
       if (h == null) break;
       if (!viewport(h)) hasOverflow = true;
       offsets.add((so, h));
@@ -295,23 +294,22 @@ class ScrollSnapPosition extends ViewportOffset
     }
 
     /// snap photolines
-    if (controller.snapBuilder != null && controller.boxConstraints != null) {
+    if (controller.snapBuilder != null) {
       final double? oldPixels = hasPixels ? pixels : null;
 
       double newPixels = 0;
 
       final mw = controller.boxConstraints!.maxWidth;
 
+      final dim = SliverLayoutDimensions(
+        scrollOffset: 0,
+        precedingScrollExtent: 0,
+        viewportMainAxisExtent: viewportDimension,
+        crossAxisExtent: mw,
+      );
+
       for (var i = 0; i >= 0; i++) {
-        final h = controller.snapBuilder!(
-          i,
-          SliverLayoutDimensions(
-            scrollOffset: 0,
-            precedingScrollExtent: 0,
-            viewportMainAxisExtent: viewportDimension,
-            crossAxisExtent: mw,
-          ),
-        );
+        final h = controller.snapBuilder!(i, dim);
         if (h == null) break;
         if (i == _photolineLastScrollIndex) break;
         newPixels += h;
@@ -329,34 +327,6 @@ class ScrollSnapPosition extends ViewportOffset
   @override
   bool applyContentDimensions(double minScrollExtent, double maxScrollExtent) {
     //print('🔥 applyContentDimensions');
-
-    /// snapLast box
-    /*
-    if (controller.snap) {
-      if (controller.box.isNotEmpty) {
-        final box = SplayTreeMap<int, ScrollSnapBox>.from(
-            controller.box, (a, b) => b.compareTo(a));
-        if (controller.snapLast) {
-          maxScrollExtent =
-              math.max(maxScrollExtent, box.entries.first.value.scrollOffset);
-        } else {
-          double h = 0;
-          double so = box.entries.first.value.scrollOffset;
-
-          for (final b in box.entries) {
-            final v = b.value;
-            h += v.height;
-            if (h >= viewportDimension) {
-              maxScrollExtent = math.max(maxScrollExtent, so);
-              break;
-            }
-            so = v.scrollOffset;
-          }
-        }
-      }
-    }
-
-     */
 
     /// cage
     /*
@@ -386,19 +356,36 @@ class ScrollSnapPosition extends ViewportOffset
     }
      */
 
-    /// snap last photolines
-    if (controller.snapBuilder != null &&
-        controller.boxConstraints != null &&
-        _viewportDimension != null) {
+    final dim = SliverLayoutDimensions(
+      scrollOffset: 0,
+      precedingScrollExtent: 0,
+      viewportMainAxisExtent: _viewportDimension!,
+      crossAxisExtent: controller.boxConstraints!.maxWidth,
+    );
+
+    /// Snap Last Min: events
+    if (controller.snapLastMin && _viewportDimension != null) {
+      final List<double> sizes = [];
+      double allh = 0;
+
+      for (var i = 0; i >= 0; i++) {
+        final h = controller.snapBuilder!(i, dim);
+        if (h == null) break;
+        sizes.add(allh);
+        allh += h;
+      }
+
+      for (final so in sizes) {
+        if (allh - so <= viewportDimension) {
+          maxScrollExtent = math.max(maxScrollExtent, so);
+          break;
+        }
+      }
+    }
+
+    /// Snap Last Max: photolines
+    if (controller.snapLastMax && _viewportDimension != null) {
       double so = 0;
-
-      final dim = SliverLayoutDimensions(
-        scrollOffset: 0,
-        precedingScrollExtent: 0,
-        viewportMainAxisExtent: _viewportDimension!,
-        crossAxisExtent: controller.boxConstraints!.maxWidth,
-      );
-
       for (var i = 0; i >= 0; i++) {
         if (controller.snapBuilder!(i + 1, dim) == null) {
           break;

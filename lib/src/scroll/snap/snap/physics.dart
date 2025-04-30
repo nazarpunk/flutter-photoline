@@ -79,7 +79,6 @@ class ScrollSnapPhysics extends ScrollPhysics {
       /// snap box
       if (spos != null) {
         final c = controller as ScrollSnapController;
-
         if (c.snapBuilder != null) {
           final vd = position.viewportDimension;
           final mw = c.boxConstraints!.maxWidth;
@@ -89,16 +88,15 @@ class ScrollSnapPhysics extends ScrollPhysics {
           double? target;
           double wH = 0;
 
+          final dim = SliverLayoutDimensions(
+            scrollOffset: 0,
+            precedingScrollExtent: 0,
+            viewportMainAxisExtent: vd,
+            crossAxisExtent: mw,
+          );
+
           for (var i = 0; i >= 0; i++) {
-            final h = c.snapBuilder!(
-              i,
-              SliverLayoutDimensions(
-                scrollOffset: 0,
-                precedingScrollExtent: 0,
-                viewportMainAxisExtent: vd,
-                crossAxisExtent: mw,
-              ),
-            );
+            final h = c.snapBuilder!(i, dim);
             if (h == null) break;
             final se = so + h;
             final a = math.min(se, vd) - math.max(so, 0);
@@ -110,6 +108,25 @@ class ScrollSnapPhysics extends ScrollPhysics {
             }
             so = se;
           }
+
+          return null;
+
+          /*
+          for (final i in list) {
+              final h = i.wrapHeight(mw, vd, i.fullScreenExpander.value);
+              final se = so + h;
+              final a = math.min(se, vd) - math.max(so, 0);
+
+              if (a > 0 && (area.isInfinite || a > area)) {
+                area = a;
+                wH = h;
+                target = so + pp;
+              }
+              so = se;
+            }
+           */
+
+          print('t|$target|$pp');
 
           if (target == null || target == pp) return null;
           if (wH >= vd + c.snapGap) return null;
@@ -123,6 +140,9 @@ class ScrollSnapPhysics extends ScrollPhysics {
           );
         }
 
+        return null;
+
+        /*
         return ScrollSpringSimulation(
           spring,
           position.pixels,
@@ -131,6 +151,7 @@ class ScrollSnapPhysics extends ScrollPhysics {
           math.min(0.0, velocity),
           tolerance: tolerance,
         );
+         */
       }
 
       /// snap photoline at end

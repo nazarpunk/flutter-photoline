@@ -10,10 +10,14 @@ class ScrollSnapController extends ScrollController {
     super.debugLabel,
     super.onAttach,
     super.onDetach,
-    this.snapLast = false,
+    this.rebuild,
+    this.snapLastMax = false,
+    this.snapLastMin = false,
     this.headerHolder,
     this.onRefresh,
     this.snapBuilder,
+    this.snapTop = true,
+    this.snapArea = false,
     this.snapGap = 0,
   });
 
@@ -40,12 +44,16 @@ class ScrollSnapController extends ScrollController {
 
   BoxConstraints? boxConstraints;
 
-  final bool snapLast;
+  final bool snapLastMin;
+  final bool snapLastMax;
 
   final double snapGap;
+  final bool snapArea;
+  final bool snapTop;
 
   final ItemExtentBuilder? snapBuilder;
 
+  final void Function()? rebuild;
   final RefreshCallback? onRefresh;
   final isUserDrag = ValueNotifier<bool>(false);
 

@@ -1,5 +1,9 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:photoline/photoline.dart';
+
+part 'item.dart';
 
 class SnapExampleList extends StatefulWidget {
   const SnapExampleList({super.key});
@@ -9,16 +13,29 @@ class SnapExampleList extends StatefulWidget {
 }
 
 class _SnapExampleListState extends State<SnapExampleList> {
-  final _max = 10;
+  final List<_Data> _datas = [];
 
   late final ScrollSnapController _controller = ScrollSnapController(
     snapBuilder: (index, dimensions) {
-      if (index >= _max) return null;
-      return 100;
+      final d = _datas.elementAtOrNull(index);
+      if (d == null) return null;
+      const double gap = 20;
+      return lerpDouble(64 + gap, 120 + gap, d.t);
     },
-    snapLast: true,
+    snapLastMin: true,
     onRefresh: () async {},
+    rebuild: rebuild,
   );
+
+  void rebuild() => setState(() {});
+
+  @override
+  void initState() {
+    for (var i = 0; i < 20; i++) {
+      _datas.add(_Data());
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +44,6 @@ class _SnapExampleListState extends State<SnapExampleList> {
         const SizedBox(height: 100, child: Placeholder(color: Colors.red)),
         Expanded(
           child: LayoutBuilder(builder: (context, constraints) {
-
             return ScrollSnap(
               controller: _controller,
               slivers: [
@@ -38,10 +54,10 @@ class _SnapExampleListState extends State<SnapExampleList> {
                     final k = ValueKey<int>(Object.hash(index, true));
                     return AutomaticKeepAlive(
                       key: k,
-                      child: const Placeholder(),
+                      child: _Item(_datas[index], parent: _controller, key: k),
                     );
                   },
-                  childCount: _max,
+                  childCount: _datas.length,
                 )
               ],
             );

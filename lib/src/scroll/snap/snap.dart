@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:photoline/photoline.dart';
+import 'package:photoline/src/mixin/state/rebuild.dart';
 import 'package:photoline/src/scroll/snap/snap/physics.dart';
 import 'package:photoline/src/scroll/snap/snap/position.dart';
 import 'package:photoline/src/scroll/snap/snap/viewport/viewport.dart';
@@ -23,7 +24,7 @@ class ScrollSnap extends StatefulWidget {
   State<ScrollSnap> createState() => ScrollSnapState();
 }
 
-class ScrollSnapState extends State<ScrollSnap> {
+class ScrollSnapState extends State<ScrollSnap> with StateRebuildMixin {
   ScrollPhysics? _physics;
 
   ScrollSnapController get controller => widget.controller;
