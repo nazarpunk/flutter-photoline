@@ -84,9 +84,7 @@ class ScrollSnapPhysics extends ScrollPhysics {
           final mw = c.boxConstraints!.maxWidth;
 
           double so = -pp;
-          double area = double.infinity;
           double? target;
-          double wH = 0;
 
           final dim = SliverLayoutDimensions(
             scrollOffset: 0,
@@ -95,25 +93,13 @@ class ScrollSnapPhysics extends ScrollPhysics {
             crossAxisExtent: mw,
           );
 
-          for (var i = 0; i >= 0; i++) {
-            final h = c.snapBuilder!(i, dim);
-            if (h == null) break;
-            final se = so + h;
-            final a = math.min(se, vd) - math.max(so, 0);
+          if (c.snapArea) {
+            double wH = 0;
+            double area = double.infinity;
 
-            if (a > 0 && (area.isInfinite || a > area)) {
-              area = a;
-              wH = h;
-              target = so + pp;
-            }
-            so = se;
-          }
-
-          return null;
-
-          /*
-          for (final i in list) {
-              final h = i.wrapHeight(mw, vd, i.fullScreenExpander.value);
+            for (var i = 0; i >= 0; i++) {
+              final h = c.snapBuilder!(i, dim);
+              if (h == null) break;
               final se = so + h;
               final a = math.min(se, vd) - math.max(so, 0);
 
@@ -124,12 +110,27 @@ class ScrollSnapPhysics extends ScrollPhysics {
               }
               so = se;
             }
-           */
+            if (wH >= vd + c.snapGap) return null;
+          }
 
-          print('t|$target|$pp');
+          if (c.snapTop) {
+            double all = 0;
+            double dist = double.infinity;
+
+            for (var i = 0; i >= 0; i++) {
+              final h = c.snapBuilder!(i, dim);
+              if (h == null) break;
+
+              final d = (all - pp).abs();
+              if (dist.isInfinite || d < dist) {
+                dist = d;
+                target = all;
+              }
+              all += h;
+            }
+          }
 
           if (target == null || target == pp) return null;
-          if (wH >= vd + c.snapGap) return null;
 
           return ScrollSpringSimulation(
             spring,
@@ -139,8 +140,6 @@ class ScrollSnapPhysics extends ScrollPhysics {
             tolerance: tolerance,
           );
         }
-
-        return null;
 
         /*
         return ScrollSpringSimulation(
