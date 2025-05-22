@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:photoline_example/keyboard/keyboard.dart';
 
 import 'package:photoline_example/photoline/fullscreen.dart';
 import 'package:photoline_example/photoline/photo.dart';
@@ -40,10 +41,11 @@ class MyApp extends StatelessWidget {
       },
       home: Material(
         child: const [
-          SnapExampleList(),
+          SnapKeyboard(),
           PhotolineTestWidget(),
           PhotolinePhotoWidget(),
           PhotolineTestFullscreenWidget(),
+          SnapExampleList(),
         ][0],
       ),
     );

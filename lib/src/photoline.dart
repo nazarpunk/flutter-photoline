@@ -46,8 +46,9 @@ class PhotolineState extends State<Photoline>
 
   int _pageTargetClose = -1;
 
-  final _physics =
-      const PhotolineScrollPhysics(parent: AlwaysScrollableScrollPhysics());
+  final _physics = const PhotolineScrollPhysics(
+    parent: AlwaysScrollableScrollPhysics(),
+  );
 
   //final _physics = const ScrollPhysics(parent: AlwaysScrollableScrollPhysics());
 
@@ -64,8 +65,10 @@ class PhotolineState extends State<Photoline>
     final t = Curves.easeInOut.transform(animationPosition.value);
     final count = controller.count;
 
-    controller.fullScreenExpander.value =
-        math.min(controller.fullScreenExpander.value, 1 - t);
+    controller.fullScreenExpander.value = math.min(
+      controller.fullScreenExpander.value,
+      1 - t,
+    );
 
     // center
     positionWidth[controller.pageTargetOpen.value].lerp(t);
@@ -75,7 +78,8 @@ class PhotolineState extends State<Photoline>
       for (int i = controller.pageTargetOpen.value - 1; i >= 0; i--) {
         positionWidth[i]
           ..lerp(t)
-          ..offset.current = positionWidth[i + 1].offset.current -
+          ..offset.current =
+              positionWidth[i + 1].offset.current -
               positionWidth[i].width.current;
       }
     }
@@ -85,7 +89,8 @@ class PhotolineState extends State<Photoline>
       for (int i = controller.pageTargetOpen.value + 1; i < count; i++) {
         positionWidth[i]
           ..lerp(t)
-          ..offset.current = positionWidth[i - 1].offset.current +
+          ..offset.current =
+              positionWidth[i - 1].offset.current +
               positionWidth[i - 1].width.current;
       }
     }
@@ -95,8 +100,10 @@ class PhotolineState extends State<Photoline>
     final t = Curves.easeInOut.transform(animationPosition.value);
     final count = controller.count;
 
-    controller.fullScreenExpander.value =
-        math.min(controller.fullScreenExpander.value, 1 - t);
+    controller.fullScreenExpander.value = math.min(
+      controller.fullScreenExpander.value,
+      1 - t,
+    );
 
     for (var i = 0; i < count; i++) {
       positionWidth[i].lerp(t);
@@ -109,8 +116,10 @@ class PhotolineState extends State<Photoline>
 
     final pto = controller.pageTargetOpen.value;
 
-    controller.fullScreenExpander.value =
-        math.max(controller.fullScreenExpander.value, t);
+    controller.fullScreenExpander.value = math.max(
+      controller.fullScreenExpander.value,
+      t,
+    );
 
     // center
     final c = positionWidth[pto]..lerp(t);
@@ -164,8 +173,8 @@ class PhotolineState extends State<Photoline>
       case PhotolineAction.closing:
         _listenerPositionClosing();
       case PhotolineAction.open ||
-            PhotolineAction.close ||
-            PhotolineAction.drag:
+          PhotolineAction.close ||
+          PhotolineAction.drag:
     }
     rebuild();
   }
@@ -176,9 +185,9 @@ class PhotolineState extends State<Photoline>
       case PhotolineAction.open || PhotolineAction.opening:
         _aspectRatio = dx;
       case PhotolineAction.closing ||
-            PhotolineAction.close ||
-            PhotolineAction.drag ||
-            PhotolineAction.upload:
+          PhotolineAction.close ||
+          PhotolineAction.drag ||
+          PhotolineAction.upload:
         _aspectRatio = -dx;
     }
   }
@@ -237,7 +246,9 @@ class PhotolineState extends State<Photoline>
 
     if (isZero) {
       positionWidth.insert(
-          0, PhotolinePosition(size.close, -size.close)..end(size.close, 0));
+        0,
+        PhotolinePosition(size.close, -size.close)..end(size.close, 0),
+      );
     } else {
       positionWidth.insert(0, PhotolinePosition(size.close, -size.close));
     }
@@ -436,8 +447,10 @@ class PhotolineState extends State<Photoline>
     if (snap != null) {
       snap.controller.pos.photolineScrollToOpen(
         (context.findRenderObject()! as RenderBox)
-            .globalToLocal(Offset.zero,
-                ancestor: snap.context.findRenderObject())
+            .globalToLocal(
+              Offset.zero,
+              ancestor: snap.context.findRenderObject(),
+            )
             .dy,
       );
     }
@@ -573,6 +586,7 @@ class PhotolineState extends State<Photoline>
   }
 
   void _toPageClose() {
+    controller.pageActiveOpenComplete.value = -1;
     controller.pageActiveOpen.value = -1;
     controller.pageActivePaginator.value = -1;
     controller.action.value = PhotolineAction.closing;
@@ -600,9 +614,10 @@ class PhotolineState extends State<Photoline>
     final big = positionWidth[controller.pageTargetOpen.value];
 
     final bigLeft = big.offset.current.clamp(0, size.viewport).toDouble();
-    final bigRight = (big.offset.current + big.width.current)
-        .clamp(0, size.viewport)
-        .toDouble();
+    final bigRight =
+        (big.offset.current + big.width.current)
+            .clamp(0, size.viewport)
+            .toDouble();
     var viewIndex = 0;
     sz = 0;
     final closeCount = controller.getViewCount(controller.photolineWidth);
@@ -628,7 +643,11 @@ class PhotolineState extends State<Photoline>
     }
 
     viewIndex = controller.correctCloseTargetIndex(
-        count, closeCount, controller.pageTargetOpen.value, viewIndex);
+      count,
+      closeCount,
+      controller.pageTargetOpen.value,
+      viewIndex,
+    );
     _pageTargetClose = controller.pageTargetOpen.value - viewIndex;
 
     big.offset.end = viewIndex * size.close;
@@ -776,21 +795,28 @@ class PhotolineState extends State<Photoline>
     holder?.photolines.add(this);
     controller.dragController = holder?.dragController;
 
-    animationPosition = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 400),
-    )
-      ..addListener(_listenerPosition)
-      ..addStatusListener(_listenerPositionStatus);
+    animationPosition =
+        AnimationController(
+            vsync: this,
+            duration: const Duration(milliseconds: 400),
+          )
+          ..addListener(_listenerPosition)
+          ..addStatusListener(_listenerPositionStatus);
 
-    animationOpacity = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 50 * 1000))
-      ..addListener(_listenerOpacity)
-      ..repeat();
-    animationAdd = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 20 * 1000))
-      ..addListener(controller.onAnimationAdd)
-      ..repeat();
+    animationOpacity =
+        AnimationController(
+            vsync: this,
+            duration: const Duration(milliseconds: 50 * 1000),
+          )
+          ..addListener(_listenerOpacity)
+          ..repeat();
+    animationAdd =
+        AnimationController(
+            vsync: this,
+            duration: const Duration(milliseconds: 20 * 1000),
+          )
+          ..addListener(controller.onAnimationAdd)
+          ..repeat();
 
     holder?.animationDrag.addListener(rebuild);
 
@@ -812,53 +838,58 @@ class PhotolineState extends State<Photoline>
   @override
   Widget build(BuildContext context) {
     //_updater = !_updater;
-    return LayoutBuilder(builder: (context, constraints) {
-      controller.photolineWidth = constraints.maxWidth;
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Expanded(
-            child: ClipRect(
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Positioned.fill(child: PhotolineBackside(photoline: this)),
-                  Positioned.fill(
-                    child: NotificationListener(
-                      onNotification: _onNotification,
-                      child: PhotolineScrollable(
-                        axisDirection: AxisDirection.right,
-                        controller: controller,
-                        physics: _physics,
-                        viewportBuilder: (context, position) =>
-                            PhotolineViewport(
-                          offset: position,
-                          slivers: [
-                            PhotolineSliverMultiBoxAdaptorWidget(
-                              controller: controller,
-                              photoline: this,
-                              delegate: PhotolineSliverChildBuilderDelegate(
-                                (context, i) => PhotolineTile(
-                                  photoline: this,
-                                  key: controller.getKey(i),
-                                  index: i,
-                                  controller: controller,
-                                ),
-                                controller: controller,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        controller.photolineWidth = constraints.maxWidth;
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Expanded(
+              child: ClipRect(
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Positioned.fill(child: PhotolineBackside(photoline: this)),
+                    Positioned.fill(
+                      child: NotificationListener(
+                        onNotification: _onNotification,
+                        child: PhotolineScrollable(
+                          axisDirection: AxisDirection.right,
+                          controller: controller,
+                          physics: _physics,
+                          viewportBuilder:
+                              (context, position) => PhotolineViewport(
+                                offset: position,
+                                slivers: [
+                                  PhotolineSliverMultiBoxAdaptorWidget(
+                                    controller: controller,
+                                    photoline: this,
+                                    delegate:
+                                        PhotolineSliverChildBuilderDelegate(
+                                          (context, i) => PhotolineTile(
+                                            photoline: this,
+                                            key: controller.getKey(i),
+                                            index: i,
+                                            controller: controller,
+                                          ),
+                                          controller: controller,
+                                        ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
                         ),
                       ),
                     ),
-                  )
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          if (controller.getPagerItem != null && controller.getPagerSize != null) PhotolinePager(photoline: this),
-        ],
-      );
-    });
+            if (controller.getPagerItem != null &&
+                controller.getPagerSize != null)
+              PhotolinePager(photoline: this),
+          ],
+        );
+      },
+    );
   }
 }

@@ -31,18 +31,15 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
   final List<List<Uri>> _uris = [];
   final List<List<Key>> _keys = [];
 
-  int _min = -1;
-
   void _reload() {
     _photolines.clear();
     _uris.clear();
     _keys.clear();
-    ++_min;
 
-    for (int i = _min; i < 20; i++) {
+    for (var i = 0; i < 20; i++) {
       final List<Uri> l = [];
       final List<Key> k = [];
-      for (var j = 0; j < 0 - i; j++) {
+      for (var j = 0; j < 10 - i; j++) {
         l.add(PhotolineDummys.get(i, j));
         k.add(ValueKey<String>('$i $j'));
       }
@@ -63,12 +60,18 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
           //if (kDebugMode) return [];
 
           final List<Widget> out = [
+            ColoredBox(
+              color: Color.lerp(Colors.transparent,
+                  const Color.fromRGBO(0, 0, 0, .7), 1 - data.closeDw)!,
+              child: const SizedBox.expand(),
+            ),
             Center(
               child: ColoredBox(
                 color: Colors.black,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text('${data.index}'),
+                  child:
+                      Text('${data.index}| ${data.closeDw.toStringAsFixed(2)}'),
                 ),
               ),
             )
@@ -120,6 +123,12 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
 
       _photolines.add(c);
     }
+
+    final vl = _photolines.first.pageActiveOpenComplete;
+
+    vl.addListener(() {
+      print(vl.value);
+    });
   }
 
   @override

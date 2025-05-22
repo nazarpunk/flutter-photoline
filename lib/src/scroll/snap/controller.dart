@@ -60,7 +60,6 @@ class ScrollSnapController extends ScrollController {
   final ScrollSnapHeaderController? headerHolder;
 
   ScrollSnapSpringSimulation? simulation;
-  int? snapTargetIndex;
 
   ScrollSnapPosition get pos => position as ScrollSnapPosition;
 }

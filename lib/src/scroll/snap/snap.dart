@@ -5,6 +5,7 @@ import 'package:photoline/src/mixin/state/rebuild.dart';
 import 'package:photoline/src/scroll/snap/snap/physics.dart';
 import 'package:photoline/src/scroll/snap/snap/position.dart';
 import 'package:photoline/src/scroll/snap/snap/viewport/viewport.dart';
+import 'package:photoline/src/scroll/snap/widgets_bindings/observer.dart';
 
 export 'snap/sliver/list.dart';
 
@@ -13,7 +14,7 @@ class ScrollSnap extends StatefulWidget {
     super.key,
     required this.controller,
     required this.slivers,
-    this.cacheExtent = 1.5,
+    this.cacheExtent = double.infinity,
   });
 
   final List<Widget> slivers;
@@ -24,10 +25,26 @@ class ScrollSnap extends StatefulWidget {
   State<ScrollSnap> createState() => ScrollSnapState();
 }
 
-class ScrollSnapState extends State<ScrollSnap> with StateRebuildMixin {
+class ScrollSnapState extends State<ScrollSnap>
+    with StateRebuildMixin, WidgetsBindingObserver {
   ScrollPhysics? _physics;
 
   ScrollSnapController get controller => widget.controller;
+
+  final _observer = WidgetsBindingObserverEx();
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addObserver(_observer);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(_observer);
+    _observer.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:photoline/photoline.dart';
 
@@ -20,7 +21,7 @@ class _SnapExampleListState extends State<SnapExampleList> {
       final d = _datas.elementAtOrNull(index);
       if (d == null) return null;
       const double gap = 20;
-      return lerpDouble(64 + gap, 120 + gap, d.t);
+      return lerpDouble(100 + gap, 200 + gap, d.t);
     },
     snapLastMin: true,
     onRefresh: () async {},
@@ -54,7 +55,11 @@ class _SnapExampleListState extends State<SnapExampleList> {
                     final k = ValueKey<int>(Object.hash(index, true));
                     return AutomaticKeepAlive(
                       key: k,
-                      child: _Item(_datas[index], parent: _controller, key: k),
+                      child: _Item(
+                          index: index,
+                          data: _datas[index],
+                          parent: _controller,
+                          key: k),
                     );
                   },
                   childCount: _datas.length,

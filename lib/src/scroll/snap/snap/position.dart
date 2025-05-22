@@ -830,6 +830,7 @@ class ScrollSnapPosition extends ViewportOffset
   void pointerScroll(double delta) {
     if (!kProfileMode) return;
 
+
     // If an update is made to pointer scrolling here, consider if the same
     // (or similar) change should be made in
     // _NestedScrollCoordinator.pointerScroll.

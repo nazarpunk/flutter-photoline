@@ -627,8 +627,8 @@
     }
   ],
   "generator": "pub",
-  "generatorVersion": "3.8.0-278.1.beta",
+  "generatorVersion": "3.8.0-278.4.beta",
   "flutterRoot": "file:///Users/nazarpunk/flutter",
-  "flutterVersion": "3.32.0-0.2.pre",
+  "flutterVersion": "3.32.0-0.4.pre",
   "pubCache": "file:///Users/nazarpunk/.pub-cache"
 }
