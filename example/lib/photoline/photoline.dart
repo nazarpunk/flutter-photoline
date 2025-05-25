@@ -124,11 +124,14 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
       _photolines.add(c);
     }
 
+    /*
     final vl = _photolines.first.pageActiveOpenComplete;
 
     vl.addListener(() {
       print(vl.value);
     });
+
+     */
   }
 
   @override

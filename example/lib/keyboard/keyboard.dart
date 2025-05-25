@@ -23,7 +23,7 @@ class _SnapKeyboardState extends State<SnapKeyboard> {
     return Column(
       children: [
         const SizedBox(
-          height: 100,
+          height: 110,
           child: Placeholder(color: Colors.red),
         ),
         Expanded(
@@ -48,6 +48,19 @@ class _SnapKeyboardState extends State<SnapKeyboard> {
                           child: const Placeholder()),
                     ),
                     const _Example(),
+                    SizedBox(
+                      height: 1,
+                      child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () async {
+                            FocusManager.instance.primaryFocus?.unfocus();
+                            if (kDebugMode) {
+                              await SystemChannels.textInput
+                                  .invokeMethod('TextInput.hide');
+                            }
+                          },
+                          child: const Placeholder()),
+                    ),
                   ]),
                 )
               ],

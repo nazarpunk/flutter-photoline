@@ -5,7 +5,6 @@ import 'package:photoline/src/mixin/state/rebuild.dart';
 import 'package:photoline/src/scroll/snap/snap/physics.dart';
 import 'package:photoline/src/scroll/snap/snap/position.dart';
 import 'package:photoline/src/scroll/snap/snap/viewport/viewport.dart';
-import 'package:photoline/src/scroll/snap/widgets_bindings/observer.dart';
 
 export 'snap/sliver/list.dart';
 
@@ -31,18 +30,57 @@ class ScrollSnapState extends State<ScrollSnap>
 
   ScrollSnapController get controller => widget.controller;
 
-  final _observer = WidgetsBindingObserverEx();
+  @override
+  void didChangeMetrics() {
+    final m = MediaQuery.of(context);
+
+    /// check
+    if (!mounted) return;
+
+    /// render box
+    final wbox = context.findRenderObject();
+    if (wbox is! RenderBox || !wbox.hasSize) return;
+
+    final wdy = wbox.localToGlobal(Offset.zero).dy;
+    final wh = wbox.size.height;
+
+    final h = m.size.height;
+    final vib = m.viewInsets.bottom;
+
+    final double koverlap = math.max(0, vib - h + wdy + wh);
+
+    //print('${vib.toStringAsFixed(2)} - $h + $wdy + $wh = ${koverlap.toStringAsFixed(2)}',);
+    final pos = controller.pos..keyboardOverlap = koverlap;
+
+    /// focus node
+    final FocusNode? activeNode = FocusManager.instance.primaryFocus;
+    if (activeNode?.context == null) return;
+    final fco = activeNode!.context!;
+    if (fco.findAncestorStateOfType<ScrollSnapState>() != this) {
+      return;
+    }
+
+    final fro = fco.findRenderObject();
+    if (fro is! RenderBox || !fro.hasSize) return;
+
+    final fof = fro.localToGlobal(Offset.zero);
+    const double gap = 10;
+
+    final foverlap = math.max(0, vib - h + fof.dy + fro.size.height + gap);
+
+    if (foverlap <= 0) return;
+    pos.jumpTo(pos.pixels + foverlap);
+  }
 
   @override
   void initState() {
-    WidgetsBinding.instance.addObserver(_observer);
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(_observer);
-    _observer.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
