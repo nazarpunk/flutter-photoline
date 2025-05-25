@@ -88,8 +88,6 @@ class ScrollSnapPosition extends ViewportOffset
   bool get shouldIgnorePointer =>
       !outOfRange && (activity?.shouldIgnorePointer ?? true);
 
-  double keyboardOverlap = 0;
-
   // === Photoline
   int _photolineLastScrollIndex = 0;
 
@@ -399,7 +397,7 @@ class ScrollSnapPosition extends ViewportOffset
       maxScrollExtent = math.max(maxScrollExtent, so);
     }
 
-    maxScrollExtent = math.max(maxScrollExtent, keyboardOverlap);
+    maxScrollExtent = math.max(maxScrollExtent, controller.keyboardOverlap);
 
     if (controller.headerHolder != null) {
       final h = controller.headerHolder!;

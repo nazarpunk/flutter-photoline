@@ -62,4 +62,6 @@ class ScrollSnapController extends ScrollController {
   ScrollSnapSpringSimulation? simulation;
 
   ScrollSnapPosition get pos => position as ScrollSnapPosition;
+
+  double keyboardOverlap = 0;
 }

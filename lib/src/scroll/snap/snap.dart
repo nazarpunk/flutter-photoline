@@ -32,7 +32,7 @@ class ScrollSnapState extends State<ScrollSnap>
 
   @override
   void didChangeMetrics() {
-    final m = MediaQuery.of(context);
+    final media = MediaQuery.of(context);
 
     /// check
     if (!mounted) return;
@@ -44,13 +44,14 @@ class ScrollSnapState extends State<ScrollSnap>
     final wdy = wbox.localToGlobal(Offset.zero).dy;
     final wh = wbox.size.height;
 
-    final h = m.size.height;
-    final vib = m.viewInsets.bottom;
+    final h = media.size.height;
+    final vib = media.viewInsets.bottom;
 
-    final double koverlap = math.max(0, vib - h + wdy + wh);
+    controller.keyboardOverlap = math.max(0, vib - h + wdy + wh);
 
     //print('${vib.toStringAsFixed(2)} - $h + $wdy + $wh = ${koverlap.toStringAsFixed(2)}',);
-    final pos = controller.pos..keyboardOverlap = koverlap;
+
+    final pos = controller.pos;
 
     /// focus node
     final FocusNode? activeNode = FocusManager.instance.primaryFocus;
@@ -63,10 +64,14 @@ class ScrollSnapState extends State<ScrollSnap>
     final fro = fco.findRenderObject();
     if (fro is! RenderBox || !fro.hasSize) return;
 
-    final fof = fro.localToGlobal(Offset.zero);
-    const double gap = 10;
+    final fdy = fro.localToGlobal(Offset.zero).dy;
+    final fh = fro.size.height;
 
-    final foverlap = math.max(0, vib - h + fof.dy + fro.size.height + gap);
+    const double gap = 20;
+
+    final foverlap = math.max(0, vib - h + fdy + fh + gap);
+
+    //print('${controller.keyboardOverlap.toStringAsFixed(2)} |  ${foverlap.toStringAsFixed(2)} | ${controller.pos.maxScrollExtent.toStringAsFixed(2)}',);
 
     if (foverlap <= 0) return;
     pos.jumpTo(pos.pixels + foverlap);
