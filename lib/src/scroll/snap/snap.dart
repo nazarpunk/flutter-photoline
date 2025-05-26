@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:photoline/photoline.dart';
@@ -30,6 +31,8 @@ class ScrollSnapState extends State<ScrollSnap>
 
   ScrollSnapController get controller => widget.controller;
 
+  Timer? _timer;
+
   @override
   void didChangeMetrics() {
     final media = MediaQuery.of(context);
@@ -47,34 +50,37 @@ class ScrollSnapState extends State<ScrollSnap>
     final h = media.size.height;
     final vib = media.viewInsets.bottom;
 
-    controller.keyboardOverlap = math.max(0, vib - h + wdy + wh);
-
-    //print('${vib.toStringAsFixed(2)} - $h + $wdy + $wh = ${koverlap.toStringAsFixed(2)}',);
-
-    final pos = controller.pos;
-
-    /// focus node
-    final FocusNode? activeNode = FocusManager.instance.primaryFocus;
-    if (activeNode?.context == null) return;
-    final fco = activeNode!.context!;
-    if (fco.findAncestorStateOfType<ScrollSnapState>() != this) {
-      return;
-    }
-
-    final fro = fco.findRenderObject();
-    if (fro is! RenderBox || !fro.hasSize) return;
-
-    final fdy = fro.localToGlobal(Offset.zero).dy;
-    final fh = fro.size.height;
-
     const double gap = 20;
 
-    final foverlap = math.max(0, vib - h + fdy + fh + gap);
+    controller.keyboardOverlap = math.max(0, vib - h + wdy + wh);
 
-    //print('${controller.keyboardOverlap.toStringAsFixed(2)} |  ${foverlap.toStringAsFixed(2)} | ${controller.pos.maxScrollExtent.toStringAsFixed(2)}',);
+    _timer?.cancel();
+    _timer = Timer(const Duration(milliseconds: 1), () async {
+      if (!mounted) return;
 
-    if (foverlap <= 0) return;
-    pos.jumpTo(pos.pixels + foverlap);
+      final FocusNode? activeNode = FocusManager.instance.primaryFocus;
+      if (activeNode?.context == null) return;
+      final fco = activeNode!.context!;
+      if (fco.findAncestorStateOfType<ScrollSnapState>() != this) {
+        return;
+      }
+
+      final fro = fco.findRenderObject();
+      if (fro is! RenderBox || !fro.hasSize) return;
+
+      final fdy = fro.localToGlobal(Offset.zero).dy;
+      final fh = fro.size.height;
+
+      final foverlap = math.max(0, vib - h + fdy + fh + gap);
+
+      if (foverlap <= 0) return;
+      final pos = controller.pos;
+      await pos.animateTo(
+        pos.pixels + foverlap,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+      );
+    });
   }
 
   @override

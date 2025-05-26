@@ -47,6 +47,27 @@ class ScrollSnapPhysics extends ScrollPhysics {
     double velocity,
   ) {
     //print('☢️ createBallisticSimulation | $velocity');
+    final c = controller as ScrollSnapController;
+    final vd = position.viewportDimension;
+    final mw = c.boxConstraints!.maxWidth;
+    final dim = SliverLayoutDimensions(
+      scrollOffset: 0,
+      precedingScrollExtent: 0,
+      viewportMainAxisExtent: vd,
+      crossAxisExtent: mw,
+    );
+
+    bool snapCan = true;
+
+    if (c.snapBuilder != null && c.snapCan != null) {
+      for (var i = 0; i >= 0; i++) {
+        final can = c.snapCan!(i, dim);
+        if (can == false) {
+          snapCan = false;
+          break;
+        }
+      }
+    }
 
     final ScrollSnapPosition? spos =
         position is ScrollSnapPosition ? position : null;
@@ -78,20 +99,9 @@ class ScrollSnapPhysics extends ScrollPhysics {
     if (velocity.abs() < tolerance.velocity) {
       /// snap box
       if (spos != null) {
-        final c = controller as ScrollSnapController;
         if (c.snapBuilder != null) {
-          final vd = position.viewportDimension;
-          final mw = c.boxConstraints!.maxWidth;
-
           double so = -pp;
           double? target;
-
-          final dim = SliverLayoutDimensions(
-            scrollOffset: 0,
-            precedingScrollExtent: 0,
-            viewportMainAxisExtent: vd,
-            crossAxisExtent: mw,
-          );
 
           if (c.snapArea) {
             double wH = 0;
@@ -140,17 +150,6 @@ class ScrollSnapPhysics extends ScrollPhysics {
             tolerance: tolerance,
           );
         }
-
-        /*
-        return ScrollSpringSimulation(
-          spring,
-          position.pixels,
-          position.pixels,
-          //position.pixels + dist,
-          math.min(0.0, velocity),
-          tolerance: tolerance,
-        );
-         */
       }
 
       /// snap photoline at end

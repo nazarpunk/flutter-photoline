@@ -41,8 +41,8 @@ class MyApp extends StatelessWidget {
       },
       home: Material(
         child: const [
-          SnapKeyboard(),
           PhotolineTestWidget(),
+          SnapKeyboard(),
           PhotolinePhotoWidget(),
           PhotolineTestFullscreenWidget(),
           SnapExampleList(),

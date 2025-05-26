@@ -149,6 +149,9 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
       _reload();
       setState(() {});
     },
+    snapCan: (index, dimensions) {
+      return false;
+    },
     snapBuilder: (index, dimensions) {
       final p = _photolines.elementAtOrNull(index);
       if (p == null) return null;
@@ -178,7 +181,6 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
         Expanded(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              _controller.boxConstraints = constraints;
               return SizedBox(
                 width: 800,
                 child: PhotolineHolder(

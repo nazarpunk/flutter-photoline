@@ -15,6 +15,7 @@ class ScrollSnapController extends ScrollController {
     this.snapLastMin = false,
     this.headerHolder,
     this.onRefresh,
+    this.snapCan,
     this.snapBuilder,
     this.snapTop = true,
     this.snapArea = false,
@@ -52,6 +53,7 @@ class ScrollSnapController extends ScrollController {
   final bool snapTop;
 
   final ItemExtentBuilder? snapBuilder;
+  final bool? Function(int index, SliverLayoutDimensions dimensions)? snapCan;
 
   final void Function()? rebuild;
   final RefreshCallback? onRefresh;
