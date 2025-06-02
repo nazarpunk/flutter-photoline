@@ -57,13 +57,15 @@ class ScrollSnapPhysics extends ScrollPhysics {
       crossAxisExtent: mw,
     );
 
-    bool snapCan = true;
-
+    var snapCan = true;
     if (c.snapBuilder != null && c.snapCan != null) {
       for (var i = 0; i >= 0; i++) {
         final can = c.snapCan!(i, dim);
         if (can == false) {
           snapCan = false;
+          break;
+        }
+        if (can == null) {
           break;
         }
       }
@@ -97,6 +99,8 @@ class ScrollSnapPhysics extends ScrollPhysics {
 
     /// end scroll
     if (velocity.abs() < tolerance.velocity) {
+      if (!snapCan) return null;
+
       /// snap box
       if (spos != null) {
         if (c.snapBuilder != null) {
@@ -180,7 +184,8 @@ class ScrollSnapPhysics extends ScrollPhysics {
               velocity.sign;
       if (controller is ScrollSnapController) {
         /// snap photoline
-        final nT = spos?.photolinePhysicSnap(velocity, target);
+        final nT =
+            snapCan ? spos?.photolinePhysicSnap(velocity, target) : target;
         if (nT != null) target = nT;
       }
       return ScrollSnapSpringSimulation(

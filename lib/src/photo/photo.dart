@@ -11,9 +11,10 @@ part 'render.dart';
 part 'paint.dart';
 
 class PhotolinePhoto extends StatefulWidget {
-  const PhotolinePhoto({super.key, required this.uri});
+  const PhotolinePhoto({super.key, required this.uri, required this.sigma});
 
   final PhotolineUri? uri;
+  final double sigma;
 
   @override
   State<PhotolinePhoto> createState() => _PhotolinePhotoState();
@@ -54,6 +55,7 @@ class _PhotolinePhotoState extends State<PhotolinePhoto>
       return _PhotolinePhotoRender(
         uri: widget.uri!,
         animation: _animationRepaint,
+        sigma: widget.sigma,
       );
     }
     return const SizedBox();

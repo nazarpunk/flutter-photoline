@@ -150,7 +150,15 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
       setState(() {});
     },
     snapCan: (index, dimensions) {
-      return false;
+      final p = _photolines.elementAtOrNull(index);
+      if (p == null) return null;
+      final w = dimensions.crossAxisExtent;
+      final h = dimensions.viewportMainAxisExtent;
+
+      if (p.wrapHeight(w, h, 0) - 20 > h) return false;
+      if (p.wrapHeight(w, h, 1) - 20 > h) return false;
+
+      return true;
     },
     snapBuilder: (index, dimensions) {
       final p = _photolines.elementAtOrNull(index);

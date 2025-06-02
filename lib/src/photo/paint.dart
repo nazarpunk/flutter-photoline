@@ -4,6 +4,7 @@ class _PhotolinePhotoPaint extends RenderProxyBox {
   _PhotolinePhotoPaint({
     required AnimationController animation,
     required PhotolineUri uri,
+    required this.sigma,
   }) {
     _animation = animation;
     _uri = uri;
@@ -12,6 +13,8 @@ class _PhotolinePhotoPaint extends RenderProxyBox {
   late AnimationController _animation;
 
   AnimationController get animation => _animation;
+
+  final double sigma;
 
   set animation(AnimationController value) {
     if (_animation == value) {
@@ -123,8 +126,8 @@ class _PhotolinePhotoPaint extends RenderProxyBox {
           image: uri.blur!,
           opacity: 1,
           filter: ui.ImageFilter.blur(
-            sigmaX: 30,
-            sigmaY: 30,
+            sigmaX: sigma,
+            sigmaY: sigma,
             tileMode: TileMode.mirror,
           ),
         );

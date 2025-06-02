@@ -45,7 +45,7 @@ class _PhotolinePhotoWidgetState extends State<PhotolinePhotoWidget> {
       mainAxisSpacing: 10,
       crossAxisCount: 2,
       children: <Widget>[
-        for (final u in uris) PhotolinePhoto(uri: u),
+        for (final u in uris) PhotolinePhoto(uri: u, sigma: 30),
         Container(
           padding: const EdgeInsets.all(8),
           color: Colors.teal[200],
