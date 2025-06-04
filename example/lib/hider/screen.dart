@@ -17,11 +17,12 @@ class _HiderExampleListState extends State<HiderExampleList> {
   late final ScrollSnapController _controller = ScrollSnapController(
     onRefresh: () async {},
     rebuild: rebuild,
+    freeMaxExtend: true,
   );
 
   void rebuild() => setState(() {});
 
-  bool hidden = false;
+  bool hidden = true;
 
   @override
   Widget build(BuildContext context) {
@@ -41,25 +42,45 @@ class _HiderExampleListState extends State<HiderExampleList> {
                       key: ValueKey(index),
                       index: index,
                       visible: !(red && hidden),
-                      child: SizedBox(
-                          height: red ? 100 : 50,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 2),
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                    color: red
-                                        ? Colors.redAccent
-                                        : Colors.cyanAccent),
-                              ),
-                              child: Center(
-                                child: Text('$index'),
-                              ),
-                            ),
-                          )),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                                color:
+                                    red ? Colors.redAccent : Colors.cyanAccent),
+                          ),
+                          child: red
+                              ? Hider(
+                                  //visible: !(red && hidden),
+                                  index: -index - 1,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(4),
+                                    child: SizedBox(
+                                      height: red ? 100 : 50,
+                                      child: DecoratedBox(
+                                        decoration: BoxDecoration(
+                                          border:
+                                              Border.all(color: Colors.purple),
+                                        ),
+                                        child: Center(
+                                          child: Text('$index'),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : SizedBox(
+                                  height: 50,
+                                  child: Center(
+                                    child: Text('$index'),
+                                  ),
+                                ),
+                        ),
+                      ),
                     );
                   },
-                  childCount: 33,
+                  childCount: 133,
                 ),
               )
             ],
@@ -74,8 +95,7 @@ class _HiderExampleListState extends State<HiderExampleList> {
                   value: hidden,
                   onChanged: (value) {
                     hidden = !hidden;
-                    print('🍒 $hidden =======');
-
+                    print('🍒 $hidden');
                     rebuild();
                   }),
             )),

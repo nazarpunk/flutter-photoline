@@ -40,6 +40,8 @@ class HiderState extends State<Hider>
 
   final _curve = Curves.easeInOut;
 
+  HiderState? _parent;
+
   void _statusListener(AnimationStatus status) {
     widget.statusListener?.call(status);
     if (status != AnimationStatus.completed || !widget.scrollExpand) {
@@ -100,6 +102,7 @@ class HiderState extends State<Hider>
   @override
   void didChangeDependencies() {
     _scrollable = Scrollable.maybeOf(context);
+    _parent = context.findAncestorStateOfType<HiderState>();
     super.didChangeDependencies();
   }
 
@@ -132,13 +135,20 @@ class HiderState extends State<Hider>
 
     if (!up && !dn) return false;
 
+    final pv = _parent?.widget.visible;
+
     if (widget.visible) {
-      _animation.forward(from: 1);
       // ignore: invalid_use_of_protected_member
       if (up) s.position.forcePixels(p + h);
+      _animation.forward(from: 1);
     } else {
-      // ignore: invalid_use_of_protected_member
-      if (up) s.position.forcePixels(p - h);
+      var dy = h;
+      if (pv != null && !pv) dy = 0;
+
+      if (dy != 0) {
+        // ignore: invalid_use_of_protected_member
+        if (up) s.position.forcePixels(p - dy);
+      }
       _animation.reverse(from: 0);
     }
 
@@ -199,14 +209,14 @@ class HiderState extends State<Hider>
   Widget build(BuildContext context) {
     super.build(context);
 
-    final Widget child = ClipRect(
+    return ClipRect(
       child: Align(
         alignment: widget.alignment,
         heightFactor: _curve.transform(_animation.value),
         child: Opacity(
+          key: _key,
           opacity: _animation.value.clamp(0, 1),
           child: ColoredBox(
-            key: _key,
             color: widget.color,
             child: Padding(
               padding: widget.padding,
@@ -216,8 +226,6 @@ class HiderState extends State<Hider>
         ),
       ),
     );
-
-    return child;
   }
 
   @override

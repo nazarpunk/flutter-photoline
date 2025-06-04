@@ -19,6 +19,7 @@ class ScrollSnapController extends ScrollController {
     this.snapBuilder,
     this.snapTop = true,
     this.snapArea = false,
+    this.freeMaxExtend = false,
     this.snapGap = 0,
   });
 
@@ -51,6 +52,8 @@ class ScrollSnapController extends ScrollController {
   final double snapGap;
   final bool snapArea;
   final bool snapTop;
+
+  final bool freeMaxExtend;
 
   final ItemExtentBuilder? snapBuilder;
   final bool? Function(int index, SliverLayoutDimensions dimensions)? snapCan;

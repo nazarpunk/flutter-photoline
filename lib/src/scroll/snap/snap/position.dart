@@ -399,6 +399,10 @@ class ScrollSnapPosition extends ViewportOffset
 
     maxScrollExtent += controller.keyboardOverlap;
 
+    if (controller.freeMaxExtend) {
+      maxScrollExtent = math.max(pixels, maxScrollExtent);
+    }
+
     if (controller.headerHolder != null) {
       final h = controller.headerHolder!;
       final e = h.height.value;
