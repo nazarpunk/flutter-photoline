@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:photoline_example/hider/hider.dart';
+import 'package:photoline_example/hider/screen.dart';
 import 'package:photoline_example/keyboard/keyboard.dart';
 
 import 'package:photoline_example/photoline/fullscreen.dart';

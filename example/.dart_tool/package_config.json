@@ -363,19 +363,19 @@
     },
     {
       "name": "leak_tracker",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/leak_tracker-10.0.9",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/leak_tracker-11.0.1",
       "packageUri": "lib/",
       "languageVersion": "3.2"
     },
     {
       "name": "leak_tracker_flutter_testing",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/leak_tracker_flutter_testing-3.0.9",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/leak_tracker_flutter_testing-3.0.10",
       "packageUri": "lib/",
       "languageVersion": "3.2"
     },
     {
       "name": "leak_tracker_testing",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/leak_tracker_testing-3.0.1",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/leak_tracker_testing-3.0.2",
       "packageUri": "lib/",
       "languageVersion": "3.2"
     },
@@ -627,8 +627,8 @@
     }
   ],
   "generator": "pub",
-  "generatorVersion": "3.8.0-278.4.beta",
+  "generatorVersion": "3.9.0-100.2.beta",
   "flutterRoot": "file:///Users/nazarpunk/flutter",
-  "flutterVersion": "3.32.0-0.4.pre",
+  "flutterVersion": "3.33.0-0.2.pre",
   "pubCache": "file:///Users/nazarpunk/.pub-cache"
 }

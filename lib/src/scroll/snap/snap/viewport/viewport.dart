@@ -58,6 +58,9 @@ class ScrollSnapViewport extends MultiChildRenderObjectWidget
 
   @override
   Clip get clipBehavior => Clip.hardEdge;
+
+  @override
+  SliverPaintOrder get paintOrder => SliverPaintOrder.lastIsTop;
 }
 
 class _ViewportElement extends MultiChildRenderObjectElement
@@ -121,8 +124,11 @@ class _ViewportElement extends MultiChildRenderObjectElement
   }
 
   @override
-  void moveRenderObjectChild(RenderObject child, IndexedSlot<Element?> oldSlot,
-      IndexedSlot<Element?> newSlot) {
+  void moveRenderObjectChild(
+    RenderObject child,
+    IndexedSlot<Element?> oldSlot,
+    IndexedSlot<Element?> newSlot,
+  ) {
     super.moveRenderObjectChild(child, oldSlot, newSlot);
     assert(_doingMountOrUpdate);
   }
@@ -137,9 +143,11 @@ class _ViewportElement extends MultiChildRenderObjectElement
 
   @override
   void debugVisitOnstageChildren(ElementVisitor visitor) {
-    children.where((e) {
-      final renderSliver = e.renderObject! as RenderSliver;
-      return renderSliver.geometry!.visible;
-    }).forEach(visitor);
+    children
+        .where((e) {
+          final renderSliver = e.renderObject! as RenderSliver;
+          return renderSliver.geometry!.visible;
+        })
+        .forEach(visitor);
   }
 }

@@ -829,6 +829,9 @@ class ScrollSnapPosition extends ViewportOffset
   }
 
   @override
+  void jumpToWithoutSettling(double value) {}
+
+  @override
   void pointerScroll(double delta) {
     if (!kProfileMode) return;
 
@@ -879,9 +882,6 @@ class ScrollSnapPosition extends ViewportOffset
 
   @override
   bool get allowImplicitScrolling => physics.allowImplicitScrolling;
-
-  @override
-  void jumpToWithoutSettling(double value) {}
 
   // ===========================================
 
