@@ -30,9 +30,10 @@ class PhotolineScrollPosition extends ScrollPosition
   }
 
   double get pageLast {
-    final double ratio = controller.action.value == PhotolineAction.close
-        ? controller.closeRatio
-        : controller.openRatio;
+    final double ratio =
+        controller.action.value == PhotolineAction.close
+            ? controller.closeRatio
+            : controller.openRatio;
     return (maxScrollExtent + viewportDimension) / (viewportDimension * ratio) -
         1;
   }
@@ -103,13 +104,16 @@ class PhotolineScrollPosition extends ScrollPosition
 
   @override
   double? get page {
-    assert(!hasPixels || hasContentDimensions,
-        'Page value is only available after content dimensions are established.');
+    assert(
+      !hasPixels || hasContentDimensions,
+      'Page value is only available after content dimensions are established.',
+    );
     return !hasPixels || !hasContentDimensions
         ? null
         : getPageFromPixels(
-            clampDouble(pixels, minScrollExtent, maxScrollExtent),
-            viewportDimension);
+          clampDouble(pixels, minScrollExtent, maxScrollExtent),
+          viewportDimension,
+        );
   }
 
   double get pageOpen {
@@ -140,12 +144,17 @@ class PhotolineScrollPosition extends ScrollPosition
         case PhotolineAction.closing:
         case PhotolineAction.close:
           final base = _viewportDimension! / co;
-          page = math.min((controller.getPhotoCount() - cn).toDouble(),
-              (oldPixels / base).roundToDouble());
+          page = math.min(
+            (controller.getPhotoCount() - cn).toDouble(),
+            (oldPixels / base).roundToDouble(),
+          );
         case PhotolineAction.open:
         case PhotolineAction.opening:
-          page = _getPageFromPixelsOpen(oldPixels, _viewportDimension)
-              .roundToDouble();
+          page =
+              _getPageFromPixelsOpen(
+                oldPixels,
+                _viewportDimension,
+              ).roundToDouble();
         case PhotolineAction.drag:
           page =
               getPageFromPixels(oldPixels, _viewportDimension).roundToDouble();
@@ -196,10 +205,16 @@ class PhotolineScrollPosition extends ScrollPosition
     }
 
     assert(haveDimensions == (_lastMetrics != null));
-    if (!nearEqual(_minScrollExtent, minScrollExtent,
-            Tolerance.defaultTolerance.distance) ||
-        !nearEqual(_maxScrollExtent, maxScrollExtent,
-            Tolerance.defaultTolerance.distance) ||
+    if (!nearEqual(
+          _minScrollExtent,
+          minScrollExtent,
+          Tolerance.defaultTolerance.distance,
+        ) ||
+        !nearEqual(
+          _maxScrollExtent,
+          maxScrollExtent,
+          Tolerance.defaultTolerance.distance,
+        ) ||
         _didChangeViewportDimensionOrReceiveCorrection ||
         _lastAxis != axis) {
       assert(minScrollExtent <= maxScrollExtent);
@@ -220,8 +235,10 @@ class PhotolineScrollPosition extends ScrollPosition
       applyNewDimensions();
       _pendingDimensions = false;
     }
-    assert(!_didChangeViewportDimensionOrReceiveCorrection,
-        'Use correctForNewDimensions() (and return true) to change the scroll offset during applyContentDimensions().');
+    assert(
+      !_didChangeViewportDimensionOrReceiveCorrection,
+      'Use correctForNewDimensions() (and return true) to change the scroll offset during applyContentDimensions().',
+    );
 
     if (_isMetricsChanged()) {
       if (!_haveScheduledUpdateNotification) {
@@ -266,7 +283,9 @@ class PhotolineScrollPosition extends ScrollPosition
 
   @override
   bool correctForNewDimensions(
-      ScrollMetrics oldPosition, ScrollMetrics newPosition) {
+    ScrollMetrics oldPosition,
+    ScrollMetrics newPosition,
+  ) {
     return true;
   }
 
@@ -279,18 +298,18 @@ class PhotolineScrollPosition extends ScrollPosition
     AxisDirection? axisDirection,
     double? viewportFraction,
     double? devicePixelRatio,
-  }) =>
-      PhotolineScrollMetrics(
-        minScrollExtent: minScrollExtent ??
-            (hasContentDimensions ? this.minScrollExtent : null),
-        maxScrollExtent: maxScrollExtent ??
-            (hasContentDimensions ? this.maxScrollExtent : null),
-        pixels: pixels ?? (hasPixels ? this.pixels : null),
-        viewportDimension: viewportDimension ??
-            (hasViewportDimension ? this.viewportDimension : null),
-        axisDirection: axisDirection ?? this.axisDirection,
-        devicePixelRatio: devicePixelRatio ?? this.devicePixelRatio,
-      );
+  }) => PhotolineScrollMetrics(
+    minScrollExtent:
+        minScrollExtent ?? (hasContentDimensions ? this.minScrollExtent : null),
+    maxScrollExtent:
+        maxScrollExtent ?? (hasContentDimensions ? this.maxScrollExtent : null),
+    pixels: pixels ?? (hasPixels ? this.pixels : null),
+    viewportDimension:
+        viewportDimension ??
+        (hasViewportDimension ? this.viewportDimension : null),
+    axisDirection: axisDirection ?? this.axisDirection,
+    devicePixelRatio: devicePixelRatio ?? this.devicePixelRatio,
+  );
 
   // ================================================ override 0
   @override
@@ -343,9 +362,10 @@ class PhotolineScrollPosition extends ScrollPosition
     //assert(activity!.isScrolling);
     assert(hasPixels);
     assert(
-        SchedulerBinding.instance.schedulerPhase !=
-            SchedulerPhase.persistentCallbacks,
-        "A scrollable's position should not change during the build, layout, and paint phases, otherwise the rendering will be confused.");
+      SchedulerBinding.instance.schedulerPhase !=
+          SchedulerPhase.persistentCallbacks,
+      "A scrollable's position should not change during the build, layout, and paint phases, otherwise the rendering will be confused.",
+    );
 
     if (newPixels != pixels) {
       final double overscroll = applyBoundaryConditions(newPixels);
@@ -385,7 +405,8 @@ class PhotolineScrollPosition extends ScrollPosition
   @override
   void applyUserOffset(double delta) {
     updateUserScrollDirection(
-        delta > 0.0 ? ScrollDirection.forward : ScrollDirection.reverse);
+      delta > 0.0 ? ScrollDirection.forward : ScrollDirection.reverse,
+    );
     setPixels(pixels - physics.applyPhysicsToUserOffset(this, delta));
   }
 
@@ -395,16 +416,20 @@ class PhotolineScrollPosition extends ScrollPosition
   @override
   void goBallistic(double velocity) {
     assert(hasPixels);
-    final Simulation? simulation =
-        physics.createBallisticSimulation(this, velocity);
+    final Simulation? simulation = physics.createBallisticSimulation(
+      this,
+      velocity,
+    );
 
     if (simulation != null) {
-      beginActivity(PhotolineBallisticScrollActivity(
-        this,
-        simulation,
-        context.vsync,
-        activity?.shouldIgnorePointer ?? true,
-      ));
+      beginActivity(
+        PhotolineBallisticScrollActivity(
+          this,
+          simulation,
+          context.vsync,
+          activity?.shouldIgnorePointer ?? true,
+        ),
+      );
     } else {
       goIdle();
     }
@@ -465,22 +490,24 @@ class PhotolineScrollPosition extends ScrollPosition
   void toPageSlide(double current, double target) {
     forcePixels(getPixelsFromPage(current));
 
-    beginActivity(BallisticScrollActivity(
-      this,
-      ScrollSpringSimulation(
-        SpringDescription.withDampingRatio(
-          mass: 1.2,
-          stiffness: 80.0,
-          ratio: 1.2,
+    beginActivity(
+      BallisticScrollActivity(
+        this,
+        ScrollSpringSimulation(
+          SpringDescription.withDampingRatio(
+            mass: 1.2,
+            stiffness: 80.0,
+            ratio: 1.2,
+          ),
+          pixels,
+          getPixelsFromPage(target),
+          0,
+          tolerance: physics.toleranceFor(this),
         ),
-        pixels,
-        getPixelsFromPage(target),
-        0,
-        tolerance: physics.toleranceFor(this),
+        context.vsync,
+        activity?.shouldIgnorePointer ?? true,
       ),
-      context.vsync,
-      activity?.shouldIgnorePointer ?? true,
-    ));
+    );
   }
 
   @override
@@ -490,12 +517,15 @@ class PhotolineScrollPosition extends ScrollPosition
       return;
     }
 
-    final double targetPixels =
-        math.min(math.max(pixels + delta, minScrollExtent), maxScrollExtent);
+    final double targetPixels = math.min(
+      math.max(pixels + delta, minScrollExtent),
+      maxScrollExtent,
+    );
     if (targetPixels != pixels) {
       goIdle();
       updateUserScrollDirection(
-          -delta > 0.0 ? ScrollDirection.forward : ScrollDirection.reverse);
+        -delta > 0.0 ? ScrollDirection.forward : ScrollDirection.reverse,
+      );
       final double oldPixels = pixels;
       isScrollingNotifier.value = true;
       forcePixels(targetPixels);
@@ -639,7 +669,6 @@ class PhotolineScrollPosition extends ScrollPosition
   ///    middle of layout and applying the new position immediately.
   ///  * [animateTo], which is like [jumpTo] but animating to the
   ///    destination offset.
-  // ignore: use_setters_to_change_properties, (API is intended to discourage setting value)
   @override
   void correctPixels(double value) {
     _pixels = value;
@@ -770,24 +799,26 @@ class PhotolineScrollPosition extends ScrollPosition
   /// scroll view dimensions both change) and therefore shouldn't do anything
   /// expensive.
   void _updateSemanticActions() {
-    final (SemanticsAction forward, SemanticsAction backward) =
-        switch (axisDirection) {
+    final (
+      SemanticsAction forward,
+      SemanticsAction backward,
+    ) = switch (axisDirection) {
       AxisDirection.up => (
-          SemanticsAction.scrollDown,
-          SemanticsAction.scrollUp
-        ),
+        SemanticsAction.scrollDown,
+        SemanticsAction.scrollUp,
+      ),
       AxisDirection.down => (
-          SemanticsAction.scrollUp,
-          SemanticsAction.scrollDown
-        ),
+        SemanticsAction.scrollUp,
+        SemanticsAction.scrollDown,
+      ),
       AxisDirection.left => (
-          SemanticsAction.scrollRight,
-          SemanticsAction.scrollLeft
-        ),
+        SemanticsAction.scrollRight,
+        SemanticsAction.scrollLeft,
+      ),
       AxisDirection.right => (
-          SemanticsAction.scrollLeft,
-          SemanticsAction.scrollRight
-        ),
+        SemanticsAction.scrollLeft,
+        SemanticsAction.scrollRight,
+      ),
     };
 
     final actions = <SemanticsAction>{};
@@ -807,7 +838,8 @@ class PhotolineScrollPosition extends ScrollPosition
   }
 
   ScrollPositionAlignmentPolicy _maybeFlipAlignment(
-      ScrollPositionAlignmentPolicy alignmentPolicy) {
+    ScrollPositionAlignmentPolicy alignmentPolicy,
+  ) {
     return switch (alignmentPolicy) {
       // Don't flip when explicit.
       ScrollPositionAlignmentPolicy.explicit => alignmentPolicy,
@@ -819,15 +851,15 @@ class PhotolineScrollPosition extends ScrollPosition
   }
 
   ScrollPositionAlignmentPolicy _applyAxisDirectionToAlignmentPolicy(
-      ScrollPositionAlignmentPolicy alignmentPolicy) {
+    ScrollPositionAlignmentPolicy alignmentPolicy,
+  ) {
     return switch (axisDirection) {
       // Start and end alignments must account for axis direction.
       // When focus is requested for example, it knows the directionality of the
       // keyboard keys initiating traversal, but not the direction of the
       // Scrollable.
       AxisDirection.up ||
-      AxisDirection.left =>
-        _maybeFlipAlignment(alignmentPolicy),
+      AxisDirection.left => _maybeFlipAlignment(alignmentPolicy),
       AxisDirection.down || AxisDirection.right => alignmentPolicy,
     };
   }
@@ -843,8 +875,9 @@ class PhotolineScrollPosition extends ScrollPosition
     RenderObject? targetRenderObject,
   }) async {
     assert(object.attached);
-    final RenderAbstractViewport? viewport =
-        RenderAbstractViewport.maybeOf(object);
+    final RenderAbstractViewport? viewport = RenderAbstractViewport.maybeOf(
+      object,
+    );
     // If no viewport is found, return.
     if (viewport == null) {
       return;
@@ -861,37 +894,40 @@ class PhotolineScrollPosition extends ScrollPosition
     double target;
     switch (_applyAxisDirectionToAlignmentPolicy(alignmentPolicy)) {
       case ScrollPositionAlignmentPolicy.explicit:
-        target = viewport
-            .getOffsetToReveal(
-              object,
-              alignment,
-              rect: targetRect,
-              axis: axis,
-            )
-            .offset;
+        target =
+            viewport
+                .getOffsetToReveal(
+                  object,
+                  alignment,
+                  rect: targetRect,
+                  axis: axis,
+                )
+                .offset;
         target = clampDouble(target, minScrollExtent, maxScrollExtent);
       case ScrollPositionAlignmentPolicy.keepVisibleAtEnd:
-        target = viewport
-            .getOffsetToReveal(
-              object,
-              1.0, // Aligns to end
-              rect: targetRect,
-              axis: axis,
-            )
-            .offset;
+        target =
+            viewport
+                .getOffsetToReveal(
+                  object,
+                  1.0, // Aligns to end
+                  rect: targetRect,
+                  axis: axis,
+                )
+                .offset;
         target = clampDouble(target, minScrollExtent, maxScrollExtent);
         if (target < pixels) {
           target = pixels;
         }
       case ScrollPositionAlignmentPolicy.keepVisibleAtStart:
-        target = viewport
-            .getOffsetToReveal(
-              object,
-              0.0, // Aligns to start
-              rect: targetRect,
-              axis: axis,
-            )
-            .offset;
+        target =
+            viewport
+                .getOffsetToReveal(
+                  object,
+                  0.0, // Aligns to start
+                  rect: targetRect,
+                  axis: axis,
+                )
+                .offset;
         target = clampDouble(target, minScrollExtent, maxScrollExtent);
         if (target > pixels) {
           target = pixels;
@@ -946,14 +982,19 @@ class PhotolineScrollPosition extends ScrollPosition
   @override
   void didStartScroll() {
     activity!.dispatchScrollStartNotification(
-        copyWith(), context.notificationContext);
+      copyWith(),
+      context.notificationContext,
+    );
   }
 
   /// Called by [setPixels] to report a change to the [pixels] position.
   @override
   void didUpdateScrollPositionBy(double delta) {
     activity?.dispatchScrollUpdateNotification(
-        copyWith(), context.notificationContext!, delta);
+      copyWith(),
+      context.notificationContext!,
+      delta,
+    );
   }
 
   /// Called by [beginActivity] to report when an activity has ended.
@@ -962,7 +1003,9 @@ class PhotolineScrollPosition extends ScrollPosition
   @override
   void didEndScroll() {
     activity!.dispatchScrollEndNotification(
-        copyWith(), context.notificationContext!);
+      copyWith(),
+      context.notificationContext!,
+    );
     saveOffset();
     if (keepScrollOffset) {
       saveScrollOffset();
@@ -976,7 +1019,10 @@ class PhotolineScrollPosition extends ScrollPosition
   void didOverscrollBy(double value) {
     assert(activity!.isScrolling);
     activity!.dispatchOverscrollNotification(
-        copyWith(), context.notificationContext!, value);
+      copyWith(),
+      context.notificationContext!,
+      value,
+    );
   }
 
   /// Dispatches a notification that the [userScrollDirection] has changed.
@@ -985,23 +1031,26 @@ class PhotolineScrollPosition extends ScrollPosition
   @override
   void didUpdateScrollDirection(ScrollDirection direction) {
     UserScrollNotification(
-            metrics: copyWith(),
-            context: context.notificationContext!,
-            direction: direction)
-        .dispatch(context.notificationContext);
+      metrics: copyWith(),
+      context: context.notificationContext!,
+      direction: direction,
+    ).dispatch(context.notificationContext);
   }
 
   /// Dispatches a notification that the [ScrollMetrics] have changed.
   @override
   void didUpdateScrollMetrics() {
-    assert(SchedulerBinding.instance.schedulerPhase !=
-        SchedulerPhase.persistentCallbacks);
+    assert(
+      SchedulerBinding.instance.schedulerPhase !=
+          SchedulerPhase.persistentCallbacks,
+    );
     assert(_haveScheduledUpdateNotification);
     _haveScheduledUpdateNotification = false;
     if (context.notificationContext != null) {
       ScrollMetricsNotification(
-              metrics: copyWith(), context: context.notificationContext!)
-          .dispatch(context.notificationContext);
+        metrics: copyWith(),
+        context: context.notificationContext!,
+      ).dispatch(context.notificationContext);
     }
   }
 

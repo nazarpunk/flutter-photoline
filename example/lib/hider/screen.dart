@@ -35,53 +35,88 @@ class _HiderExampleListState extends State<HiderExampleList> {
             slivers: [
               ScrollSnapRefresh(controller: _controller),
               SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (ctx, index) {
-                    final red = index.isEven;
-                    return Hider(
-                      key: ValueKey(index),
-                      index: index,
-                      visible: !(red && hidden),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 2),
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                                color:
-                                    red ? Colors.redAccent : Colors.cyanAccent),
+                delegate: kDebugMode
+                    ? SliverChildListDelegate([
+                        const _Child(1),
+                        for (int i = 1; i <= 1; i++)
+                          Hider(
+                            index: 10,
+                            child: Hider(
+                              visible: !hidden,
+                              index: i,
+                              child: Column(
+                                children: [
+                                  Text('$i'),
+                                  Hider(
+                                    visible: hidden,
+                                    index: -i,
+                                    child: const SizedBox(
+                                      height: 120,
+                                      child: Placeholder(),
+                                    ),
+                                  ),
+                                  Hider(
+                                    visible: !hidden,
+                                    index: -i - 1,
+                                    child: const SizedBox(
+                                      height: 120,
+                                      child: Placeholder(),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                          child: red
-                              ? Hider(
-                                  //visible: !(red && hidden),
-                                  index: -index - 1,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(4),
-                                    child: SizedBox(
-                                      height: red ? 100 : 50,
-                                      child: DecoratedBox(
-                                        decoration: BoxDecoration(
-                                          border:
-                                              Border.all(color: Colors.purple),
+                        const _Child(3),
+                      ])
+                    : SliverChildBuilderDelegate(
+                        (ctx, index) {
+                          final red = index.isEven;
+                          return Hider(
+                            key: ValueKey(index),
+                            index: index,
+                            visible: !(red && hidden),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 2),
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                      color: red
+                                          ? Colors.redAccent
+                                          : Colors.cyanAccent),
+                                ),
+                                child: red
+                                    ? Hider(
+                                        //visible: !(red && hidden),
+                                        index: -index - 1,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(4),
+                                          child: SizedBox(
+                                            height: red ? 100 : 50,
+                                            child: DecoratedBox(
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                    color: Colors.purple),
+                                              ),
+                                              child: Center(
+                                                child: Text('$index'),
+                                              ),
+                                            ),
+                                          ),
                                         ),
+                                      )
+                                    : SizedBox(
+                                        height: 50,
                                         child: Center(
                                           child: Text('$index'),
                                         ),
                                       ),
-                                    ),
-                                  ),
-                                )
-                              : SizedBox(
-                                  height: 50,
-                                  child: Center(
-                                    child: Text('$index'),
-                                  ),
-                                ),
-                        ),
+                              ),
+                            ),
+                          );
+                        },
+                        childCount: 133,
                       ),
-                    );
-                  },
-                  childCount: 133,
-                ),
               )
             ],
           ),
@@ -91,7 +126,7 @@ class _HiderExampleListState extends State<HiderExampleList> {
             child: Placeholder(
               color: Colors.lightGreenAccent,
               child: CheckboxListTile(
-                  title: Text(hidden ? 'Show' : 'Hide'),
+                  title: Text(hidden ? 'Hidden' : 'Visible'),
                   value: hidden,
                   onChanged: (value) {
                     hidden = !hidden;
@@ -100,6 +135,28 @@ class _HiderExampleListState extends State<HiderExampleList> {
                   }),
             )),
       ],
+    );
+  }
+}
+
+class _Child extends StatelessWidget {
+  const _Child(
+    this.index,
+  );
+
+  final int index;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.lightBlue[100 * (index % 9)]!),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: SizedBox(
+            height: 10 + index * 10, child: Center(child: Text('$index'))),
+      ),
     );
   }
 }

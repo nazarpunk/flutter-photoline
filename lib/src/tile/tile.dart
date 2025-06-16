@@ -37,60 +37,66 @@ class PhotolineTileState extends State<PhotolineTile>
   @override
   Widget build(BuildContext context) {
     //_data = MediaQuery.of(context);
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final size = _controller.size;
+    return RepaintBoundary(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final size = _controller.size;
 
-        final uri = _controller.getUri(widget.index).cached;
+          final uri = _controller.getUri(widget.index).cached;
 
-        final (double, double) limit = size.close > size.side2
-            ? (size.side2, size.close)
-            : (size.close, size.side2);
-        final double cdwa =
-            constraints.maxWidth.clamp(limit.$1, limit.$2) - size.side2;
+          final (double, double) limit =
+              size.close > size.side2
+                  ? (size.side2, size.close)
+                  : (size.close, size.side2);
+          final double cdwa =
+              constraints.maxWidth.clamp(limit.$1, limit.$2) - size.side2;
 
-        final data = PhotolineTileData(
-          index: _index,
-          uri: uri,
-          closeDw: (cdwa / (size.close - size.side2)).clamp(0, 1),
-          openDw: (constraints.maxWidth - size.close) /
-              (size.open - size.close).clamp(-1, 1),
-          dragging:
-              (_drag?.isDrag ?? false) && _controller.pageDragInitial == _index,
-          isRemove: _drag?.isRemove ?? false,
-        );
+          final data = PhotolineTileData(
+            index: _index,
+            uri: uri,
+            closeDw: (cdwa / (size.close - size.side2)).clamp(0, 1),
+            openDw:
+                (constraints.maxWidth - size.close) /
+                (size.open - size.close).clamp(-1, 1),
+            dragging:
+                (_drag?.isDrag ?? false) &&
+                _controller.pageDragInitial == _index,
+            isRemove: _drag?.isRemove ?? false,
+          );
 
-        final List<Widget>? persistent =
-            _controller.getPersistentWidgets?.call(data);
+          final List<Widget>? persistent = _controller.getPersistentWidgets
+              ?.call(data);
 
-        Widget child = Stack(
-          children: [
-            Positioned.fill(
-              key: const ValueKey('widget'),
-              child: _controller.pageActiveOpenComplete.value == _index
-                  ? _controller.getWidget(_index)
-                  : const SizedBox(),
-            ),
-            if (persistent != null) ...persistent,
-          ],
-        );
+          Widget child = Stack(
+            children: [
+              Positioned.fill(
+                key: const ValueKey('widget'),
+                child:
+                    _controller.pageActiveOpenComplete.value == _index
+                        ? _controller.getWidget(_index)
+                        : const SizedBox(),
+              ),
+              if (persistent != null) ...persistent,
+            ],
+          );
 
-        if (_controller.canDrag &&
-            _photoline.holder?.dragController != null &&
-            _controller.getPhotoCount() > _index) {
-          child = Listener(
+          if (_controller.canDrag &&
+              _photoline.holder?.dragController != null &&
+              _controller.getPhotoCount() > _index) {
+            child = Listener(
+              behavior: HitTestBehavior.opaque,
+              onPointerDown: (event) => _controller.onPointerDown(this, event),
+              child: child,
+            );
+          }
+
+          return GestureDetector(
+            onTap: () => _photoline.toPage(_index),
             behavior: HitTestBehavior.opaque,
-            onPointerDown: (event) => _controller.onPointerDown(this, event),
             child: child,
           );
-        }
-
-        return GestureDetector(
-          onTap: () => _photoline.toPage(_index),
-          behavior: HitTestBehavior.opaque,
-          child: child,
-        );
-      },
+        },
+      ),
     );
   }
 }

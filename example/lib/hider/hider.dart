@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_protected_member
+
 part of 'screen.dart';
 
 class Hider extends StatefulWidget {
@@ -39,8 +41,6 @@ class HiderState extends State<Hider>
   final GlobalKey _key = GlobalKey();
 
   final _curve = Curves.easeInOut;
-
-  HiderState? _parent;
 
   void _statusListener(AnimationStatus status) {
     widget.statusListener?.call(status);
@@ -102,7 +102,6 @@ class HiderState extends State<Hider>
   @override
   void didChangeDependencies() {
     _scrollable = Scrollable.maybeOf(context);
-    _parent = context.findAncestorStateOfType<HiderState>();
     super.didChangeDependencies();
   }
 
@@ -112,7 +111,23 @@ class HiderState extends State<Hider>
     super.dispose();
   }
 
+  double _dh = 0;
+  bool _topless = false;
+  bool _opening = false;
+
+  bool get _open => widget.visible;
+
+  void _skip() {
+    if (_open) {
+      _animation.forward(from: 1);
+    } else {
+      _animation.reverse(from: 0);
+    }
+  }
+
   bool _shortAnim() {
+    _dh = 0;
+    _topless = false;
     final s = _scrollable;
     if (s == null) return false;
 
@@ -130,30 +145,84 @@ class HiderState extends State<Hider>
     final t = ho.dy;
     final b = t + h;
 
-    final up = b < 0;
+    _topless = b < 0;
     final dn = t > srb.size.height;
 
-    if (!up && !dn) return false;
+    final i = widget.index;
+    final a = _animation;
+    print(
+        '🔥 $i |  $_open | $_opening | ${a.status.name} | ${a.value.toStringAsFixed(2)}');
 
-    final pv = _parent?.widget.visible;
-
-    if (widget.visible) {
-      // ignore: invalid_use_of_protected_member
-      if (up) s.position.forcePixels(p + h);
-      _animation.forward(from: 1);
-    } else {
-      var dy = h;
-      if (pv != null && !pv) dy = 0;
-
-      if (dy != 0) {
-        // ignore: invalid_use_of_protected_member
-        if (up) s.position.forcePixels(p - dy);
+    final List<HiderState> hiders = [];
+    context.visitAncestorElements((e) {
+      if (e is StatefulElement && e.state is HiderState) {
+        hiders.add(e.state as HiderState);
       }
-      _animation.reverse(from: 0);
+      return true;
+    });
+
+    for (final s in hiders) {
+      final si = s.widget.index;
+      final sa = s._animation;
+
+      print(
+          '💩 $si | ${s._open} | ${s._opening} | ${sa.status.name} | ${sa.value.toStringAsFixed(2)} ');
+
+      switch (sa.status) {
+        case AnimationStatus.completed:
+        case AnimationStatus.dismissed:
+          //print('💋 $i | $si');
+          //_skip();
+          //return true;
+          break;
+
+        case AnimationStatus.forward:
+          //print('✅ $i | $si');
+          _skip();
+          return true;
+
+        case AnimationStatus.reverse:
+          return true;
+      }
     }
 
-    setState(() {});
+    if (!_topless && !dn) return false;
 
+    double dh = _open ? h : -h;
+
+    for (final s in hiders) {
+      if (!_topless) return false;
+
+      //final si = s.widget.index;
+
+      //print('💩 ${s.widget.index} | ${s._dh} | $_open | ${s._open} | ${s._opening} | ${s._updated}');
+
+      //print('$si | ${s._open} | ${s._opening}');
+
+      if (_open) {
+        if (s._opening && s._dh == 0) {
+          dh = 0;
+          return false;
+        }
+      } else {
+        if (!s._topless) {
+          return true;
+        }
+
+        if (!s._open) {
+          dh = 0;
+        }
+      }
+
+      return true;
+    }
+
+    _skip();
+    if (!_topless) return true;
+
+    _dh = dh;
+
+    if (dh != 0) s.position.forcePixels(p + dh);
     return true;
   }
 
@@ -161,9 +230,13 @@ class HiderState extends State<Hider>
   void didUpdateWidget(covariant Hider oldWidget) {
     super.didUpdateWidget(oldWidget);
 
+    _opening = false;
+
     if (!mounted || widget.visible == oldWidget.visible) {
       return;
     }
+
+    _opening = widget.visible;
 
     if (_shortAnim()) {
       return;

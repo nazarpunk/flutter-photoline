@@ -461,7 +461,6 @@ class ScrollSnapPosition extends ViewportOffset
 
   /// After [applyViewportDimension] or [applyContentDimensions]
   @override
-  // ignore: must_call_super
   void applyNewDimensions() {
     //print('💩 applyNewDimensions');
     if (activity is BallisticScrollActivity) return;
@@ -472,7 +471,6 @@ class ScrollSnapPosition extends ViewportOffset
   }
 
   @override
-  // ignore: must_call_super
   void absorb(ScrollPosition other) {
     assert(other.context == context);
     assert(_pixels == null);

@@ -52,10 +52,12 @@ class _PhotolinePhotoState extends State<PhotolinePhoto>
   @override
   Widget build(BuildContext context) {
     if (widget.uri != null) {
-      return _PhotolinePhotoRender(
-        uri: widget.uri!,
-        animation: _animationRepaint,
-        sigma: widget.sigma,
+      return RepaintBoundary(
+        child: _PhotolinePhotoRender(
+          uri: widget.uri!,
+          animation: _animationRepaint,
+          sigma: widget.sigma,
+        ),
       );
     }
     return const SizedBox();

@@ -7,10 +7,7 @@ import 'package:photoline/src/scroll/snap/controller.dart';
 import 'package:photoline/src/scroll/snap/refresh/sliver.dart';
 
 class ScrollSnapRefresh extends StatefulWidget {
-  const ScrollSnapRefresh({
-    super.key,
-    required this.controller,
-  });
+  const ScrollSnapRefresh({super.key, required this.controller});
 
   final ScrollSnapController controller;
 
@@ -38,14 +35,14 @@ class ScrollSnapRefreshState extends State<ScrollSnapRefresh>
           dimension: 18,
           child: CircularProgressIndicator(
             strokeWidth: 3,
-            color: Colors.white,
+            color: Color(0xFFACACAC),
             backgroundColor: Color.fromRGBO(200, 200, 200, .2),
           ),
         );
       case 1:
-        child = const Icon(Icons.refresh);
+        child = const Icon(Icons.refresh, color: Color(0xFFACACAC));
       case 0:
-        child = const Icon(Icons.arrow_downward);
+        child = const Icon(Icons.arrow_downward, color: Color(0xFFACACAC));
     }
     return SizedBox.square(
       key: ValueKey<int>(_viewStateCurrent),
@@ -85,10 +82,10 @@ class ScrollSnapRefreshState extends State<ScrollSnapRefresh>
   final double _triggerExtent = 60;
 
   double get overlapHeight => switch (viewState) {
-        0 => animationController.value * _triggerExtent,
-        1 || 2 => _triggerExtent,
-        _ => 0,
-      };
+    0 => animationController.value * _triggerExtent,
+    1 || 2 => _triggerExtent,
+    _ => 0,
+  };
 
   int _setView(double height) {
     if (height > _triggerExtent) return 1;
@@ -98,8 +95,9 @@ class ScrollSnapRefreshState extends State<ScrollSnapRefresh>
   @override
   void initState() {
     animationController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 200))
-      ..addListener(rebuild);
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    )..addListener(rebuild);
 
     super.initState();
     _controller.isUserDrag.addListener(_handleScroll);
@@ -114,50 +112,53 @@ class ScrollSnapRefreshState extends State<ScrollSnapRefresh>
 
   @override
   Widget build(BuildContext context) => ScrollSnapRefreshSliver(
-        refresh: this,
-        child: LayoutBuilder(builder: (context, constraints) {
-          final h = constraints.maxHeight;
-          if (h == 0) {
-            if (!isWait && isWaitClose) isWaitClose = false;
-            return const SizedBox();
+    refresh: this,
+    child: LayoutBuilder(
+      builder: (context, constraints) {
+        final h = constraints.maxHeight;
+        if (h == 0) {
+          if (!isWait && isWaitClose) isWaitClose = false;
+          return const SizedBox();
+        }
+        final v = _setView(h);
+        if (!isWait && !isWaitClose) {
+          if (viewState != v && v == 1) {
+            unawaited(HapticFeedback.mediumImpact());
           }
-          final v = _setView(h);
-          if (!isWait && !isWaitClose) {
-            if (viewState != v && v == 1) {
-              unawaited(HapticFeedback.mediumImpact());
-            }
-            viewState = v;
-          }
+          viewState = v;
+        }
 
-          return Center(
-            child: Opacity(
-              opacity: ((h - 20) / 50).clamp(0, 1),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 200),
-                    transitionBuilder: (child, animation) =>
-                        ScaleTransition(scale: animation, child: child),
-                    child: _icon,
+        return Center(
+          child: Opacity(
+            opacity: ((h - 20) / 50).clamp(0, 1),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  transitionBuilder:
+                      (child, animation) =>
+                          ScaleTransition(scale: animation, child: child),
+                  child: _icon,
+                ),
+                const SizedBox(width: 6),
+                DefaultTextStyle.merge(
+                  style: const TextStyle(height: 1, color: Color(0xFFACACAC)),
+                  child: IndexedStack(
+                    alignment: Alignment.center,
+                    index: _viewStateCurrent,
+                    children: const [
+                      Text('Тяните чтоб обновить'),
+                      Text('Отпустите чтоб обновить'),
+                      Text('Обновляем...'),
+                    ],
                   ),
-                  const SizedBox(width: 6),
-                  DefaultTextStyle.merge(
-                    style: const TextStyle(height: 1),
-                    child: IndexedStack(
-                      alignment: Alignment.center,
-                      index: _viewStateCurrent,
-                      children: const [
-                        Text('Тяните чтоб обновить'),
-                        Text('Отпустите чтоб обновить'),
-                        Text('Обновляем...'),
-                      ],
-                    ),
-                  )
-                ],
-              ),
+                ),
+              ],
             ),
-          );
-        }),
-      );
+          ),
+        );
+      },
+    ),
+  );
 }
