@@ -12,10 +12,10 @@ class PhotolineScrollPhysics extends ScrollPhysics {
 
   @override
   SpringDescription get spring => SpringDescription.withDampingRatio(
-        mass: 0.5,
-        stiffness: 100.0,
-        ratio: 1.1,
-      );
+    mass: 0.5,
+    stiffness: 100.0,
+    ratio: 1.1,
+  );
 
   /*
   mass: 0.5,
@@ -25,6 +25,9 @@ class PhotolineScrollPhysics extends ScrollPhysics {
 
   @override
   PhotolineScrollPhysics applyTo(ScrollPhysics? ancestor) => PhotolineScrollPhysics(parent: buildParent(ancestor));
+
+  @override
+  bool shouldAcceptUserOffset(ScrollMetrics position) => true;
 
   @override
   double applyPhysicsToUserOffset(ScrollMetrics position, double offset) {
@@ -44,8 +47,11 @@ class PhotolineScrollPhysics extends ScrollPhysics {
     return page * position.viewportDimension;
   }
 
-  Simulation? _simulation(covariant PhotolineScrollPosition position,
-      double velocity, Tolerance tolerance) {
+  Simulation? _simulation(
+    covariant PhotolineScrollPosition position,
+    double velocity,
+    Tolerance tolerance,
+  ) {
     if (velocity.abs() < tolerance.velocity) {
       final double page = position.getPageFromPixels(position.pixels);
       final double target = position.getPixelsFromPage(page.roundToDouble());
@@ -68,10 +74,7 @@ class PhotolineScrollPhysics extends ScrollPhysics {
       return null;
     }
 
-    final double target = position.pixels +
-        200 *
-            math.exp(1.2 * math.log(.6 * velocity.abs() / 800)) *
-            velocity.sign;
+    final double target = position.pixels + 200 * math.exp(1.2 * math.log(.6 * velocity.abs() / 800)) * velocity.sign;
 
     final double page = position.getPageFromPixels(target);
 
@@ -79,7 +82,8 @@ class PhotolineScrollPhysics extends ScrollPhysics {
       spring,
       position.pixels,
       position.getPixelsFromPage(
-          velocity > 0 ? page.ceilToDouble() : page.floorToDouble()),
+        velocity > 0 ? page.ceilToDouble() : page.floorToDouble(),
+      ),
       velocity,
       tolerance: tolerance,
     );
@@ -88,9 +92,10 @@ class PhotolineScrollPhysics extends ScrollPhysics {
   /// [RangeMaintainingScrollPhysics]
   @override
   Simulation? createBallisticSimulation(
-      covariant PhotolineScrollPosition position, double velocity) {
-    if ((velocity <= 0.0 && position.pixels <= position.minScrollExtent) ||
-        (velocity >= 0.0 && position.pixels >= position.maxScrollExtent)) {
+    covariant PhotolineScrollPosition position,
+    double velocity,
+  ) {
+    if ((velocity <= 0.0 && position.pixels <= position.minScrollExtent) || (velocity >= 0.0 && position.pixels >= position.maxScrollExtent)) {
       final Tolerance tolerance = toleranceFor(position);
       if (position.outOfRange) {
         double? end;
@@ -125,9 +130,7 @@ class PhotolineScrollPhysics extends ScrollPhysics {
     final Tolerance tolerance = toleranceFor(position);
     final double pageCur = _getPage(position);
 
-    final v = 200 *
-        math.exp(1.2 * math.log(.6 * velocity.abs() / 800)) *
-        velocity.sign;
+    final v = 200 * math.exp(1.2 * math.log(.6 * velocity.abs() / 800)) * velocity.sign;
 
     double pageNew = 0;
 
@@ -137,7 +140,8 @@ class PhotolineScrollPhysics extends ScrollPhysics {
           return _simulation(position, velocity, tolerance);
         }
         pageNew = position.pageAdd(
-            v / (position.viewportDimension * position.controller.openRatio));
+          v / (position.viewportDimension * position.controller.openRatio),
+        );
         if ((pageCur - pageNew).abs() < 1 && velocity.abs() > 1000) {
           if (velocity > 0) {
             pageNew += .5;
@@ -150,7 +154,8 @@ class PhotolineScrollPhysics extends ScrollPhysics {
           return _simulation(position, velocity, tolerance);
         }
         pageNew = position.pageAdd(
-            v / (position.viewportDimension * position.controller.closeRatio));
+          v / (position.viewportDimension * position.controller.closeRatio),
+        );
       case PhotolineAction.opening:
       case PhotolineAction.closing:
       case PhotolineAction.drag:
@@ -162,10 +167,7 @@ class PhotolineScrollPhysics extends ScrollPhysics {
 
     if (!position.controller.useOpenSimulation) {
       if (position.controller.action.value == PhotolineAction.open) {
-        int pg = position
-            .getPageFromPixels(target)
-            .round()
-            .clamp(0, position.controller.getPhotoCount() - 1);
+        int pg = position.getPageFromPixels(target).round().clamp(0, position.controller.getPhotoCount() - 1);
         if (position.controller.getPagerIndexOffset() > 0) {
           pg = math.max(pg, 1);
         }

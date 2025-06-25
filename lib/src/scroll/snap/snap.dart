@@ -100,10 +100,7 @@ class ScrollSnapState extends State<ScrollSnap>
     return LayoutBuilder(
       builder: (context, constraints) {
         controller.boxConstraints = constraints;
-        _physics ??= ScrollSnapPhysics(
-          parent: const AlwaysScrollableScrollPhysics(),
-          controller: controller,
-        );
+        _physics ??= ScrollSnapPhysics(controller: controller);
         return NotificationListener(
           onNotification: (notification) {
             if (notification is PhotolinePointerScrollNotification) {

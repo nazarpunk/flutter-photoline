@@ -20,19 +20,17 @@ class PhotolineScrollExtentView extends StatefulWidget {
   final AxisDirection axisDirection;
 
   @override
-  State<PhotolineScrollExtentView> createState() =>
-      PhotolineScrollExtentViewState();
+  State<PhotolineScrollExtentView> createState() => PhotolineScrollExtentViewState();
 }
 
 class PhotolineScrollExtentViewState extends State<PhotolineScrollExtentView> {
   @override
   Widget build(BuildContext context) => Scrollable(
-        controller: widget.controller,
-        axisDirection: widget.axisDirection,
-        physics: const PhotolineScrollExtentPhysics(
-          parent: AlwaysScrollableScrollPhysics(),
-        ),
-        viewportBuilder: (context, offset) => Viewport(
+    controller: widget.controller,
+    axisDirection: widget.axisDirection,
+    physics: const PhotolineScrollExtentPhysics(),
+    viewportBuilder:
+        (context, offset) => Viewport(
           axisDirection: widget.axisDirection,
           offset: offset,
           slivers: [
@@ -42,8 +40,8 @@ class PhotolineScrollExtentViewState extends State<PhotolineScrollExtentView> {
                 delegate: SliverChildListDelegate(widget.children),
                 itemExtent: widget.itemExtent,
               ),
-            )
+            ),
           ],
         ),
-      );
+  );
 }

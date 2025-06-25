@@ -12,8 +12,8 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
     required PhotolineState photoline,
     required PhotolineController controller,
     required super.childManager,
-  })  : _photoline = photoline,
-        _controller = controller;
+  }) : _photoline = photoline,
+       _controller = controller;
 
   @override
   void attach(PipelineOwner owner) {
@@ -77,8 +77,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
       switch (controller.action.value) {
         case PhotolineAction.close:
-          if (childOffset.dx + child.size.width <= precisionErrorTolerance ||
-              childOffset.dx > vp - precisionErrorTolerance) {
+          if (childOffset.dx + child.size.width <= precisionErrorTolerance || childOffset.dx > vp - precisionErrorTolerance) {
             canPaint = false;
           }
         case PhotolineAction.drag:
@@ -90,8 +89,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
         case PhotolineAction.open:
         case PhotolineAction.opening:
         case PhotolineAction.closing:
-          canPaint = cdx < constraints.remainingPaintExtent &&
-              cdx + paintExtentOf(child) > 0;
+          canPaint = cdx < constraints.remainingPaintExtent && cdx + paintExtentOf(child) > 0;
         case PhotolineAction.upload:
       }
       if (child.size.width == 0) canPaint = false;
@@ -172,14 +170,15 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
         if (opacity < 1) {
           if (uri.blur != null) {
             img(
-                image: uri.blur!,
-                //opacity: Curves.easeOut.transform(opacityback),
-                opacity: 1,
-                filter: ui.ImageFilter.blur(
-                  sigmaX: 10,
-                  sigmaY: 10,
-                  tileMode: TileMode.mirror,
-                ));
+              image: uri.blur!,
+              //opacity: Curves.easeOut.transform(opacityback),
+              opacity: 1,
+              filter: ui.ImageFilter.blur(
+                sigmaX: 10,
+                sigmaY: 10,
+                tileMode: TileMode.mirror,
+              ),
+            );
           } else {
             if (uri.color != null) {
               canvas.drawRect(
@@ -247,12 +246,11 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
   }
 
   SliverGeometry _geometry(double scrollExtent) => SliverGeometry(
-        scrollExtent: scrollExtent,
-        paintExtent:
-            calculatePaintOffset(constraints, from: 0, to: double.infinity),
-        maxPaintExtent: double.infinity,
-        hasVisualOverflow: true,
-      );
+    scrollExtent: scrollExtent,
+    paintExtent: calculatePaintOffset(constraints, from: 0, to: double.infinity),
+    maxPaintExtent: double.infinity,
+    hasVisualOverflow: true,
+  );
 
   /// [RenderSliverFillViewport.performLayout]
   @override
@@ -262,10 +260,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
       PhotolineAction.open => _performOpen(),
       PhotolineAction.close => _performClose(),
       PhotolineAction.drag => _performDrag(),
-      PhotolineAction.opening ||
-      PhotolineAction.closing ||
-      PhotolineAction.upload =>
-        _performWidth(),
+      PhotolineAction.opening || PhotolineAction.closing || PhotolineAction.upload => _performWidth(),
     };
   }
 
@@ -288,15 +283,13 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
       final offset = p.offset.current + scrollOffset;
       final width = p.width.current;
 
-      final c =
-          constraints.asBoxConstraints(minExtent: width, maxExtent: width);
+      final c = constraints.asBoxConstraints(minExtent: width, maxExtent: width);
       if (child == null || indexOf(child) != index - 1) {
         child = insertAndLayoutChild(c, after: prev);
       } else {
         child.layout(c);
       }
-      (child!.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset =
-          offset;
+      (child!.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset = offset;
       prev = child;
     }
 
@@ -378,16 +371,14 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
       if (itemWidth < 0) itemWidth = 0;
 
-      final c = constraints.asBoxConstraints(
-          minExtent: itemWidth, maxExtent: itemWidth);
+      final c = constraints.asBoxConstraints(minExtent: itemWidth, maxExtent: itemWidth);
 
       if (child == null || indexOf(child) != index - 1) {
         child = insertAndLayoutChild(c, after: prev);
       } else {
         child.layout(c);
       }
-      (child!.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset =
-          itemOffset;
+      (child!.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset = itemOffset;
 
       prev = child;
     }
@@ -417,18 +408,15 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
     for (var index = 0; index < count; index++) {
       RenderBox? child = childAfter(prev!);
       offset = offset + width;
-      width =
-          index < mod.length && mod[index] != null ? mod[index]!.t * wc : wc;
-      final c =
-          constraints.asBoxConstraints(minExtent: width, maxExtent: width);
+      width = index < mod.length && mod[index] != null ? mod[index]!.t * wc : wc;
+      final c = constraints.asBoxConstraints(minExtent: width, maxExtent: width);
 
       if (child == null || indexOf(child) != index - 1) {
         child = insertAndLayoutChild(c, after: prev);
       } else {
         child.layout(c);
       }
-      (child!.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset =
-          offset;
+      (child!.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset = offset;
       prev = child;
     }
 
@@ -460,23 +448,20 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
       double offset = controller.positionDrag[index].offset;
       if (index == controller.pageDragInitial) {
-        offset =
-            offset.clamp(0, constraints.viewportMainAxisExtent - size.close);
+        offset = offset.clamp(0, constraints.viewportMainAxisExtent - size.close);
       }
 
       offset += scrollOffset;
       final width = size.close;
 
-      final c =
-          constraints.asBoxConstraints(minExtent: width, maxExtent: width);
+      final c = constraints.asBoxConstraints(minExtent: width, maxExtent: width);
 
       if (child == null || indexOf(child) != index - 1) {
         child = insertAndLayoutChild(c, after: prev);
       } else {
         child.layout(c);
       }
-      (child!.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset =
-          offset;
+      (child!.parentData! as SliverMultiBoxAdaptorParentData).layoutOffset = offset;
 
       prev = child;
     }

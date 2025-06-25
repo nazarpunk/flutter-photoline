@@ -26,6 +26,9 @@ class ScrollSnapPhysics extends ScrollPhysics {
       ScrollSnapPhysics(parent: buildParent(ancestor), controller: controller);
 
   @override
+  bool shouldAcceptUserOffset(ScrollMetrics position) => true;
+
+  @override
   double adjustPositionForNewDimensions({
     required ScrollMetrics oldPosition,
     required ScrollMetrics newPosition,

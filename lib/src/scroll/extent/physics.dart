@@ -12,11 +12,16 @@ class PhotolineScrollExtentPhysics extends ScrollPhysics {
       PhotolineScrollExtentPhysics(parent: buildParent(ancestor));
 
   @override
+  bool shouldAcceptUserOffset(ScrollMetrics position) => true;
+
+  @override
   double get maxFlingVelocity => 4000;
 
   @override
   Simulation? createBallisticSimulation(
-      ScrollMetrics position, double velocity) {
+    ScrollMetrics position,
+    double velocity,
+  ) {
     final p = position.pixels;
 
     final max = maxScrollExtent(position);
@@ -25,7 +30,8 @@ class PhotolineScrollExtentPhysics extends ScrollPhysics {
       return ScrollSpringSimulation(spring, position.pixels, max, 0);
     }
 
-    double target = p +
+    double target =
+        p +
         200 *
             math.exp(1.2 * math.log(.6 * velocity.abs() / 800)) *
             velocity.sign;
@@ -63,9 +69,7 @@ class PhotolineScrollExtentPhysics extends ScrollPhysics {
   }
 
   PhotolineScrollExtentViewState _scroller(ScrollMetrics position) =>
-      (position as ScrollPosition)
-          .context
-          .notificationContext!
+      (position as ScrollPosition).context.notificationContext!
           .findAncestorStateOfType<PhotolineScrollExtentViewState>()!;
 
   double maxScrollExtent(ScrollMetrics position) =>

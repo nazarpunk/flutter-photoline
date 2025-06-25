@@ -46,9 +46,7 @@ class PhotolineState extends State<Photoline>
 
   int _pageTargetClose = -1;
 
-  final _physics = const PhotolineScrollPhysics(
-    parent: AlwaysScrollableScrollPhysics(),
-  );
+  final _physics = const PhotolineScrollPhysics();
 
   final List<PhotolinePosition> positionWidth = [];
 

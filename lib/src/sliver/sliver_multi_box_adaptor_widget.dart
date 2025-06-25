@@ -15,17 +15,14 @@ class PhotolineSliverMultiBoxAdaptorWidget extends SliverMultiBoxAdaptorWidget {
   final PhotolineState photoline;
 
   @override
-  PhotolineRenderSliverMultiBoxAdaptor createRenderObject(
-          BuildContext context) =>
-      PhotolineRenderSliverMultiBoxAdaptor(
-        childManager: context as SliverMultiBoxAdaptorElement,
-        controller: controller,
-        photoline: photoline,
-      );
+  PhotolineRenderSliverMultiBoxAdaptor createRenderObject(BuildContext context) => PhotolineRenderSliverMultiBoxAdaptor(
+    childManager: context as SliverMultiBoxAdaptorElement,
+    controller: controller,
+    photoline: photoline,
+  );
 
   @override
-  void updateRenderObject(
-      BuildContext context, PhotolineRenderSliverMultiBoxAdaptor renderObject) {
+  void updateRenderObject(BuildContext context, PhotolineRenderSliverMultiBoxAdaptor renderObject) {
     renderObject
       ..controller = controller
       ..photoline = photoline;

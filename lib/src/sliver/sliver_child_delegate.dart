@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:photoline/src/controller.dart';
 
-export 'package:flutter/rendering.dart'
-    show
-        SliverGridDelegate,
-        SliverGridDelegateWithFixedCrossAxisCount,
-        SliverGridDelegateWithMaxCrossAxisExtent;
+export 'package:flutter/rendering.dart' show SliverGridDelegate, SliverGridDelegateWithFixedCrossAxisCount, SliverGridDelegateWithMaxCrossAxisExtent;
 
 typedef ChildIndexGetter = int? Function(Key key);
 
@@ -44,7 +40,5 @@ class PhotolineSliverChildBuilderDelegate extends SliverChildDelegate {
   int? get estimatedChildCount => controller.count + 1;
 
   @override
-  bool shouldRebuild(
-          covariant PhotolineSliverChildBuilderDelegate oldDelegate) =>
-      true;
+  bool shouldRebuild(covariant PhotolineSliverChildBuilderDelegate oldDelegate) => true;
 }

@@ -2,6 +2,10 @@
 # https://dart.dev/tools#ides-and-editors
 include: analysis_options_all.yaml
 
+formatter:
+  page_width: 500
+  trailing_commas: preserve
+
 analyzer:
   language:
     strict-casts: true
