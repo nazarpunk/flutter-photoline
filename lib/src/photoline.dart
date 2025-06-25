@@ -50,8 +50,6 @@ class PhotolineState extends State<Photoline>
     parent: AlwaysScrollableScrollPhysics(),
   );
 
-  //final _physics = const ScrollPhysics(parent: AlwaysScrollableScrollPhysics());
-
   final List<PhotolinePosition> positionWidth = [];
 
   late final PhotolineHolderState? holder;
