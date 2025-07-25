@@ -2,20 +2,16 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
+import 'package:flutter/rendering.dart';
+import 'package:photoline/photoline.dart';
 import 'package:photoline/src/backside/backside.dart';
-import 'package:photoline/src/controller.dart';
-import 'package:photoline/src/holder/holder.dart';
 import 'package:photoline/src/mixin/state/rebuild.dart';
 import 'package:photoline/src/paginaror/paginator.dart';
 import 'package:photoline/src/scroll/photoline/position.dart';
 import 'package:photoline/src/scroll/physics.dart';
-import 'package:photoline/src/scroll/snap/snap.dart';
-import 'package:photoline/src/scrollable/notification/pointer.dart';
-import 'package:photoline/src/scrollable/scrollable.dart';
 import 'package:photoline/src/sliver/sliver_child_delegate.dart';
 import 'package:photoline/src/sliver/sliver_multi_box_adaptor_widget.dart';
 import 'package:photoline/src/tile/tile.dart';
-import 'package:photoline/src/utils/action.dart';
 import 'package:photoline/src/utils/position.dart';
 import 'package:photoline/src/viewport/viewport.dart';
 
@@ -33,14 +29,13 @@ class Photoline extends StatefulWidget {
   State<Photoline> createState() => PhotolineState();
 }
 
-class PhotolineState extends State<Photoline>
-    with StateRebuildMixin, TickerProviderStateMixin {
+class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProviderStateMixin {
   PhotolineController get controller => widget.controller;
   late final AnimationController animationPosition;
   late final AnimationController animationOpacity;
   late final AnimationController animationAdd;
 
-  PhotolineScrollPosition get _position => widget.controller.pos;
+  PhotolineScrollPosition get _position => widget.controller.position;
 
   int _lastReportedPage = 0;
 
@@ -74,9 +69,7 @@ class PhotolineState extends State<Photoline>
       for (int i = controller.pageTargetOpen.value - 1; i >= 0; i--) {
         positionWidth[i]
           ..lerp(t)
-          ..offset.current =
-              positionWidth[i + 1].offset.current -
-              positionWidth[i].width.current;
+          ..offset.current = positionWidth[i + 1].offset.current - positionWidth[i].width.current;
       }
     }
 
@@ -85,9 +78,7 @@ class PhotolineState extends State<Photoline>
       for (int i = controller.pageTargetOpen.value + 1; i < count; i++) {
         positionWidth[i]
           ..lerp(t)
-          ..offset.current =
-              positionWidth[i - 1].offset.current +
-              positionWidth[i - 1].width.current;
+          ..offset.current = positionWidth[i - 1].offset.current + positionWidth[i - 1].width.current;
       }
     }
   }
@@ -120,8 +111,7 @@ class PhotolineState extends State<Photoline>
     // center
     final c = positionWidth[pto]..lerp(t);
 
-    if (nearEqual(c.offset.current, c.offset.end, .2) &&
-        nearEqual(c.width.current, c.width.end, .4)) {
+    if (nearEqual(c.offset.current, c.offset.end, .2) && nearEqual(c.width.current, c.width.end, .4)) {
       controller.pageActivePaginator.value = pto;
     }
 
@@ -130,8 +120,7 @@ class PhotolineState extends State<Photoline>
       positionWidth[pto - 1].lerp(t);
       for (int i = pto - 1; i >= 0; i--) {
         final c = positionWidth[i];
-        c.offset.current =
-            positionWidth[i + 1].offset.current - c.width.current;
+        c.offset.current = positionWidth[i + 1].offset.current - c.width.current;
         if (controller.useOpenSideResize) {
           if (c.offsetL != null && c.offset.current < c.offsetL!) {
             final diff = c.offsetL! - c.offset.current;
@@ -168,9 +157,7 @@ class PhotolineState extends State<Photoline>
         _listenerPositionUpload();
       case PhotolineAction.closing:
         _listenerPositionClosing();
-      case PhotolineAction.open ||
-          PhotolineAction.close ||
-          PhotolineAction.drag:
+      case PhotolineAction.open || PhotolineAction.close || PhotolineAction.drag:
     }
     rebuild();
   }
@@ -180,10 +167,7 @@ class PhotolineState extends State<Photoline>
     switch (controller.action.value) {
       case PhotolineAction.open || PhotolineAction.opening:
         _aspectRatio = dx;
-      case PhotolineAction.closing ||
-          PhotolineAction.close ||
-          PhotolineAction.drag ||
-          PhotolineAction.upload:
+      case PhotolineAction.closing || PhotolineAction.close || PhotolineAction.drag || PhotolineAction.upload:
         _aspectRatio = -dx;
     }
   }
@@ -268,14 +252,12 @@ class PhotolineState extends State<Photoline>
       }
 
       for (int i = visible.length - 2; i >= 0; i--) {
-        positionWidth[visible[i]].offset.start =
-            positionWidth[visible[i + 1]].offset.start - size.close;
+        positionWidth[visible[i]].offset.start = positionWidth[visible[i + 1]].offset.start - size.close;
       }
 
       for (var i = 0; i < visible.length; i++) {
         final c = positionWidth[visible[i]];
-        c.offset.end =
-            i == 0 ? 0 : positionWidth[visible[i - 1]].offset.end + size.close;
+        c.offset.end = i == 0 ? 0 : positionWidth[visible[i - 1]].offset.end + size.close;
       }
     }
 
@@ -297,9 +279,7 @@ class PhotolineState extends State<Photoline>
       final p = positionWidth[i];
 
       final double o = p.offset.current;
-      if (p.width.current > 0 &&
-          o + p.width.current >= 0 &&
-          o <= size.viewport) {
+      if (p.width.current > 0 && o + p.width.current >= 0 && o <= size.viewport) {
         visible.add(i + 1);
         p.offset.start = o;
       } else {
@@ -332,8 +312,7 @@ class PhotolineState extends State<Photoline>
 
     for (var i = 0; i < visible.length; i++) {
       final c = positionWidth[visible[i]];
-      c.offset.end =
-          i == 0 ? 0 : positionWidth[visible[i - 1]].offset.end + size.close;
+      c.offset.end = i == 0 ? 0 : positionWidth[visible[i - 1]].offset.end + size.close;
     }
 
     animationPosition
@@ -408,19 +387,16 @@ class PhotolineState extends State<Photoline>
 
     final pto = controller.pageTargetOpen.value;
 
-    final isFirst =
-        pto == 0 || (pto == 1 && controller.getPagerIndexOffset() > 0);
+    final isFirst = pto == 0 || (pto == 1 && controller.getPagerIndexOffset() > 0);
 
     final lend = pto == count - 1 ? size.side2 : size.side;
     final rend = isFirst ? size.side2 : size.side;
 
     if (pto > 0) {
-      positionWidth[pto - 1].width.end =
-          controller.useOpenSideResize ? lend : size.open;
+      positionWidth[pto - 1].width.end = controller.useOpenSideResize ? lend : size.open;
     }
     if (pto < count - 1) {
-      positionWidth[pto + 1].width.end =
-          controller.useOpenSideResize ? rend : size.open;
+      positionWidth[pto + 1].width.end = controller.useOpenSideResize ? rend : size.open;
     }
 
     // <->
@@ -441,7 +417,7 @@ class PhotolineState extends State<Photoline>
   void _toPageOpenFromClose() {
     final snap = context.findAncestorStateOfType<ScrollSnapState>();
     if (snap != null) {
-      snap.controller.pos.photolineScrollToOpen(
+      snap.controller.position.photolineScrollToOpen(
         (context.findRenderObject()! as RenderBox)
             .globalToLocal(
               Offset.zero,
@@ -479,8 +455,7 @@ class PhotolineState extends State<Photoline>
 
     final pto = controller.pageTargetOpen.value;
 
-    final isFirst =
-        pto == 0 || (pto == 1 && controller.getPagerIndexOffset() > 0);
+    final isFirst = pto == 0 || (pto == 1 && controller.getPagerIndexOffset() > 0);
 
     final lend = pto == count - 1 ? size.side2 : size.side;
     late final PhotolinePosition c;
@@ -527,8 +502,7 @@ class PhotolineState extends State<Photoline>
     final vf = positionWidth[visible.first];
     final vl = positionWidth[visible.last];
 
-    final isFirst =
-        pto == 0 || (pto == 1 && controller.getPagerIndexOffset() > 0);
+    final isFirst = pto == 0 || (pto == 1 && controller.getPagerIndexOffset() > 0);
 
     final lend = pto == count - 1 ? size.side2 : size.side;
     final rend = isFirst ? size.side2 : size.side;
@@ -557,14 +531,12 @@ class PhotolineState extends State<Photoline>
 
     if (isFirst) {
       c.offset.end = 0;
-      positionWidth[pto + 1].width.end =
-          controller.useOpenSideResize ? size.side2 : size.open;
+      positionWidth[pto + 1].width.end = controller.useOpenSideResize ? size.side2 : size.open;
     }
 
     if (pto == count - 1) {
       c.offset.end = size.side2;
-      positionWidth[pto - 1].width.end =
-          controller.useOpenSideResize ? size.side2 : size.open;
+      positionWidth[pto - 1].width.end = controller.useOpenSideResize ? size.side2 : size.open;
     }
 
     if (pto < visible.first) {
@@ -610,19 +582,13 @@ class PhotolineState extends State<Photoline>
     final big = positionWidth[controller.pageTargetOpen.value];
 
     final bigLeft = big.offset.current.clamp(0, size.viewport).toDouble();
-    final bigRight =
-        (big.offset.current + big.width.current)
-            .clamp(0, size.viewport)
-            .toDouble();
+    final bigRight = (big.offset.current + big.width.current).clamp(0, size.viewport).toDouble();
     var viewIndex = 0;
     sz = 0;
     final closeCount = controller.getViewCount(controller.photolineWidth);
 
     for (var i = 0; i < closeCount; i++) {
-      final sizz =
-          controller.useOpenSideResize && !controller.useOpenSideResizeScale
-              ? size.open
-              : size.close;
+      final sizz = controller.useOpenSideResize && !controller.useOpenSideResizeScale ? size.open : size.close;
 
       final a = i * sizz;
       final b = (i + 1) * sizz;
@@ -633,8 +599,7 @@ class PhotolineState extends State<Photoline>
       }
     }
 
-    if (controller.pageTargetOpen.value == 1 &&
-        controller.getPagerIndexOffset() > 0) {
+    if (controller.pageTargetOpen.value == 1 && controller.getPagerIndexOffset() > 0) {
       viewIndex = 1;
     }
 
@@ -747,7 +712,7 @@ class PhotolineState extends State<Photoline>
 
     if (notification is ScrollEndNotification) {
       if (a == PhotolineAction.open) {
-        final p = controller.pos.pageOpen.round();
+        final p = controller.position.pageOpen.round();
         controller
           ..pageActiveOpenComplete.value = p
           ..pageActivePaginator.value = p
@@ -758,20 +723,22 @@ class PhotolineState extends State<Photoline>
     if (notification is ScrollUpdateNotification) {
       if (a == PhotolineAction.open) {
         final pto = controller.pageTargetOpen.value.toDouble();
-        final po = controller.pos.pageOpen;
+        final po = controller.position.pageOpen;
 
-        controller.pageActivePaginator.value =
-            nearEqual(pto, po, .02) ? controller.pageTargetOpen.value : -1;
+        controller.pageActivePaginator.value = nearEqual(pto, po, .02) ? controller.pageTargetOpen.value : -1;
 
-        controller.pageActiveOpenComplete.value =
-            controller.pageActivePaginator.value;
+        controller.pageActiveOpenComplete.value = controller.pageActivePaginator.value;
 
-        final currentPage = controller.pos.pageOpen.round();
+        final currentPage = controller.position.pageOpen.round();
         if (currentPage != _lastReportedPage) {
           _lastReportedPage = currentPage;
-          //widget.onPageChanged!(currentPage);
         }
       }
+    }
+
+    if (notification is UserScrollNotification) {
+      final holding = notification.direction == ScrollDirection.idle && controller.position.activity is PhotolineIdleScrollActivity;
+      controller.pageActiveOpenComplete.value = holding ? controller.pageActivePaginator.value : -1;
     }
 
     return false;
@@ -834,58 +801,60 @@ class PhotolineState extends State<Photoline>
   @override
   Widget build(BuildContext context) {
     //_updater = !_updater;
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        controller.photolineWidth = constraints.maxWidth;
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Expanded(
-              child: ClipRect(
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Positioned.fill(child: PhotolineBackside(photoline: this)),
-                    Positioned.fill(
-                      child: NotificationListener(
-                        onNotification: _onNotification,
-                        child: PhotolineScrollable(
-                          axisDirection: AxisDirection.right,
-                          controller: controller,
-                          physics: _physics,
-                          viewportBuilder:
-                              (context, position) => PhotolineViewport(
-                                offset: position,
-                                slivers: [
-                                  PhotolineSliverMultiBoxAdaptorWidget(
-                                    controller: controller,
-                                    photoline: this,
-                                    delegate:
-                                        PhotolineSliverChildBuilderDelegate(
-                                          (context, i) => PhotolineTile(
-                                            photoline: this,
-                                            key: controller.getKey(i),
-                                            index: i,
-                                            controller: controller,
-                                          ),
+    return RepaintBoundary(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          controller.photolineWidth = constraints.maxWidth;
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Expanded(
+                child: ClipRect(
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Positioned.fill(child: PhotolineBackside(photoline: this)),
+                      Positioned.fill(
+                        child: NotificationListener(
+                          onNotification: _onNotification,
+                          child: PhotolineScrollable(
+                            axisDirection: AxisDirection.right,
+                            controller: controller,
+                            physics: _physics,
+                            viewportBuilder:
+                                (context, position) => PhotolineViewport(
+                                  offset: position,
+                                  slivers: [
+                                    PhotolineSliverMultiBoxAdaptorWidget(
+                                      controller: controller,
+                                      photoline: this,
+                                      delegate: PhotolineSliverChildBuilderDelegate(
+                                        (context, i) => PhotolineTile(
+                                          photoline: this,
+                                          key: controller.getKey(i),
+                                          index: i,
                                           controller: controller,
                                         ),
-                                  ),
-                                ],
-                              ),
+                                        controller: controller,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-            if (controller.getPagerItem != null &&
-                controller.getPagerSize != null)
-              PhotolinePager(photoline: this),
-          ],
-        );
-      },
+              if (controller.getPagerItem != null && controller.getPagerSize != null)
+                RepaintBoundary(
+                  child: PhotolinePager(photoline: this),
+                ),
+            ],
+          );
+        },
+      ),
     );
   }
 }

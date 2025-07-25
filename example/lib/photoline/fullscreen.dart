@@ -32,7 +32,7 @@ class _PhotolineTestFullscreenWidgetState
                 ),
               ),
             ],
-        getPhotoCount: () => 30,
+        getPhotoCount: () => 6,
         getViewCount: _minPhotoLength,
         rebuilder: () {
           if (mounted) setState(() {});

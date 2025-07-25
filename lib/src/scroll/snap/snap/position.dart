@@ -10,9 +10,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:photoline/photoline.dart';
 
 /// [PageView], [ScrollPositionWithSingleContext], [ScrollPosition]
-class ScrollSnapPosition extends ViewportOffset
-    with ScrollMetrics
-    implements ScrollPosition, ScrollActivityDelegate {
+class ScrollSnapPosition extends ViewportOffset with ScrollMetrics implements ScrollPosition, ScrollActivityDelegate {
   ScrollSnapPosition({
     required this.controller,
     required this.physics,
@@ -61,8 +59,7 @@ class ScrollSnapPosition extends ViewportOffset
   double? _maxScrollExtent;
 
   @override
-  bool get hasContentDimensions =>
-      _minScrollExtent != null && _maxScrollExtent != null;
+  bool get hasContentDimensions => _minScrollExtent != null && _maxScrollExtent != null;
 
   double _impliedVelocity = 0;
 
@@ -85,8 +82,7 @@ class ScrollSnapPosition extends ViewportOffset
   bool _haveDimensions = false;
 
   @override
-  bool get shouldIgnorePointer =>
-      !outOfRange && (activity?.shouldIgnorePointer ?? true);
+  bool get shouldIgnorePointer => !outOfRange && (activity?.shouldIgnorePointer ?? true);
 
   // === Photoline
   int _photolineLastScrollIndex = 0;
@@ -168,7 +164,8 @@ class ScrollSnapPosition extends ViewportOffset
   }
 
   (int index, double target, double height) _photolineClosestTop(
-      double newPixels,) {
+    double newPixels,
+  ) {
     if (!photolineCanSnap) return (0, 0, 0);
 
     final mw = controller.boxConstraints!.maxWidth;
@@ -281,8 +278,7 @@ class ScrollSnapPosition extends ViewportOffset
   bool applyViewportDimension(double viewportDimension) {
     //print('🍒 applyViewportDimension');
 
-    final double? oldViewportDimensions =
-    hasViewportDimension ? this.viewportDimension : null;
+    final double? oldViewportDimensions = hasViewportDimension ? this.viewportDimension : null;
     if (viewportDimension == oldViewportDimensions) {
       return true;
     }
@@ -326,34 +322,6 @@ class ScrollSnapPosition extends ViewportOffset
   @override
   bool applyContentDimensions(double minScrollExtent, double maxScrollExtent) {
     //print('🔥 applyContentDimensions');
-
-    /// cage
-    /*
-    if (controller.snapCage != null) {
-      final boxes = SplayTreeMap<int, ScrollSnapBox>.from(
-          controller.box, (a, b) => a.compareTo(b));
-
-      ScrollSnapBox? box;
-      for (final e in boxes.entries) {
-        if (e.key == controller.snapCage) {
-          box = e.value;
-          break;
-        }
-      }
-
-      if (box != null) {
-        maxScrollExtent = box.scrollOffset;
-        for (final e in boxes.entries) {
-          if (e.key > controller.snapCage!) break;
-          final diff = box.scrollOffset - e.value.scrollOffset;
-          if (diff + box.height < viewportDimension) {
-            minScrollExtent = e.value.scrollOffset;
-            break;
-          }
-        }
-      }
-    }
-     */
 
     final dim = SliverLayoutDimensions(
       scrollOffset: 0,
@@ -400,6 +368,7 @@ class ScrollSnapPosition extends ViewportOffset
 
     if (controller.freeMaxExtend) {
       maxScrollExtent = math.max(pixels, maxScrollExtent);
+      //minScrollExtent
     }
 
     if (controller.headerHolder != null) {
@@ -411,10 +380,10 @@ class ScrollSnapPosition extends ViewportOffset
 
     assert(haveDimensions == (_lastMetrics != null));
     if (!nearEqual(
-      _minScrollExtent,
-      minScrollExtent,
-      Tolerance.defaultTolerance.distance,
-    ) ||
+          _minScrollExtent,
+          minScrollExtent,
+          Tolerance.defaultTolerance.distance,
+        ) ||
         !nearEqual(
           _maxScrollExtent,
           maxScrollExtent,
@@ -428,8 +397,7 @@ class ScrollSnapPosition extends ViewportOffset
       final ScrollMetrics? currentMetrics = haveDimensions ? copyWith() : null;
       _didChangeViewportDimensionOrReceiveCorrection = false;
       _pendingDimensions = true;
-      if (haveDimensions &&
-          !correctForNewDimensions(_lastMetrics!, currentMetrics!)) {
+      if (haveDimensions && !correctForNewDimensions(_lastMetrics!, currentMetrics!)) {
         return false;
       }
       _haveDimensions = true;
@@ -440,8 +408,8 @@ class ScrollSnapPosition extends ViewportOffset
       _pendingDimensions = false;
     }
     assert(
-    !_didChangeViewportDimensionOrReceiveCorrection,
-    'Use correctForNewDimensions() (and return true) to change the scroll offset during applyContentDimensions().',
+      !_didChangeViewportDimensionOrReceiveCorrection,
+      'Use correctForNewDimensions() (and return true) to change the scroll offset during applyContentDimensions().',
     );
 
     if (_isMetricsChanged()) {
@@ -536,26 +504,8 @@ class ScrollSnapPosition extends ViewportOffset
     final (pI, _, _) = _photolineClosestTop(newPixels);
     _photolineLastScrollIndex = pI;
 
-    assert(hasPixels);
-    assert(
-    SchedulerBinding.instance.schedulerPhase !=
-        SchedulerPhase.persistentCallbacks,
-    "A scrollable's position should not change during the build, layout, and paint phases, otherwise the rendering will be confused.",
-    );
     if (newPixels != pixels) {
       final double overscroll = applyBoundaryConditions(newPixels);
-      assert(() {
-        final double delta = newPixels - pixels;
-        if (overscroll.abs() > delta.abs()) {
-          throw FlutterError(
-            '$runtimeType.applyBoundaryConditions returned invalid overscroll value.\n'
-                'setPixels() was called to change the scroll offset from $pixels to $newPixels.\n'
-                'That is a delta of $delta units.\n'
-                '$runtimeType.applyBoundaryConditions reported an overscroll of $overscroll units.',
-          );
-        }
-        return true;
-      }());
       final double oldPixels = pixels;
       _pixels = newPixels - overscroll;
       if (_pixels != oldPixels) {
@@ -581,10 +531,6 @@ class ScrollSnapPosition extends ViewportOffset
   @override
   void correctBy(double correction) {
     //print('✅ correct | $correction');
-    assert(
-    hasPixels,
-    'An initial pixels value must exist by calling correctPixels on the ScrollPosition',
-    );
     _pixels = _pixels! + correction;
     _didChangeViewportDimensionOrReceiveCorrection = true;
   }
@@ -652,17 +598,14 @@ class ScrollSnapPosition extends ViewportOffset
   bool _isMetricsChanged() {
     assert(haveDimensions);
     final ScrollMetrics currentMetrics = copyWith();
-
-    return _lastMetrics == null ||
-        !(currentMetrics.extentBefore == _lastMetrics!.extentBefore &&
-            currentMetrics.extentInside == _lastMetrics!.extentInside &&
-            currentMetrics.extentAfter == _lastMetrics!.extentAfter &&
-            currentMetrics.axisDirection == _lastMetrics!.axisDirection);
+    return _lastMetrics == null || !(currentMetrics.extentBefore == _lastMetrics!.extentBefore && currentMetrics.extentInside == _lastMetrics!.extentInside && currentMetrics.extentAfter == _lastMetrics!.extentAfter && currentMetrics.axisDirection == _lastMetrics!.axisDirection);
   }
 
   @override
-  bool correctForNewDimensions(ScrollMetrics oldPosition,
-      ScrollMetrics newPosition,) {
+  bool correctForNewDimensions(
+    ScrollMetrics oldPosition,
+    ScrollMetrics newPosition,
+  ) {
     if (!kProfileMode) {
       return true;
     }
@@ -682,47 +625,44 @@ class ScrollSnapPosition extends ViewportOffset
   }
 
   ScrollPositionAlignmentPolicy _maybeFlipAlignment(
-      ScrollPositionAlignmentPolicy alignmentPolicy,) {
+    ScrollPositionAlignmentPolicy alignmentPolicy,
+  ) {
     return switch (alignmentPolicy) {
-    // Don't flip when explicit.
+      // Don't flip when explicit.
       ScrollPositionAlignmentPolicy.explicit => alignmentPolicy,
-      ScrollPositionAlignmentPolicy.keepVisibleAtEnd =>
-      ScrollPositionAlignmentPolicy.keepVisibleAtStart,
-      ScrollPositionAlignmentPolicy.keepVisibleAtStart =>
-      ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+      ScrollPositionAlignmentPolicy.keepVisibleAtEnd => ScrollPositionAlignmentPolicy.keepVisibleAtStart,
+      ScrollPositionAlignmentPolicy.keepVisibleAtStart => ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
     };
   }
 
   ScrollPositionAlignmentPolicy _applyAxisDirectionToAlignmentPolicy(
-      ScrollPositionAlignmentPolicy alignmentPolicy,) {
+    ScrollPositionAlignmentPolicy alignmentPolicy,
+  ) {
     return switch (axisDirection) {
-    // Start and end alignments must account for axis direction.
-    // When focus is requested for example, it knows the directionality of the
-    // keyboard keys initiating traversal, but not the direction of the
-    // Scrollable.
-      AxisDirection.up ||
-      AxisDirection.left => _maybeFlipAlignment(alignmentPolicy),
+      // Start and end alignments must account for axis direction.
+      // When focus is requested for example, it knows the directionality of the
+      // keyboard keys initiating traversal, but not the direction of the
+      // Scrollable.
+      AxisDirection.up || AxisDirection.left => _maybeFlipAlignment(alignmentPolicy),
       AxisDirection.down || AxisDirection.right => alignmentPolicy,
     };
   }
 
   @override
-  Future<void> ensureVisible(RenderObject object, {
+  Future<void> ensureVisible(
+    RenderObject object, {
     double alignment = 0.0,
     Duration duration = Duration.zero,
     Curve curve = Curves.ease,
-    ScrollPositionAlignmentPolicy alignmentPolicy =
-        ScrollPositionAlignmentPolicy.explicit,
+    ScrollPositionAlignmentPolicy alignmentPolicy = ScrollPositionAlignmentPolicy.explicit,
     RenderObject? targetRenderObject,
   }) async {
     assert(object.attached);
     final RenderAbstractViewport? viewport = RenderAbstractViewport.maybeOf(
       object,
     );
-    // If no viewport is found, return.
-    if (viewport == null) {
-      return;
-    }
+
+    if (viewport == null) return;
 
     Rect? targetRect;
     if (targetRenderObject != null && targetRenderObject != object) {
@@ -738,22 +678,22 @@ class ScrollSnapPosition extends ViewportOffset
         target =
             viewport
                 .getOffsetToReveal(
-              object,
-              alignment,
-              rect: targetRect,
-              axis: axis,
-            )
+                  object,
+                  alignment,
+                  rect: targetRect,
+                  axis: axis,
+                )
                 .offset;
         target = clampDouble(target, minScrollExtent, maxScrollExtent);
       case ScrollPositionAlignmentPolicy.keepVisibleAtEnd:
         target =
             viewport
                 .getOffsetToReveal(
-              object,
-              1.0, // Aligns to end
-              rect: targetRect,
-              axis: axis,
-            )
+                  object,
+                  1.0, // Aligns to end
+                  rect: targetRect,
+                  axis: axis,
+                )
                 .offset;
         target = clampDouble(target, minScrollExtent, maxScrollExtent);
         if (target < pixels) {
@@ -763,11 +703,11 @@ class ScrollSnapPosition extends ViewportOffset
         target =
             viewport
                 .getOffsetToReveal(
-              object,
-              0.0, // Aligns to start
-              rect: targetRect,
-              axis: axis,
-            )
+                  object,
+                  0.0, // Aligns to start
+                  rect: targetRect,
+                  axis: axis,
+                )
                 .offset;
         target = clampDouble(target, minScrollExtent, maxScrollExtent);
         if (target > pixels) {
@@ -775,9 +715,7 @@ class ScrollSnapPosition extends ViewportOffset
         }
     }
 
-    if (target == pixels) {
-      return;
-    }
+    if (target == pixels) return;
 
     if (duration == Duration.zero) {
       jumpTo(target);
@@ -788,13 +726,12 @@ class ScrollSnapPosition extends ViewportOffset
   }
 
   @override
-  Future<void> animateTo(double to, {
+  Future<void> animateTo(
+    double to, {
     required Duration duration,
     required Curve curve,
   }) {
-    if (nearEqual(to, pixels, physics
-        .toleranceFor(this)
-        .distance)) {
+    if (nearEqual(to, pixels, physics.toleranceFor(this).distance)) {
       // Skip the animation, go straight to the position as we are already close.
       jumpTo(to);
       return Future<void>.value();
@@ -862,7 +799,8 @@ class ScrollSnapPosition extends ViewportOffset
   }
 
   @override
-  Future<void> moveTo(double to, {
+  Future<void> moveTo(
+    double to, {
     Duration? duration,
     Curve? curve,
     bool? clamp = true,
@@ -1021,8 +959,7 @@ class ScrollSnapPosition extends ViewportOffset
   @override
   void didUpdateScrollMetrics() {
     assert(
-    SchedulerBinding.instance.schedulerPhase !=
-        SchedulerPhase.persistentCallbacks,
+      SchedulerBinding.instance.schedulerPhase != SchedulerPhase.persistentCallbacks,
     );
     assert(_haveScheduledUpdateNotification);
     _haveScheduledUpdateNotification = false;
@@ -1049,8 +986,7 @@ class ScrollSnapPosition extends ViewportOffset
     _currentDrag?.dispose();
     _currentDrag = null;
 
-    activity
-        ?.dispose(); // it will be null if it got absorbed by another ScrollPosition
+    activity?.dispose(); // it will be null if it got absorbed by another ScrollPosition
     _activity = null;
     isScrollingNotifier.dispose();
     super.dispose();

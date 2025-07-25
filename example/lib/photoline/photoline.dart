@@ -36,10 +36,10 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
     _uris.clear();
     _keys.clear();
 
-    for (var i = 0; i < 20; i++) {
+    for (var i = 0; i < 40; i++) {
       final List<Uri> l = [];
       final List<Key> k = [];
-      for (var j = 0; j < 10 - i; j++) {
+      for (var j = 0; j < 10; j++) {
         l.add(PhotolineDummys.get(i, j));
         k.add(ValueKey<String>('$i $j'));
       }

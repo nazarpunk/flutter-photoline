@@ -7,8 +7,7 @@ import 'package:flutter/rendering.dart';
 
 part 'render.dart';
 
-class ScrollSnapViewport extends MultiChildRenderObjectWidget
-    implements Viewport {
+class ScrollSnapViewport extends MultiChildRenderObjectWidget implements Viewport {
   const ScrollSnapViewport({
     super.key,
     required this.offset,
@@ -63,8 +62,7 @@ class ScrollSnapViewport extends MultiChildRenderObjectWidget
   SliverPaintOrder get paintOrder => SliverPaintOrder.lastIsTop;
 }
 
-class _ViewportElement extends MultiChildRenderObjectElement
-    with NotifiableElementMixin, ViewportElementMixin {
+class _ViewportElement extends MultiChildRenderObjectElement with NotifiableElementMixin, ViewportElementMixin {
   _ViewportElement(ScrollSnapViewport super.widget);
 
   bool _doingMountOrUpdate = false;

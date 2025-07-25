@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:photoline/photoline.dart';
 import 'package:photoline/src/mixin/state/rebuild.dart';
 import 'package:photoline/src/scroll/snap/snap/physics.dart';
-import 'package:photoline/src/scroll/snap/snap/position.dart';
 import 'package:photoline/src/scroll/snap/snap/viewport/viewport.dart';
 
 export 'snap/sliver/list.dart';
@@ -25,8 +24,7 @@ class ScrollSnap extends StatefulWidget {
   State<ScrollSnap> createState() => ScrollSnapState();
 }
 
-class ScrollSnapState extends State<ScrollSnap>
-    with StateRebuildMixin, WidgetsBindingObserver {
+class ScrollSnapState extends State<ScrollSnap> with StateRebuildMixin, WidgetsBindingObserver {
   ScrollPhysics? _physics;
 
   ScrollSnapController get controller => widget.controller;
@@ -74,9 +72,8 @@ class ScrollSnapState extends State<ScrollSnap>
       final foverlap = math.max(0, vib - h + fdy + fh + gap);
 
       if (foverlap <= 0) return;
-      final pos = controller.pos;
-      await pos.animateTo(
-        pos.pixels + foverlap,
+      await controller.position.animateTo(
+        controller.position.pixels + foverlap,
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOut,
       );
@@ -104,13 +101,9 @@ class ScrollSnapState extends State<ScrollSnap>
         return NotificationListener(
           onNotification: (notification) {
             if (notification is PhotolinePointerScrollNotification) {
-              if (controller.position is ScrollSnapPosition) {
-                final dx = notification.event.scrollDelta.dy;
-                final double velocity = (math.max(dx.abs(), 50) * dx.sign) * 10;
-                (controller.position as ScrollSnapPosition).goBallistic(
-                  velocity,
-                );
-              }
+              final dx = notification.event.scrollDelta.dy;
+              final double velocity = (math.max(dx.abs(), 50) * dx.sign) * 10;
+              controller.position.goBallistic(velocity);
               return false;
             }
 

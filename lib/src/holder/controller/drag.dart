@@ -257,7 +257,7 @@ class PhotolineHolderDragController implements Drag {
 
   void _snapTimerRun() {
     if (_snapDirection == 0 || isDragClose) return;
-    snapController.pos.photolineScrollToNext(_snapDirection);
+    snapController.position.photolineScrollToNext(_snapDirection);
     _snapTimer = Timer(const Duration(milliseconds: 500), _snapTimerRun);
   }
 

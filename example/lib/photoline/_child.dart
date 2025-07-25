@@ -64,9 +64,9 @@ class _ChildState extends State<_Child> with AutomaticKeepAliveClientMixin {
     for (var i = 0; i < files.length; i++) {
       await Future.delayed(const Duration(milliseconds: 100));
 
-      final pos = widget.controller.pos;
+      final pos = widget.controller.position;
       if (pos.pixels > 0) {
-        unawaited(widget.controller.pos.animateTo(0,
+        unawaited(widget.controller.position.animateTo(0,
             duration: Duration(milliseconds: (pos.pixels * 1.5).toInt()),
             curve: Curves.easeIn));
       }

@@ -15,8 +15,7 @@ class ScrollSnapRefresh extends StatefulWidget {
   State<ScrollSnapRefresh> createState() => ScrollSnapRefreshState();
 }
 
-class ScrollSnapRefreshState extends State<ScrollSnapRefresh>
-    with StateRebuildMixin, SingleTickerProviderStateMixin {
+class ScrollSnapRefreshState extends State<ScrollSnapRefresh> with StateRebuildMixin, SingleTickerProviderStateMixin {
   int viewState = 0;
   bool isWait = false;
   bool isWaitClose = false;
@@ -52,10 +51,7 @@ class ScrollSnapRefreshState extends State<ScrollSnapRefresh>
   }
 
   Future<void> _handleScroll() async {
-    if (_controller.isUserDrag.value ||
-        isWait ||
-        viewState != 1 ||
-        isWaitClose) {
+    if (_controller.isUserDrag.value || isWait || viewState != 1 || isWaitClose) {
       return;
     }
     isWait = true;
@@ -72,9 +68,8 @@ class ScrollSnapRefreshState extends State<ScrollSnapRefresh>
     if (!mounted) return;
     viewState = 0;
     isWait = false;
-    animationController
-      ..stop()
-      ..reverse(from: animationController.value);
+    animationController.stop();
+    unawaited(animationController.reverse(from: animationController.value));
 
     rebuild();
   }
@@ -136,9 +131,7 @@ class ScrollSnapRefreshState extends State<ScrollSnapRefresh>
               children: [
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 200),
-                  transitionBuilder:
-                      (child, animation) =>
-                          ScaleTransition(scale: animation, child: child),
+                  transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
                   child: _icon,
                 ),
                 const SizedBox(width: 6),

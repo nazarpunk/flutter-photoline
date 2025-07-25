@@ -17,8 +17,7 @@ import 'package:photoline/src/scroll/activity/mixin.dart';
 import 'package:photoline/src/scroll/metrics.dart';
 import 'package:photoline/src/utils/action.dart';
 
-class PhotolineScrollPosition extends ScrollPosition
-    implements ScrollActivityDelegate, PhotolineScrollMetrics {
+class PhotolineScrollPosition extends ScrollPosition implements ScrollActivityDelegate, PhotolineScrollMetrics {
   PhotolineScrollPosition({
     required this.controller,
     required super.physics,
@@ -30,12 +29,8 @@ class PhotolineScrollPosition extends ScrollPosition
   }
 
   double get pageLast {
-    final double ratio =
-        controller.action.value == PhotolineAction.close
-            ? controller.closeRatio
-            : controller.openRatio;
-    return (maxScrollExtent + viewportDimension) / (viewportDimension * ratio) -
-        1;
+    final double ratio = controller.action.value == PhotolineAction.close ? controller.closeRatio : controller.openRatio;
+    return (maxScrollExtent + viewportDimension) / (viewportDimension * ratio) - 1;
   }
 
   double? _cachedPage;
@@ -51,8 +46,7 @@ class PhotolineScrollPosition extends ScrollPosition
     }
   }
 
-  double pageAdd(double add) =>
-      ((page ?? 0) + add).clamp(0, pageLast).roundToDouble();
+  double pageAdd(double add) => ((page ?? 0) + add).clamp(0, pageLast).roundToDouble();
 
   double _getPageFromPixelsOpen(double pixels, [double? vd]) {
     vd ??= viewportDimension;
@@ -66,8 +60,7 @@ class PhotolineScrollPosition extends ScrollPosition
       if (page > pageLast - 1) page = (pixels + side * 2) / open;
     }
 
-    if (controller.getPagerIndexOffset() > 0 &&
-        (pixels - open) < (open - side)) {
+    if (controller.getPagerIndexOffset() > 0 && (pixels - open) < (open - side)) {
       page = pixels / open;
     }
 
@@ -122,8 +115,7 @@ class PhotolineScrollPosition extends ScrollPosition
 
   @override
   bool applyViewportDimension(double viewportDimension) {
-    final double? oldViewportDimensions =
-        hasViewportDimension ? _viewportDimension : null;
+    final double? oldViewportDimensions = hasViewportDimension ? _viewportDimension : null;
     if (viewportDimension == oldViewportDimensions) {
       return true;
     }
@@ -156,8 +148,7 @@ class PhotolineScrollPosition extends ScrollPosition
                 _viewportDimension,
               ).roundToDouble();
         case PhotolineAction.drag:
-          page =
-              getPageFromPixels(oldPixels, _viewportDimension).roundToDouble();
+          page = getPageFromPixels(oldPixels, _viewportDimension).roundToDouble();
       }
     }
     final double newPixels;
@@ -193,8 +184,7 @@ class PhotolineScrollPosition extends ScrollPosition
 
     switch (controller.action.value) {
       case PhotolineAction.open:
-        if (controller.pageOpenInitial != 0 &&
-            controller.getPagerIndexOffset() > 0) {
+        if (controller.pageOpenInitial != 0 && controller.getPagerIndexOffset() > 0) {
           minScrollExtent = viewportDimension * controller.openRatio;
         }
       case PhotolineAction.opening:
@@ -224,8 +214,7 @@ class PhotolineScrollPosition extends ScrollPosition
       final ScrollMetrics? currentMetrics = haveDimensions ? copyWith() : null;
       _didChangeViewportDimensionOrReceiveCorrection = false;
       _pendingDimensions = true;
-      if (haveDimensions &&
-          !correctForNewDimensions(_lastMetrics!, currentMetrics!)) {
+      if (haveDimensions && !correctForNewDimensions(_lastMetrics!, currentMetrics!)) {
         return false;
       }
       _haveDimensions = true;
@@ -299,14 +288,10 @@ class PhotolineScrollPosition extends ScrollPosition
     double? viewportFraction,
     double? devicePixelRatio,
   }) => PhotolineScrollMetrics(
-    minScrollExtent:
-        minScrollExtent ?? (hasContentDimensions ? this.minScrollExtent : null),
-    maxScrollExtent:
-        maxScrollExtent ?? (hasContentDimensions ? this.maxScrollExtent : null),
+    minScrollExtent: minScrollExtent ?? (hasContentDimensions ? this.minScrollExtent : null),
+    maxScrollExtent: maxScrollExtent ?? (hasContentDimensions ? this.maxScrollExtent : null),
     pixels: pixels ?? (hasPixels ? this.pixels : null),
-    viewportDimension:
-        viewportDimension ??
-        (hasViewportDimension ? this.viewportDimension : null),
+    viewportDimension: viewportDimension ?? (hasViewportDimension ? this.viewportDimension : null),
     axisDirection: axisDirection ?? this.axisDirection,
     devicePixelRatio: devicePixelRatio ?? this.devicePixelRatio,
   );
@@ -362,8 +347,7 @@ class PhotolineScrollPosition extends ScrollPosition
     //assert(activity!.isScrolling);
     assert(hasPixels);
     assert(
-      SchedulerBinding.instance.schedulerPhase !=
-          SchedulerPhase.persistentCallbacks,
+      SchedulerBinding.instance.schedulerPhase != SchedulerPhase.persistentCallbacks,
       "A scrollable's position should not change during the build, layout, and paint phases, otherwise the rendering will be confused.",
     );
 
@@ -439,12 +423,19 @@ class PhotolineScrollPosition extends ScrollPosition
   ScrollDirection get userScrollDirection => _userScrollDirection;
   ScrollDirection _userScrollDirection = ScrollDirection.idle;
 
-  @protected
-  @visibleForTesting
   void updateUserScrollDirection(ScrollDirection value) {
     if (userScrollDirection == value) return;
     _userScrollDirection = value;
     didUpdateScrollDirection(value);
+  }
+
+  @override
+  void didUpdateScrollDirection(ScrollDirection direction) {
+    UserScrollNotification(
+      metrics: copyWith(),
+      context: context.notificationContext!,
+      direction: direction,
+    ).dispatch(context.notificationContext);
   }
 
   @override
@@ -589,8 +580,7 @@ class PhotolineScrollPosition extends ScrollPosition
   double? _maxScrollExtent;
 
   @override
-  bool get hasContentDimensions =>
-      _minScrollExtent != null && _maxScrollExtent != null;
+  bool get hasContentDimensions => _minScrollExtent != null && _maxScrollExtent != null;
 
   /// The additional velocity added for a [forcePixels] change in a single
   /// frame.
@@ -777,11 +767,7 @@ class PhotolineScrollPosition extends ScrollPosition
     assert(haveDimensions);
     final ScrollMetrics currentMetrics = copyWith();
 
-    return _lastMetrics == null ||
-        !(currentMetrics.extentBefore == _lastMetrics!.extentBefore &&
-            currentMetrics.extentInside == _lastMetrics!.extentInside &&
-            currentMetrics.extentAfter == _lastMetrics!.extentAfter &&
-            currentMetrics.axisDirection == _lastMetrics!.axisDirection);
+    return _lastMetrics == null || !(currentMetrics.extentBefore == _lastMetrics!.extentBefore && currentMetrics.extentInside == _lastMetrics!.extentInside && currentMetrics.extentAfter == _lastMetrics!.extentAfter && currentMetrics.axisDirection == _lastMetrics!.axisDirection);
   }
 
   Set<SemanticsAction>? _semanticActions;
@@ -843,10 +829,8 @@ class PhotolineScrollPosition extends ScrollPosition
     return switch (alignmentPolicy) {
       // Don't flip when explicit.
       ScrollPositionAlignmentPolicy.explicit => alignmentPolicy,
-      ScrollPositionAlignmentPolicy.keepVisibleAtEnd =>
-        ScrollPositionAlignmentPolicy.keepVisibleAtStart,
-      ScrollPositionAlignmentPolicy.keepVisibleAtStart =>
-        ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+      ScrollPositionAlignmentPolicy.keepVisibleAtEnd => ScrollPositionAlignmentPolicy.keepVisibleAtStart,
+      ScrollPositionAlignmentPolicy.keepVisibleAtStart => ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
     };
   }
 
@@ -858,8 +842,7 @@ class PhotolineScrollPosition extends ScrollPosition
       // When focus is requested for example, it knows the directionality of the
       // keyboard keys initiating traversal, but not the direction of the
       // Scrollable.
-      AxisDirection.up ||
-      AxisDirection.left => _maybeFlipAlignment(alignmentPolicy),
+      AxisDirection.up || AxisDirection.left => _maybeFlipAlignment(alignmentPolicy),
       AxisDirection.down || AxisDirection.right => alignmentPolicy,
     };
   }
@@ -870,8 +853,7 @@ class PhotolineScrollPosition extends ScrollPosition
     double alignment = 0.0,
     Duration duration = Duration.zero,
     Curve curve = Curves.ease,
-    ScrollPositionAlignmentPolicy alignmentPolicy =
-        ScrollPositionAlignmentPolicy.explicit,
+    ScrollPositionAlignmentPolicy alignmentPolicy = ScrollPositionAlignmentPolicy.explicit,
     RenderObject? targetRenderObject,
   }) async {
     assert(object.attached);
@@ -965,20 +947,12 @@ class PhotolineScrollPosition extends ScrollPosition
   @override
   bool get allowImplicitScrolling => physics.allowImplicitScrolling;
 
-  /// The currently operative [ScrollActivity].
-  ///
-  /// If the scroll position is not performing any more specific activity, the
-  /// activity will be an [IdleScrollActivity]. To determine whether the scroll
-  /// position is idle, check the [isScrollingNotifier].
-  ///
-  /// Call [beginActivity] to change the current activity.
   @override
   ScrollActivity? get activity => _activity;
   ScrollActivity? _activity;
 
   // NOTIFICATION DISPATCH
 
-  /// Called by [beginActivity] to report when an activity has started.
   @override
   void didStartScroll() {
     activity!.dispatchScrollStartNotification(
@@ -987,7 +961,6 @@ class PhotolineScrollPosition extends ScrollPosition
     );
   }
 
-  /// Called by [setPixels] to report a change to the [pixels] position.
   @override
   void didUpdateScrollPositionBy(double delta) {
     activity?.dispatchScrollUpdateNotification(
@@ -997,9 +970,6 @@ class PhotolineScrollPosition extends ScrollPosition
     );
   }
 
-  /// Called by [beginActivity] to report when an activity has ended.
-  ///
-  /// This also saves the scroll offset using [saveScrollOffset].
   @override
   void didEndScroll() {
     activity!.dispatchScrollEndNotification(
@@ -1012,9 +982,6 @@ class PhotolineScrollPosition extends ScrollPosition
     }
   }
 
-  /// Called by [setPixels] to report overscroll when an attempt is made to
-  /// change the [pixels] position. Overscroll is the amount of change that was
-  /// not applied to the [pixels] value.
   @override
   void didOverscrollBy(double value) {
     assert(activity!.isScrolling);
@@ -1025,24 +992,11 @@ class PhotolineScrollPosition extends ScrollPosition
     );
   }
 
-  /// Dispatches a notification that the [userScrollDirection] has changed.
-  ///
-  /// Subclasses should call this function when they change [userScrollDirection].
-  @override
-  void didUpdateScrollDirection(ScrollDirection direction) {
-    UserScrollNotification(
-      metrics: copyWith(),
-      context: context.notificationContext!,
-      direction: direction,
-    ).dispatch(context.notificationContext);
-  }
-
   /// Dispatches a notification that the [ScrollMetrics] have changed.
   @override
   void didUpdateScrollMetrics() {
     assert(
-      SchedulerBinding.instance.schedulerPhase !=
-          SchedulerPhase.persistentCallbacks,
+      SchedulerBinding.instance.schedulerPhase != SchedulerPhase.persistentCallbacks,
     );
     assert(_haveScheduledUpdateNotification);
     _haveScheduledUpdateNotification = false;

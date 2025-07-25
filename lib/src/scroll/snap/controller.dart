@@ -66,7 +66,9 @@ class ScrollSnapController extends ScrollController {
 
   ScrollSnapSpringSimulation? simulation;
 
-  ScrollSnapPosition get pos => position as ScrollSnapPosition;
+  @override
+  ScrollSnapPosition get position => super.position as ScrollSnapPosition;
+
 
   double keyboardOverlap = 0;
 }

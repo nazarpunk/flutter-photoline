@@ -1,25 +1,20 @@
 part of 'viewport.dart';
 
-class RenderViewportPhotoline extends RenderBox
-    with
-        ContainerRenderObjectMixin<
-          RenderSliver,
-          SliverPhysicalContainerParentData
-        >
-    implements RenderViewport {
+class RenderViewportPhotoline extends RenderBox with ContainerRenderObjectMixin<RenderSliver, SliverPhysicalContainerParentData> implements RenderViewport {
   RenderViewportPhotoline({
     required AxisDirection crossAxisDirection,
     required ViewportOffset offset,
     List<RenderSliver>? children,
-  }) : assert(Axis.vertical != axisDirectionToAxis(crossAxisDirection)),
-       _crossAxisDirection = crossAxisDirection,
-       _offset = offset,
-       _cacheExtent = .1 {
+  }) : _crossAxisDirection = crossAxisDirection,
+       _offset = offset {
     addAll(children);
     if (center == null && firstChild != null) {
       _center = firstChild;
     }
   }
+
+  @override
+  double? cacheExtent = .5;
 
   @override
   void setupParentData(RenderObject child) {
@@ -104,34 +99,10 @@ class RenderViewportPhotoline extends RenderBox
       _offset.addListener(markNeedsLayout);
     }
 
-    // We need to go through layout even if the new offset has the same pixels
-    // value as the old offset so that we will apply our viewport and content
-    // dimensions.
-    markNeedsLayout();
-  }
-
-  @override
-  double? get cacheExtent => _cacheExtent;
-  double _cacheExtent;
-
-  @override
-  set cacheExtent(double? value) {
-    value ??= RenderAbstractViewport.defaultCacheExtent;
-    if (value == _cacheExtent) {
-      return;
-    }
-    _cacheExtent = value;
     markNeedsLayout();
   }
 
   double? _calculatedCacheExtent;
-
-  @override
-  CacheExtentStyle get cacheExtentStyle => _cacheExtentStyle;
-  final CacheExtentStyle _cacheExtentStyle = CacheExtentStyle.viewport;
-
-  @override
-  set cacheExtentStyle(CacheExtentStyle value) {}
 
   @override
   Clip get clipBehavior => _clipBehavior;
@@ -223,7 +194,7 @@ class RenderViewportPhotoline extends RenderBox
       mainAxisExtent,
     );
 
-    _calculatedCacheExtent = mainAxisExtent * _cacheExtent;
+    _calculatedCacheExtent = mainAxisExtent * (cacheExtent ?? 1);
 
     final double fullCacheExtent = mainAxisExtent + 2 * _calculatedCacheExtent!;
     final double centerCacheOffset = centerOffset + _calculatedCacheExtent!;
@@ -268,12 +239,8 @@ class RenderViewportPhotoline extends RenderBox
     return layoutChildSequence(
       child: center,
       scrollOffset: math.max(0.0, -centerOffset),
-      overlap:
-          leadingNegativeChild == null ? math.min(0.0, -centerOffset) : 0.0,
-      layoutOffset:
-          centerOffset >= mainAxisExtent
-              ? centerOffset
-              : reverseDirectionRemainingPaintExtent,
+      overlap: leadingNegativeChild == null ? math.min(0.0, -centerOffset) : 0.0,
+      layoutOffset: centerOffset >= mainAxisExtent ? centerOffset : reverseDirectionRemainingPaintExtent,
       remainingPaintExtent: forwardDirectionRemainingPaintExtent,
       mainAxisExtent: mainAxisExtent,
       crossAxisExtent: crossAxisExtent,
@@ -367,15 +334,13 @@ class RenderViewportPhotoline extends RenderBox
 
     assert(scrollOffset.isFinite);
     assert(scrollOffset >= 0.0);
-    final double initialLayoutOffset = layoutOffset;
-    final ScrollDirection adjustedUserScrollDirection =
-        offset.userScrollDirection;
+    final initialLayoutOffset = layoutOffset;
+    final ScrollDirection adjustedUserScrollDirection = offset.userScrollDirection;
     double maxPaintOffset = layoutOffset + overlap;
     var precedingScrollExtent = 0.0;
 
     while (child != null) {
-      final double sliverScrollOffset =
-          scrollOffset <= 0.0 ? 0.0 : scrollOffset;
+      final sliverScrollOffset = scrollOffset <= 0.0 ? 0.0 : scrollOffset;
 
       final double correctedCacheOrigin = math.max(
         cacheOrigin,
@@ -419,8 +384,7 @@ class RenderViewportPhotoline extends RenderBox
         return childLayoutGeometry.scrollOffsetCorrection!;
       }
 
-      final double effectiveLayoutOffset =
-          layoutOffset + childLayoutGeometry.paintOrigin;
+      final double effectiveLayoutOffset = layoutOffset + childLayoutGeometry.paintOrigin;
 
       if (childLayoutGeometry.visible || scrollOffset > 0) {
         updateChildLayoutOffset(child, effectiveLayoutOffset, growthDirection);
@@ -440,8 +404,7 @@ class RenderViewportPhotoline extends RenderBox
       precedingScrollExtent += childLayoutGeometry.scrollExtent;
       layoutOffset += childLayoutGeometry.layoutExtent;
       if (childLayoutGeometry.cacheExtent != 0.0) {
-        remainingCacheExtent -=
-            childLayoutGeometry.cacheExtent - cacheExtentCorrection;
+        remainingCacheExtent -= childLayoutGeometry.cacheExtent - cacheExtentCorrection;
         cacheOrigin = math.min(
           correctedCacheOrigin + childLayoutGeometry.cacheExtent,
           0.0,
@@ -500,8 +463,7 @@ class RenderViewportPhotoline extends RenderBox
     }
   }
 
-  final LayerHandle<ClipRectLayer> _clipRectLayer =
-      LayerHandle<ClipRectLayer>();
+  final LayerHandle<ClipRectLayer> _clipRectLayer = LayerHandle<ClipRectLayer>();
 
   @override
   void dispose() {
@@ -560,7 +522,7 @@ class RenderViewportPhotoline extends RenderBox
     axis = this.axis;
 
     var leadingScrollOffset = 0.0;
-    RenderObject child = target;
+    var child = target;
     RenderBox? pivot;
     var onlySlivers = target is RenderSliver;
     while (child.parent != this) {
@@ -619,9 +581,7 @@ class RenderViewportPhotoline extends RenderBox
 
     leadingScrollOffset += rectLocal.top;
 
-    final bool isPinned =
-        sliver.geometry!.maxScrollObstructionExtent > 0 &&
-        leadingScrollOffset >= 0;
+    final bool isPinned = sliver.geometry!.maxScrollObstructionExtent > 0 && leadingScrollOffset >= 0;
 
     leadingScrollOffset = scrollOffsetOf(sliver, leadingScrollOffset);
 
@@ -658,8 +618,7 @@ class RenderViewportPhotoline extends RenderBox
       Axis.vertical => size.height - extentOfPinnedSlivers - rectLocal.height,
     };
 
-    final double targetOffset =
-        leadingScrollOffset - mainAxisExtentDifference * alignment;
+    final double targetOffset = leadingScrollOffset - mainAxisExtentDifference * alignment;
     final double offsetDifference = offset.pixels - targetOffset;
 
     targetRect = targetRect.translate(0.0, offsetDifference);
@@ -674,8 +633,7 @@ class RenderViewportPhotoline extends RenderBox
     GrowthDirection growthDirection,
   ) {
     assert(growthDirection == GrowthDirection.forward);
-    (child.parentData! as SliverPhysicalParentData).paintOffset =
-        computeAbsolutePaintOffset(child, layoutOffset, growthDirection);
+    (child.parentData! as SliverPhysicalParentData).paintOffset = computeAbsolutePaintOffset(child, layoutOffset, growthDirection);
   }
 
   @override
@@ -766,8 +724,7 @@ class RenderViewportPhotoline extends RenderBox
     double parentMainAxisPosition,
   ) {
     assert(child.constraints.growthDirection == GrowthDirection.forward);
-    return parentMainAxisPosition -
-        (child.parentData! as SliverPhysicalParentData).paintOffset.dy;
+    return parentMainAxisPosition - (child.parentData! as SliverPhysicalParentData).paintOffset.dy;
   }
 
   @override
@@ -923,4 +880,7 @@ class RenderViewportPhotoline extends RenderBox
 
   @override
   SliverPaintOrder paintOrder = SliverPaintOrder.lastIsTop;
+
+  @override
+  CacheExtentStyle cacheExtentStyle = CacheExtentStyle.viewport;
 }

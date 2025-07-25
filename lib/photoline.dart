@@ -7,6 +7,7 @@ export 'src/holder/controller/drag.dart';
 export 'src/holder/holder.dart';
 export 'src/photo/photo.dart';
 export 'src/photoline.dart';
+export 'src/scroll/activity/idle.dart';
 export 'src/scroll/extent/physics.dart';
 export 'src/scroll/extent/view.dart';
 export 'src/scroll/snap/controller.dart';

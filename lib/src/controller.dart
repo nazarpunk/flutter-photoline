@@ -93,8 +93,7 @@ class PhotolineController extends ScrollController {
 
   double? photolineWidth;
 
-  late final fullScreenExpander = ValueNotifier<double>(0)
-    ..addListener(rebuilder);
+  late final fullScreenExpander = ValueNotifier<double>(0)..addListener(rebuilder);
 
   final action = ValueNotifier<PhotolineAction>(PhotolineAction.close);
   final pageActivePaginator = ValueNotifier<int>(-1);
@@ -121,22 +120,13 @@ class PhotolineController extends ScrollController {
     super.dispose();
   }
 
-  double? get page {
-    assert(positions.isNotEmpty,
-        'PageController.page cannot be accessed before a PageView is built with it.');
-    assert(positions.length == 1,
-        'The page property cannot be read when multiple PageViews are attached to the same PageController.');
-    final position =
-        this.position as PhotolineScrollPosition;
-    return position.page;
-  }
+  double? get page => position.page;
 
-  PhotolineScrollPosition get pos => position as PhotolineScrollPosition;
+  @override
+  PhotolineScrollPosition get position => super.position as PhotolineScrollPosition;
 
   PhotolineSize get size => PhotolineSize(this);
 
-  //int get count => math.max(getPhotoCount(), getCloseCount(null));
-  //controller.photolineWidth
   int get count => getPhotoCount();
 
   int get countClose => getViewCount(photolineWidth);
@@ -201,7 +191,7 @@ class PhotolineController extends ScrollController {
 
   bool get canStartAdd {
     if (photoline == null) return false;
-    if (!nearZero(pos.pixels, precisionErrorTolerance)) return false;
+    if (!nearZero(position.pixels, precisionErrorTolerance)) return false;
     return true;
   }
 
@@ -210,13 +200,12 @@ class PhotolineController extends ScrollController {
     ScrollPhysics physics,
     ScrollContext context,
     ScrollPosition? oldPosition,
-  ) =>
-      PhotolineScrollPosition(
-        controller: this,
-        physics: physics,
-        context: context,
-        oldPosition: oldPosition,
-      );
+  ) => PhotolineScrollPosition(
+    controller: this,
+    physics: physics,
+    context: context,
+    oldPosition: oldPosition,
+  );
 
   /// === [Drag]
   bool get canDrag => onRemove != null && onReorder != null;
@@ -229,8 +218,7 @@ class PhotolineController extends ScrollController {
   bool isDragStart = false;
   bool isDragMain = false;
 
-  void onPointerDown(PhotolineTileState tile, PointerDownEvent event) =>
-      dragController?.onPointerDown(this, tile, event);
+  void onPointerDown(PhotolineTileState tile, PointerDownEvent event) => dragController?.onPointerDown(this, tile, event);
 
   void onChangeCurrent(bool isCurrent) {
     final size = this.size;
@@ -374,8 +362,7 @@ class PhotolineController extends ScrollController {
       if (direction > 0) {
         for (int i = positionDrag.length - 1; i >= 0; i--) {
           final pi = positionDrag[i];
-          if ((isDragMain && pi.index == pageDragInitial) ||
-              pi.page < size.viewCount - 1) {
+          if ((isDragMain && pi.index == pageDragInitial) || pi.page < size.viewCount - 1) {
             continue;
           }
 
@@ -449,7 +436,7 @@ class PhotolineController extends ScrollController {
     for (var i = 0; i < positionDrag.length; i++) {
       final pi = positionDrag[i];
       if (pi.page == 0) {
-        pos.jumpToPage(i);
+        position.jumpToPage(i);
         break;
       }
     }
