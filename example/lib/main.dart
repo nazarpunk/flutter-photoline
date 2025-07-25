@@ -41,14 +41,12 @@ class MyApp extends StatelessWidget {
       },
       home: Material(
         child: const [
+          PhotolineTestWidget(),
           PhotolineTestFullscreenWidget(),
           PhotolinePhotoWidget(),
-          PhotolineTestWidget(),
           SnapExampleList(),
           SnapKeyboard(),
-
-
-        ][2],
+        ][0],
       ),
     );
   }
