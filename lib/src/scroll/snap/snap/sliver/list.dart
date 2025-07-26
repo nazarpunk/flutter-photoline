@@ -38,17 +38,22 @@ class _Delegate extends SliverChildDelegate {
   const _Delegate(this.builder, {required this.childCount});
 
   final NullableIndexedWidgetBuilder builder;
-
   final int childCount;
+
+  static const int _fakeLeadingCount = 1;
 
   @override
   Widget? build(BuildContext context, int index) {
-    if (index < 0 || index >= estimatedChildCount!) return null;
-    return builder(context, index);
+    if (index == 0) return const SizedBox.shrink();
+
+    final realIndex = index - _fakeLeadingCount;
+    if (realIndex < 0 || realIndex >= childCount) return null;
+
+    return builder(context, realIndex);
   }
 
   @override
-  int? get estimatedChildCount => childCount;
+  int? get estimatedChildCount => childCount + _fakeLeadingCount;
 
   @override
   bool shouldRebuild(covariant _Delegate oldDelegate) => true;

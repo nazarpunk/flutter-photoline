@@ -473,7 +473,7 @@ class RenderViewportPhotoline extends RenderBox with ContainerRenderObjectMixin<
 
   void _paintContents(PaintingContext context, Offset offset) {
     for (final RenderSliver child in childrenInPaintOrder) {
-      if (child.geometry!.visible) {
+      if (child.geometry?.visible ?? false) {
         context.paintChild(child, offset + paintOffsetOf(child));
       }
     }
