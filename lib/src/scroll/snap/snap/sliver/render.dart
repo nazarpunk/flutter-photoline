@@ -46,31 +46,50 @@ class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor implem
   }
 
   @override
-  int getMinChildIndexForScrollOffset(double scrollOffset, double itemExtent) => _getChildIndexForScrollOffset(scrollOffset);
-
-  @override
-  int getMaxChildIndexForScrollOffset(double scrollOffset, double itemExtent) => _getChildIndexForScrollOffset(scrollOffset);
-
-  int _getChildIndexForScrollOffset(double scrollOffset) {
-    if (scrollOffset == 0.0) {
-      return 0;
-    }
+  int getMinChildIndexForScrollOffset(double scrollOffset, double _) {
     var position = 0.0;
     var index = 0;
-    double? itemExtent;
-    while (position < scrollOffset) {
-      final int? childCount = childManager.estimatedChildCount;
-      if (childCount != null && index > childCount - 1) {
-        break;
+
+    while (true) {
+      final childCount = childManager.estimatedChildCount;
+      if (childCount != null && index >= childCount) break;
+
+      final extent = controller.snapBuilder!(index, _currentLayoutDimensions);
+      if (extent == null) break;
+
+      if (position + extent > scrollOffset) {
+        return index;
       }
-      itemExtent = controller.snapBuilder!(index, _currentLayoutDimensions);
-      if (itemExtent == null) {
-        break;
-      }
-      position += itemExtent;
-      ++index;
+
+      position += extent;
+      index++;
     }
-    return index - 1;
+
+    return index;
+  }
+
+  @override
+  int getMaxChildIndexForScrollOffset(double scrollOffset, double _) {
+    var position = 0.0;
+    var index = 0;
+
+    while (true) {
+      final childCount = childManager.estimatedChildCount;
+      if (childCount != null && index >= childCount) break;
+
+      final extent = controller.snapBuilder!(index, _currentLayoutDimensions);
+      if (extent == null) break;
+
+      position += extent;
+
+      if (position >= scrollOffset) {
+        return index;
+      }
+
+      index++;
+    }
+
+    return index;
   }
 
   @override
