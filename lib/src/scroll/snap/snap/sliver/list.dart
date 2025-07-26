@@ -51,5 +51,5 @@ class _Delegate extends SliverChildDelegate {
   int? get estimatedChildCount => childCount;
 
   @override
-  bool shouldRebuild(covariant _Delegate oldDelegate) => false;
+  bool shouldRebuild(covariant _Delegate oldDelegate) => true;
 }

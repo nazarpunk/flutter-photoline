@@ -16,10 +16,9 @@ class _Child extends StatefulWidget {
   State<_Child> createState() => _ChildState();
 }
 
-class _ChildState extends State<_Child> with AutomaticKeepAliveClientMixin {
+class _ChildState extends State<_Child> {
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return Column(
       children: [
         Expanded(
@@ -71,7 +70,4 @@ class _ChildState extends State<_Child> with AutomaticKeepAliveClientMixin {
       widget.controller.addItemUpload(0, files[i]);
     }
   }
-
-  @override
-  bool get wantKeepAlive => true;
 }
