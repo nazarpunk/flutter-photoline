@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -266,8 +267,8 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
 
     animationPosition
       ..stop()
-      ..duration = const Duration(milliseconds: 400)
-      ..forward(from: 0);
+      ..duration = const Duration(milliseconds: 400);
+    unawaited(animationPosition.forward(from: 0));
   }
 
   void _toUploadFromWidth(int index, Object data) {
@@ -317,8 +318,8 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
 
     animationPosition
       ..stop()
-      ..duration = const Duration(milliseconds: 400)
-      ..forward(from: 0);
+      ..duration = const Duration(milliseconds: 400);
+    unawaited(animationPosition.forward(from: 0));
   }
 
   void _toUploadFromOpen(int index, Object data) {
@@ -631,8 +632,8 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
 
     animationPosition
       ..stop()
-      ..duration = const Duration(milliseconds: 600)
-      ..forward(from: 0);
+      ..duration = const Duration(milliseconds: 600);
+    unawaited(animationPosition.forward(from: 0));
   }
 
   List<int> _positionOpenAddOpen() {
@@ -766,20 +767,17 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
           ..addListener(_listenerPosition)
           ..addStatusListener(_listenerPositionStatus);
 
-    animationOpacity =
-        AnimationController(
-            vsync: this,
-            duration: const Duration(milliseconds: 50 * 1000),
-          )
-          ..addListener(_listenerOpacity)
-          ..repeat();
-    animationAdd =
-        AnimationController(
-            vsync: this,
-            duration: const Duration(milliseconds: 20 * 1000),
-          )
-          ..addListener(controller.onAnimationAdd)
-          ..repeat();
+    animationOpacity = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 50 * 1000),
+    )..addListener(_listenerOpacity);
+    unawaited(animationOpacity.repeat());
+
+    animationAdd = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 20 * 1000),
+    )..addListener(controller.onAnimationAdd);
+    unawaited(animationAdd.repeat());
 
     holder?.animationDrag.addListener(rebuild);
 
@@ -788,73 +786,73 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
 
   @override
   void dispose() {
+    /// anim
     animationRepaint.dispose();
-    holder?.photolines.remove(this);
     animationPosition.dispose();
     animationAdd.dispose();
     animationOpacity.dispose();
+
+    /// holder
     holder?.animationDrag.removeListener(rebuild);
+    holder?.photolines.remove(this);
+
+    /// super
     super.dispose();
   }
 
   /// [Viewport]
   @override
-  Widget build(BuildContext context) {
-    //_updater = !_updater;
-    return RepaintBoundary(
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          controller.photolineWidth = constraints.maxWidth;
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Expanded(
-                child: ClipRect(
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Positioned.fill(child: PhotolineBackside(photoline: this)),
-                      Positioned.fill(
-                        child: NotificationListener(
-                          onNotification: _onNotification,
-                          child: PhotolineScrollable(
-                            axisDirection: AxisDirection.right,
-                            controller: controller,
-                            physics: _physics,
-                            viewportBuilder:
-                                (context, position) => PhotolineViewport(
-                                  offset: position,
-                                  slivers: [
-                                    PhotolineSliverMultiBoxAdaptorWidget(
-                                      controller: controller,
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      controller.photolineWidth = constraints.maxWidth;
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Expanded(
+            child: ClipRect(
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Positioned.fill(child: PhotolineBackside(photoline: this)),
+                  Positioned.fill(
+                    child: NotificationListener(
+                      onNotification: _onNotification,
+                      child: PhotolineScrollable(
+                        axisDirection: AxisDirection.right,
+                        controller: controller,
+                        physics: _physics,
+                        viewportBuilder:
+                            (context, position) => PhotolineViewport(
+                              offset: position,
+                              slivers: [
+                                PhotolineSliverMultiBoxAdaptorWidget(
+                                  controller: controller,
+                                  photoline: this,
+                                  delegate: PhotolineSliverChildBuilderDelegate(
+                                    (context, i) => PhotolineTile(
                                       photoline: this,
-                                      delegate: PhotolineSliverChildBuilderDelegate(
-                                        (context, i) => PhotolineTile(
-                                          photoline: this,
-                                          key: controller.getKey(i),
-                                          index: i,
-                                          controller: controller,
-                                        ),
-                                        controller: controller,
-                                      ),
+                                      key: controller.getKey(i),
+                                      index: i,
+                                      controller: controller,
                                     ),
-                                  ],
+                                    controller: controller,
+                                  ),
                                 ),
-                          ),
-                        ),
+                              ],
+                            ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
-              if (controller.getPagerItem != null && controller.getPagerSize != null)
-                RepaintBoundary(
-                  child: PhotolinePager(photoline: this),
-                ),
-            ],
-          );
-        },
-      ),
-    );
-  }
+            ),
+          ),
+          if (controller.getPagerItem != null && controller.getPagerSize != null)
+            RepaintBoundary(
+              child: PhotolinePager(photoline: this),
+            ),
+        ],
+      );
+    },
+  );
 }

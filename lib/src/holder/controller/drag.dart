@@ -185,7 +185,7 @@ class PhotolineHolderDragController implements Drag {
 
     _initialController.onDragStart(true);
 
-    holder!.animationDrag.repeat();
+    unawaited(holder!.animationDrag.repeat());
 
     _overlayState = Overlay.of(holder!.context);
 

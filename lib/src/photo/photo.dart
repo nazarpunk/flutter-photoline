@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
@@ -37,10 +38,8 @@ class _PhotolinePhotoState extends State<PhotolinePhoto> with SingleTickerProvid
   @override
   void initState() {
     super.initState();
-
-    _animationRepaint
-      ..repeat()
-      ..addListener(rebuild);
+    unawaited(_animationRepaint.repeat());
+    _animationRepaint.addListener(rebuild);
   }
 
   @override

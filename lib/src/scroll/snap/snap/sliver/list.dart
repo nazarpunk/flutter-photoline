@@ -20,13 +20,10 @@ class SliverSnapList extends SliverMultiBoxAdaptorWidget {
   final ScrollSnapController controller;
 
   @override
-  RenderSliverVariedExtentList createRenderObject(BuildContext context) {
-    final element = context as SliverMultiBoxAdaptorElement;
-    return RenderSliverSnapMultiBoxAdaptor(
-      childManager: element,
-      controller: controller,
-    );
-  }
+  RenderSliverVariedExtentList createRenderObject(BuildContext context) => RenderSliverSnapMultiBoxAdaptor(
+    childManager: context as SliverMultiBoxAdaptorElement,
+    controller: controller,
+  );
 
   @override
   void updateRenderObject(
@@ -54,5 +51,5 @@ class _Delegate extends SliverChildDelegate {
   int? get estimatedChildCount => childCount;
 
   @override
-  bool shouldRebuild(covariant _Delegate oldDelegate) => true;
+  bool shouldRebuild(covariant _Delegate oldDelegate) => false;
 }

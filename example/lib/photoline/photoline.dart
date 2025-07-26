@@ -27,33 +27,25 @@ class PhotolineTestWidget extends StatefulWidget {
 
 class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
   final List<PhotolineController> _photolines = [];
-
-  final List<List<Uri>> _uris = [];
-  final List<List<Key>> _keys = [];
+  int _start = -1;
 
   void _reload() {
-    _photolines.clear();
-    _uris.clear();
-    _keys.clear();
-
-    for (var i = 0; i < 40; i++) {
-      final List<Uri> l = [];
-      final List<Key> k = [];
-      for (var j = 0; j < 10; j++) {
-        l.add(PhotolineDummys.get(i, j));
-        k.add(ValueKey<String>('$i $j'));
-      }
-      _uris.add(l);
-      _keys.add(k);
+    _start++;
+    while (_photolines.isNotEmpty) {
+      _photolines.removeLast().dispose();
     }
 
-    for (var i = 0; i < _uris.length; i++) {
-      final c = PhotolineController(
-        getUri: (index) => PhotolineUri(
-          uri: _uris[i][index],
-          stripe: const Color.fromRGBO(10, 10, 10, .5),
-        ),
-        getKey: (index) => _keys[i][index],
+    for (int i = _start; i < 50; i++) {
+      final photos = PhotolineDummys.list(i);
+
+      _photolines.add(PhotolineController(
+        getUri: (index) {
+          return PhotolineUri(
+            uri: photos[index],
+            stripe: const Color.fromRGBO(10, 10, 10, .5),
+          );
+        },
+        getKey: (index) => ValueKey(Object.hash(_start, i, index)),
         //getWidget: (index) => const Placeholder(),
         getWidget: (index) => const SizedBox(),
         getPersistentWidgets: (data) {
@@ -61,8 +53,7 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
 
           final List<Widget> out = [
             ColoredBox(
-              color: Color.lerp(Colors.transparent,
-                  const Color.fromRGBO(0, 0, 0, .7), 1 - data.closeDw)!,
+              color: Color.lerp(Colors.transparent, const Color.fromRGBO(0, 0, 0, .7), 1 - data.closeDw)!,
               child: const SizedBox.expand(),
             ),
             Center(
@@ -70,8 +61,7 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
                 color: Colors.black,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child:
-                      Text('${data.index}| ${data.closeDw.toStringAsFixed(2)}'),
+                  child: Text('${data.index}| ${data.closeDw.toStringAsFixed(2)}'),
                 ),
               ),
             )
@@ -83,20 +73,15 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
 
           return out;
         },
-        getPhotoCount: () => _uris[i].length,
+        getPhotoCount: () => photos.length,
         onAdd: (index, data) {
-          _uris[i].insert(index, data as Uri);
-          _keys[i].insert(index, UniqueKey());
+          photos.insert(index, data as Uri);
         },
-        onRemove: (index) {
-          _uris[i].removeAt(index);
-          //print('onRemove|$index');
-        },
-        onReorder: (oldIndex, newIndex) {
-          _uris[i].reorder(oldIndex, newIndex);
-          //print('onReorder|$oldIndex|$newIndex');
-        },
+        onRemove: photos.removeAt,
+        onReorder: photos.reorder,
         getBackside: (index, show) {
+          if (kDebugMode) return const SizedBox();
+
           return PhotolineStripe(
             stripeColor: const Color.fromRGBO(10, 10, 10, .5),
             child: AnimatedOpacity(
@@ -119,19 +104,8 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
         rebuilder: () {
           if (mounted) setState(() {});
         },
-      );
-
-      _photolines.add(c);
+      ));
     }
-
-    /*
-    final vl = _photolines.first.pageActiveOpenComplete;
-
-    vl.addListener(() {
-      print(vl.value);
-    });
-
-     */
   }
 
   @override
@@ -140,13 +114,13 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
     super.initState();
   }
 
-  late final ScrollSnapController _controller = ScrollSnapController(
+  late final ScrollSnapController _snap = ScrollSnapController(
     snapLastMax: true,
     snapGap: 20,
     snapArea: true,
     onRefresh: () async {
       await Future.delayed(const Duration(milliseconds: 500));
-      //_reload();
+      _reload();
       setState(() {});
     },
     snapCan: (index, dimensions) {
@@ -171,9 +145,8 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
     },
   );
 
-  late final PhotolineHolderDragController _photolineHolderDragController =
-      PhotolineHolderDragController(
-    snapController: _controller,
+  late final PhotolineHolderDragController _photolineHolderDragController = PhotolineHolderDragController(
+    snapController: _snap,
   );
 
   @override
@@ -194,23 +167,25 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
                 child: PhotolineHolder(
                   dragController: _photolineHolderDragController,
                   child: ScrollSnap(
-                    controller: _controller,
-                    cacheExtent: .1,
+                    controller: _snap,
                     slivers: [
                       ScrollSnapRefresh(
-                        controller: _controller,
+                        controller: _snap,
                       ),
                       SliverSnapList(
-                        controller: _controller,
-                        builder: (context, index) => AutomaticKeepAlive(
-                          key: ValueKey(index),
-                          child: _Child(
-                            key: ValueKey(index),
-                            controller: _photolines[index],
-                            index: index,
-                            constraints: constraints,
-                          ),
-                        ),
+                        controller: _snap,
+                        builder: (context, index) {
+                          final k = ValueKey(Object.hash(_start, index));
+                          return AutomaticKeepAlive(
+                            key: k,
+                            child: _Child(
+                              key: k,
+                              controller: _photolines[index],
+                              index: index,
+                              constraints: constraints,
+                            ),
+                          );
+                        },
                         childCount: _photolines.length,
                       ),
                     ],

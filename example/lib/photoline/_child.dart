@@ -66,9 +66,7 @@ class _ChildState extends State<_Child> with AutomaticKeepAliveClientMixin {
 
       final pos = widget.controller.position;
       if (pos.pixels > 0) {
-        unawaited(widget.controller.position.animateTo(0,
-            duration: Duration(milliseconds: (pos.pixels * 1.5).toInt()),
-            curve: Curves.easeIn));
+        unawaited(widget.controller.position.animateTo(0, duration: Duration(milliseconds: (pos.pixels * 1.5).toInt()), curve: Curves.easeIn));
       }
       widget.controller.addItemUpload(0, files[i]);
     }

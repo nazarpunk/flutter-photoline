@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 class PhotolineShimmerContainer extends StatefulWidget {
@@ -6,30 +8,29 @@ class PhotolineShimmerContainer extends StatefulWidget {
     this.child,
   });
 
-  static PhotolineShimmerContainerState? of(BuildContext context) =>
-      context.findAncestorStateOfType<PhotolineShimmerContainerState>();
+  static PhotolineShimmerContainerState? of(BuildContext context) => context.findAncestorStateOfType<PhotolineShimmerContainerState>();
 
   final Widget? child;
 
   @override
-  PhotolineShimmerContainerState createState() =>
-      PhotolineShimmerContainerState();
+  PhotolineShimmerContainerState createState() => PhotolineShimmerContainerState();
 }
 
-class PhotolineShimmerContainerState extends State<PhotolineShimmerContainer>
-    with SingleTickerProviderStateMixin {
+class PhotolineShimmerContainerState extends State<PhotolineShimmerContainer> with SingleTickerProviderStateMixin {
   late AnimationController controller;
 
   @override
   void initState() {
     super.initState();
 
-    controller = AnimationController.unbounded(vsync: this)
-      ..repeat(
+    controller = AnimationController.unbounded(vsync: this);
+    unawaited(
+      controller.repeat(
         min: -1,
         max: 1,
         period: const Duration(milliseconds: 1200),
-      );
+      ),
+    );
   }
 
   @override
@@ -38,8 +39,7 @@ class PhotolineShimmerContainerState extends State<PhotolineShimmerContainer>
     super.dispose();
   }
 
-  bool get isSized =>
-      (context.findRenderObject() as RenderBox?)?.hasSize ?? false;
+  bool get isSized => (context.findRenderObject() as RenderBox?)?.hasSize ?? false;
 
   Size get size => (context.findRenderObject()! as RenderBox).size;
 

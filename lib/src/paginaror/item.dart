@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
@@ -51,9 +52,9 @@ class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem>
 
     if (value == _triAnim.value && !_triAnim.isAnimating) return;
     if (value > 0) {
-      _triAnim.forward(from: _triAnim.value);
+      unawaited(_triAnim.forward(from: _triAnim.value));
     } else {
-      _triAnim.reverse(from: _triAnim.value);
+      unawaited(_triAnim.reverse(from: _triAnim.value));
     }
   }
 
@@ -74,9 +75,9 @@ class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem>
 
     //if (value == _starAnim.value && !_starAnim.isAnimating) return;
     if (value > 0) {
-      _starAnim.forward(from: _starAnim.value);
+      unawaited(_starAnim.forward(from: _starAnim.value));
     } else {
-      _starAnim.reverse(from: _starAnim.value);
+      unawaited(_starAnim.reverse(from: _starAnim.value));
     }
   }
 

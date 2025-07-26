@@ -6,11 +6,7 @@ class _Data {
 }
 
 class _Item extends StatefulWidget {
-  const _Item(
-      {required this.index,
-      required this.data,
-      required this.parent,
-      super.key});
+  const _Item({required this.index, required this.data, required this.parent, super.key});
 
   final int index;
   final _Data data;
@@ -23,9 +19,7 @@ class _Item extends StatefulWidget {
 class _ItemState extends State<_Item> with TickerProviderStateMixin {
   _Data get data => widget.data;
 
-  late final _a = AnimationController(
-      vsync: this, duration: const Duration(milliseconds: 200))
-    ..addListener(_cb);
+  late final _a = AnimationController(vsync: this, duration: const Duration(milliseconds: 200))..addListener(_cb);
 
   void _cb() {
     data.t = _a.value;
@@ -41,9 +35,9 @@ class _ItemState extends State<_Item> with TickerProviderStateMixin {
       onTap: () {
         data.e = !data.e;
         if (data.e) {
-          _a.forward();
+          unawaited(_a.forward());
         } else {
-          _a.reverse();
+          unawaited(_a.reverse());
         }
       },
       child: Listener(
