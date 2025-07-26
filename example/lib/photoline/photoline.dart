@@ -168,6 +168,7 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
                   dragController: _photolineHolderDragController,
                   child: ScrollSnap(
                     controller: _snap,
+                    cacheExtent: .1,
                     slivers: [
                       ScrollSnapRefresh(
                         controller: _snap,

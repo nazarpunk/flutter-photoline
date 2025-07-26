@@ -18,6 +18,18 @@ class _Child extends StatefulWidget {
 
 class _ChildState extends State<_Child> {
   @override
+  void initState() {
+    print('✅ ${widget.index}');
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    print('❌ ${widget.index}');
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [

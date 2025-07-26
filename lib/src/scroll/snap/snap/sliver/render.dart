@@ -93,7 +93,6 @@ class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor implem
   }
 
   @override
-  @protected
   double estimateMaxScrollOffset(
     SliverConstraints constraints, {
     int? firstIndex,
