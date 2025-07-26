@@ -46,10 +46,32 @@ class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor implem
   }
 
   @override
-  int getMinChildIndexForScrollOffset(double scrollOffset, double itemExtent) => _getChildIndexForScrollOffset(scrollOffset, controller.snapBuilder!);
+  int getMinChildIndexForScrollOffset(double scrollOffset, double itemExtent) => _getChildIndexForScrollOffset(scrollOffset);
 
   @override
-  int getMaxChildIndexForScrollOffset(double scrollOffset, double itemExtent) => _getChildIndexForScrollOffset(scrollOffset, controller.snapBuilder!);
+  int getMaxChildIndexForScrollOffset(double scrollOffset, double itemExtent) => _getChildIndexForScrollOffset(scrollOffset);
+
+  int _getChildIndexForScrollOffset(double scrollOffset) {
+    if (scrollOffset == 0.0) {
+      return 0;
+    }
+    var position = 0.0;
+    var index = 0;
+    double? itemExtent;
+    while (position < scrollOffset) {
+      final int? childCount = childManager.estimatedChildCount;
+      if (childCount != null && index > childCount - 1) {
+        break;
+      }
+      itemExtent = controller.snapBuilder!(index, _currentLayoutDimensions);
+      if (itemExtent == null) {
+        break;
+      }
+      position += itemExtent;
+      ++index;
+    }
+    return index - 1;
+  }
 
   @override
   @protected
@@ -70,8 +92,6 @@ class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor implem
   }
 
   @override
-  @visibleForTesting
-  @protected
   double computeMaxScrollOffset(
     SliverConstraints constraints,
     double itemExtent,
@@ -86,31 +106,6 @@ class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor implem
       offset += itemExtent;
     }
     return offset;
-  }
-
-  int _getChildIndexForScrollOffset(
-    double scrollOffset,
-    ItemExtentBuilder callback,
-  ) {
-    if (scrollOffset == 0.0) {
-      return 0;
-    }
-    var position = 0.0;
-    var index = 0;
-    double? itemExtent;
-    while (position < scrollOffset) {
-      final int? childCount = childManager.estimatedChildCount;
-      if (childCount != null && index > childCount - 1) {
-        break;
-      }
-      itemExtent = callback(index, _currentLayoutDimensions);
-      if (itemExtent == null) {
-        break;
-      }
-      position += itemExtent;
-      ++index;
-    }
-    return index - 1;
   }
 
   BoxConstraints _getChildConstraints(int index) {
