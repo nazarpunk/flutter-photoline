@@ -168,7 +168,7 @@ class PhotolineScrollPhysics extends ScrollPhysics {
     if (!position.controller.useOpenSimulation) {
       if (position.controller.action.value == PhotolineAction.open) {
         int pg = position.getPageFromPixels(target).round().clamp(0, position.controller.getPhotoCount() - 1);
-        if (position.controller.getPagerIndexOffset() > 0) {
+        if (position.controller.getPagerIndexOffset > 0) {
           pg = math.max(pg, 1);
         }
         position.controller.pageTargetOpen.value = pg;

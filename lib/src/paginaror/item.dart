@@ -33,7 +33,7 @@ class _PhotolinePaginatorItemState extends State<PhotolinePaginatorItem>
 
   int get _index => widget.index;
 
-  int get _indexOffset => _controller.getPagerIndexOffset();
+  int get _indexOffset => _controller.getPagerIndexOffset;
 
   int get _indexView => _index + 1;
 

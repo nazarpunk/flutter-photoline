@@ -18,8 +18,6 @@ import 'package:photoline/src/utils/size.dart';
 
 int _getViewCount(double? width) => 3;
 
-int _getPagerIndexOffset() => 0;
-
 Color _getPagerColor() => Colors.white;
 
 double _wrapHeight(double w, double h, double t) {
@@ -27,34 +25,42 @@ double _wrapHeight(double w, double h, double t) {
   return w * .7 + footer;
 }
 
+Key _getKey(int index) => UniqueKey();
+
+Widget _getWidget(int index) => const SizedBox();
+
+PhotolineUri _getUri(int index) => PhotolineUri();
+
+int _getPhotoCount() => 0;
+
+void _rebuilder() {}
+
 /// Photoline controller
 /// [ClipRect]
-class PhotolineController extends ScrollController {
+abstract class PhotolineController extends ScrollController {
   PhotolineController({
-    this.openRatio = .8,
-    required this.getUri,
-    this.getImage,
-    required this.getKey,
-    required this.getWidget,
-    this.getBackside,
-    required this.getPhotoCount,
     this.getViewCount = _getViewCount,
+    //
+    this.getUri = _getUri,
+    this.getImage,
+    this.getKey = _getKey,
+    this.getWidget = _getWidget,
+    this.getBackside,
+    this.getPhotoCount = _getPhotoCount,
     this.onAdd,
     this.onRemove,
     this.onReorder,
     this.getPagerSize,
     this.getPagerItem,
-    this.getPagerIndexOffset = _getPagerIndexOffset,
     this.getPagerColor = _getPagerColor,
     this.getPersistentWidgets,
     this.getTransferState,
     this.onTransfer,
-    this.isTileOpenGray = false,
     this.onDebugAdd,
     this.useOpenSimulation = true,
     this.useOpenSideResize = true,
     this.useOpenSideResizeScale = true,
-    required this.rebuilder,
+    this.rebuilder = _rebuilder,
     this.wrapHeight = _wrapHeight,
   });
 
@@ -74,9 +80,10 @@ class PhotolineController extends ScrollController {
   final void Function(int oldIndex, int newIndex)? onReorder;
   final double Function()? getPagerSize;
   final List<Widget> Function(int index, Color color)? getPagerItem;
-  final int Function() getPagerIndexOffset;
+
+  int get getPagerIndexOffset => 0;
+
   final Color Function() getPagerColor;
-  final bool isTileOpenGray;
   final State? Function()? getTransferState;
   final void Function(State from, int fi, State target, int ti)? onTransfer;
   final ValueSetter<int>? onDebugAdd;
@@ -87,7 +94,7 @@ class PhotolineController extends ScrollController {
 
   final void Function() rebuilder;
 
-  final double openRatio;
+  double get openRatio => .8;
 
   double get closeRatio => 1 / getViewCount(photolineWidth);
 

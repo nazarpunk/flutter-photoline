@@ -1,4 +1,4 @@
-part of 'photoline.dart';
+part of 'test.dart';
 
 class _Child extends StatefulWidget {
   const _Child({

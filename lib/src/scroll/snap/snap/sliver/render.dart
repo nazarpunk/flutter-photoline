@@ -1,14 +1,10 @@
 part of 'list.dart';
 
-class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor implements RenderSliverVariedExtentList {
+class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
   RenderSliverSnapMultiBoxAdaptor({
     required ScrollSnapController controller,
     required super.childManager,
   }) : _controller = controller;
-
-  @override
-  @deprecated
-  double? get itemExtent => null;
 
   ScrollSnapController _controller;
 
@@ -19,15 +15,6 @@ class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor implem
     markNeedsLayout();
   }
 
-  @override
-  @deprecated
-  ItemExtentBuilder get itemExtentBuilder => (_, _) => 0;
-
-  @override
-  @deprecated
-  set itemExtentBuilder(ItemExtentBuilder value) {}
-
-  @override
   double indexToLayoutOffset(double itemExtent, int index) {
     var offset = 0.0;
     double? itemExtent;
@@ -45,7 +32,6 @@ class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor implem
     return offset;
   }
 
-  @override
   int getMinChildIndexForScrollOffset(double scrollOffset, double _) {
     var position = 0.0;
     var index = 0;
@@ -68,7 +54,6 @@ class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor implem
     return index;
   }
 
-  @override
   int getMaxChildIndexForScrollOffset(double scrollOffset, double _) {
     var position = 0.0;
     var index = 0;
@@ -92,7 +77,6 @@ class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor implem
     return index;
   }
 
-  @override
   double estimateMaxScrollOffset(
     SliverConstraints constraints, {
     int? firstIndex,
@@ -109,7 +93,6 @@ class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor implem
     );
   }
 
-  @override
   double computeMaxScrollOffset(
     SliverConstraints constraints,
     double itemExtent,

@@ -388,7 +388,7 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
 
     final pto = controller.pageTargetOpen.value;
 
-    final isFirst = pto == 0 || (pto == 1 && controller.getPagerIndexOffset() > 0);
+    final isFirst = pto == 0 || (pto == 1 && controller.getPagerIndexOffset > 0);
 
     final lend = pto == count - 1 ? size.side2 : size.side;
     final rend = isFirst ? size.side2 : size.side;
@@ -456,7 +456,7 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
 
     final pto = controller.pageTargetOpen.value;
 
-    final isFirst = pto == 0 || (pto == 1 && controller.getPagerIndexOffset() > 0);
+    final isFirst = pto == 0 || (pto == 1 && controller.getPagerIndexOffset > 0);
 
     final lend = pto == count - 1 ? size.side2 : size.side;
     late final PhotolinePosition c;
@@ -503,7 +503,7 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
     final vf = positionWidth[visible.first];
     final vl = positionWidth[visible.last];
 
-    final isFirst = pto == 0 || (pto == 1 && controller.getPagerIndexOffset() > 0);
+    final isFirst = pto == 0 || (pto == 1 && controller.getPagerIndexOffset > 0);
 
     final lend = pto == count - 1 ? size.side2 : size.side;
     final rend = isFirst ? size.side2 : size.side;
@@ -600,7 +600,7 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
       }
     }
 
-    if (controller.pageTargetOpen.value == 1 && controller.getPagerIndexOffset() > 0) {
+    if (controller.pageTargetOpen.value == 1 && controller.getPagerIndexOffset > 0) {
       viewIndex = 1;
     }
 

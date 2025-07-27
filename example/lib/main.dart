@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:photoline_example/keyboard/keyboard.dart';
 
-import 'package:photoline_example/photoline/fullscreen.dart';
 import 'package:photoline_example/photoline/photo.dart';
-import 'package:photoline_example/photoline/photoline.dart';
+import 'package:photoline_example/photoline/test.dart';
 import 'package:photoline_example/snap/snap.dart';
 import 'package:photoline_example/widget/scroll.dart';
 
@@ -42,7 +41,6 @@ class MyApp extends StatelessWidget {
       home: Material(
         child: const [
           PhotolineTestWidget(),
-          PhotolineTestFullscreenWidget(),
           PhotolinePhotoWidget(),
           SnapExampleList(),
           SnapKeyboard(),

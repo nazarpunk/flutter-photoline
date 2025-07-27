@@ -323,7 +323,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
       if (_controller.useOpenSideResize) {
         final double itemViewOffset = itemOffset - scrollOffset;
-        final firstIndex = controller.getPagerIndexOffset() > 0 ? 1 : 0;
+        final firstIndex = controller.getPagerIndexOffset > 0 ? 1 : 0;
         final int lastIndex = count - 1;
 
         if (_controller.useOpenSideResizeScale) {

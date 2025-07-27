@@ -20,7 +20,7 @@ class SliverSnapList extends SliverMultiBoxAdaptorWidget {
   final ScrollSnapController controller;
 
   @override
-  RenderSliverVariedExtentList createRenderObject(BuildContext context) => RenderSliverSnapMultiBoxAdaptor(
+  RenderSliverSnapMultiBoxAdaptor createRenderObject(BuildContext context) => RenderSliverSnapMultiBoxAdaptor(
     childManager: context as SliverMultiBoxAdaptorElement,
     controller: controller,
   );

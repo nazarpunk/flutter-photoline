@@ -60,7 +60,7 @@ class PhotolineScrollPosition extends ScrollPosition implements ScrollActivityDe
       if (page > pageLast - 1) page = (pixels + side * 2) / open;
     }
 
-    if (controller.getPagerIndexOffset() > 0 && (pixels - open) < (open - side)) {
+    if (controller.getPagerIndexOffset > 0 && (pixels - open) < (open - side)) {
       page = pixels / open;
     }
 
@@ -86,7 +86,7 @@ class PhotolineScrollPosition extends ScrollPosition implements ScrollActivityDe
 
     final open = vd * controller.openRatio;
 
-    final skipFirst = controller.getPagerIndexOffset() > 0 && page == 1;
+    final skipFirst = controller.getPagerIndexOffset > 0 && page == 1;
     if (skipFirst) return page * open;
 
     final side = (vd - open) * .5;
@@ -184,7 +184,7 @@ class PhotolineScrollPosition extends ScrollPosition implements ScrollActivityDe
 
     switch (controller.action.value) {
       case PhotolineAction.open:
-        if (controller.pageOpenInitial != 0 && controller.getPagerIndexOffset() > 0) {
+        if (controller.pageOpenInitial != 0 && controller.getPagerIndexOffset > 0) {
           minScrollExtent = viewportDimension * controller.openRatio;
         }
       case PhotolineAction.opening:
