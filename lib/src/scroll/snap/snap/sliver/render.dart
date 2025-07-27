@@ -111,7 +111,8 @@ class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
   BoxConstraints _getChildConstraints(int index) {
     final double extent = controller.snapBuilder!(index, _currentLayoutDimensions) ?? 0;
-    return constraints.asBoxConstraints(minExtent: extent, maxExtent: extent);
+    final double clampedExtent = extent < 0 ? 0 : extent;
+    return constraints.asBoxConstraints(minExtent: clampedExtent, maxExtent: clampedExtent);
   }
 
   late SliverLayoutDimensions _currentLayoutDimensions;
