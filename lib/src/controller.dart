@@ -25,12 +25,6 @@ double _wrapHeight(double w, double h, double t) {
   return w * .7 + footer;
 }
 
-Key _getKey(int index) => UniqueKey();
-
-Widget _getWidget(int index) => const SizedBox();
-
-PhotolineUri _getUri(int index) => PhotolineUri();
-
 int _getPhotoCount() => 0;
 
 void _rebuilder() {}
@@ -41,10 +35,6 @@ abstract class PhotolineController extends ScrollController {
   PhotolineController({
     this.getViewCount = _getViewCount,
     //
-    this.getUri = _getUri,
-    this.getImage,
-    this.getKey = _getKey,
-    this.getWidget = _getWidget,
     this.getBackside,
     this.getPhotoCount = _getPhotoCount,
     this.onAdd,
@@ -62,16 +52,30 @@ abstract class PhotolineController extends ScrollController {
     this.useOpenSideResizeScale = true,
     this.rebuilder = _rebuilder,
     this.wrapHeight = _wrapHeight,
-  });
+  }) {
+    addListener(() {
+      final p = position.page?.round();
+      if (p != null) {
+        recreatePage = p;
+      }
+    });
+  }
+
+  int recreatePage = 0;
 
   PhotolineHolderDragController? dragController;
 
-  final PhotolineUri Function(int index) getUri;
-  final ui.Image? Function(int)? getImage;
+  int get getPagerIndexOffset => 0;
 
-  final Widget Function(int) getWidget;
+  PhotolineUri getUri(int index);
+
+  ui.Image? getImage(int index) => null;
+
+  Key getKey(int index);
+
+  Widget? getWidget(int index) => null;
+
   final Widget Function(int index, bool show)? getBackside;
-  final Key Function(int) getKey;
   final ValueGetter<int> getPhotoCount;
   final int Function(double? width) getViewCount;
   final void Function(int index, Object data)? onAdd;
@@ -80,8 +84,6 @@ abstract class PhotolineController extends ScrollController {
   final void Function(int oldIndex, int newIndex)? onReorder;
   final double Function()? getPagerSize;
   final List<Widget> Function(int index, Color color)? getPagerItem;
-
-  int get getPagerIndexOffset => 0;
 
   final Color Function() getPagerColor;
   final State? Function()? getTransferState;
@@ -126,8 +128,6 @@ abstract class PhotolineController extends ScrollController {
 
     super.dispose();
   }
-
-  double? get page => position.page;
 
   @override
   PhotolineScrollPosition get position => super.position as PhotolineScrollPosition;

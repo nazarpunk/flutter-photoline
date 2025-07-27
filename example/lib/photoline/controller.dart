@@ -14,16 +14,13 @@ class PhotolineWrap extends PhotolineController {
   List<Uri> photos;
 
   @override
-  PhotolineUri Function(int index) get getUri => (index) => PhotolineUri(
+  PhotolineUri getUri(index) => PhotolineUri(
         uri: photos[index],
         stripe: const Color.fromRGBO(10, 10, 10, .5),
       );
 
   @override
-  Key Function(int p1) get getKey => (index) => ValueKey(photos[index]);
-
-  @override
-  Widget Function(int p1) get getWidget => (index) => const SizedBox();
+  Key getKey(index) => ValueKey(photos[index]);
 
   @override
   Widget Function(int index, bool show)? get getBackside => (index, show) {

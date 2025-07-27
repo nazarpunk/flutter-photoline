@@ -192,7 +192,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
         }
 
         if (uri.image == null) {
-          final im = _controller.getImage?.call(index);
+          final im = _controller.getImage.call(index);
           if (im != null) {
             img(
               image: im,

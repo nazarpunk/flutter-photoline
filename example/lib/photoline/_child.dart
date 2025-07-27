@@ -19,13 +19,13 @@ class _Child extends StatefulWidget {
 class _ChildState extends State<_Child> {
   @override
   void initState() {
-    print('✅ ${widget.index}');
+    //print('✅ ${widget.index}');
     super.initState();
   }
 
   @override
   void dispose() {
-    print('❌ ${widget.index}');
+    //print('❌ ${widget.index}');
     super.dispose();
   }
 

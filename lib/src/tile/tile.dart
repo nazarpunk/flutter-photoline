@@ -73,7 +73,7 @@ class PhotolineTileState extends State<PhotolineTile>
                 key: const ValueKey('widget'),
                 child:
                     _controller.pageActiveOpenComplete.value == _index
-                        ? _controller.getWidget(_index)
+                        ? _controller.getWidget(_index) ?? const SizedBox()
                         : const SizedBox(),
               ),
               if (persistent != null) ...persistent,

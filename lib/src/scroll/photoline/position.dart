@@ -178,9 +178,19 @@ class PhotolineScrollPosition extends ScrollPosition implements ScrollActivityDe
     return true;
   }
 
+  bool _didInit = false;
+
   @override
   bool applyContentDimensions(double minScrollExtent, double maxScrollExtent) {
     //print('🍒 applyContentDimensions $maxScrollExtent');
+
+    if (!_didInit) {
+      _didInit = true;
+      final rp = controller.recreatePage;
+      if (rp > 0) {
+        correctPixels(getPixelsFromPage(rp.toDouble()));
+      }
+    }
 
     switch (controller.action.value) {
       case PhotolineAction.open:
