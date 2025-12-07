@@ -115,7 +115,7 @@ class PhotolineUri {
       im = await _getImage(uri!);
     } catch (e) {
       if (kDebugMode) {
-        print('⚠️PhotolineUri: $e');
+        print('⚠️PhotolineUri($uri): $e');
       }
     }
 

@@ -321,8 +321,6 @@ class ScrollSnapPosition extends ViewportOffset with ScrollMetrics implements Sc
 
   @override
   bool applyContentDimensions(double minScrollExtent, double maxScrollExtent) {
-    //print('🔥 applyContentDimensions');
-
     final dim = SliverLayoutDimensions(
       scrollOffset: 0,
       precedingScrollExtent: 0,
@@ -598,7 +596,11 @@ class ScrollSnapPosition extends ViewportOffset with ScrollMetrics implements Sc
   bool _isMetricsChanged() {
     assert(haveDimensions);
     final ScrollMetrics currentMetrics = copyWith();
-    return _lastMetrics == null || !(currentMetrics.extentBefore == _lastMetrics!.extentBefore && currentMetrics.extentInside == _lastMetrics!.extentInside && currentMetrics.extentAfter == _lastMetrics!.extentAfter && currentMetrics.axisDirection == _lastMetrics!.axisDirection);
+    return _lastMetrics == null ||
+        !(currentMetrics.extentBefore == _lastMetrics!.extentBefore && //
+            currentMetrics.extentInside == _lastMetrics!.extentInside &&
+            currentMetrics.extentAfter == _lastMetrics!.extentAfter &&
+            currentMetrics.axisDirection == _lastMetrics!.axisDirection);
   }
 
   @override

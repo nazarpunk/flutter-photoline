@@ -50,7 +50,10 @@ class ScrollSnapState extends State<ScrollSnap> with StateRebuildMixin, WidgetsB
 
     const double gap = 20;
 
-    controller.keyboardOverlap = math.max(0, vib - h + wdy + wh);
+    final double kov = math.max(0, vib - h + wdy + wh);
+    if (!kov.isNaN) {
+      controller.keyboardOverlap = kov;
+    }
 
     _timer?.cancel();
     _timer = Timer(const Duration(milliseconds: 1), () async {

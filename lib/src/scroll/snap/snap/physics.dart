@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:photoline/photoline.dart';
@@ -22,8 +23,7 @@ class ScrollSnapPhysics extends ScrollPhysics {
   double get maxFlingVelocity => 8000;
 
   @override
-  ScrollSnapPhysics applyTo(ScrollPhysics? ancestor) =>
-      ScrollSnapPhysics(parent: buildParent(ancestor), controller: controller);
+  ScrollSnapPhysics applyTo(ScrollPhysics? ancestor) => ScrollSnapPhysics(parent: buildParent(ancestor), controller: controller);
 
   @override
   bool shouldAcceptUserOffset(ScrollMetrics position) => true;
@@ -74,8 +74,7 @@ class ScrollSnapPhysics extends ScrollPhysics {
       }
     }
 
-    final ScrollSnapPosition? spos =
-        position is ScrollSnapPosition ? position : null;
+    final ScrollSnapPosition? spos = position is ScrollSnapPosition ? position : null;
     final pp = position.pixels;
 
     final Tolerance tolerance = toleranceFor(position);
@@ -127,7 +126,8 @@ class ScrollSnapPhysics extends ScrollPhysics {
               }
               so = se;
             }
-            if (wH >= vd + c.snapGap) return null;
+
+            if (wH > vd + c.snapGap + precisionErrorTolerance) return null;
           }
 
           if (c.snapTop) {
@@ -180,15 +180,10 @@ class ScrollSnapPhysics extends ScrollPhysics {
     }
 
     if (position is ScrollSnapPosition) {
-      double target =
-          pp +
-          200 *
-              math.exp(1.2 * math.log(.6 * velocity.abs() / 800)) *
-              velocity.sign;
+      double target = pp + 200 * math.exp(1.2 * math.log(.6 * velocity.abs() / 800)) * velocity.sign;
       if (controller is ScrollSnapController) {
         /// snap photoline
-        final nT =
-            snapCan ? spos?.photolinePhysicSnap(velocity, target) : target;
+        final nT = snapCan ? spos?.photolinePhysicSnap(velocity, target) : target;
         if (nT != null) target = nT;
       }
       return ScrollSnapSpringSimulation(
@@ -242,9 +237,7 @@ class ScrollSnapPhysics extends ScrollPhysics {
       overscrollPastStart,
       overscrollPastEnd,
     );
-    final bool easing =
-        (overscrollPastStart > 0.0 && offset < 0.0) ||
-        (overscrollPastEnd > 0.0 && offset > 0.0);
+    final bool easing = (overscrollPastStart > 0.0 && offset < 0.0) || (overscrollPastEnd > 0.0 && offset > 0.0);
 
     final double friction =
         easing
