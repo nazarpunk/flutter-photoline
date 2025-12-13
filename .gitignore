@@ -6,3 +6,6 @@ pubspec.lock
 /example/ios/
 /example/android/
 /example/web/
+
+build/
+/.dart_tool/
