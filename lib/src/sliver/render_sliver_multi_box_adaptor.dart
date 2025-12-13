@@ -121,26 +121,41 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
           final iw = image.width.toDouble();
           final ih = image.height.toDouble();
 
+          // Защита от деления на ноль
+          if (iw <= 0 || ih <= 0 || w <= 0 || h <= 0) return;
+
           final r = math.min(w / iw, h / ih);
 
           double nw = iw * r, nh = ih * r, ar = 1;
-          if (nw < w) ar = w / nw;
-          if ((ar - 1).abs() < 1e-14 && nh < h) ar = h / nh;
+          if (nw < w && nw > 0) ar = w / nw;
+          if ((ar - 1).abs() < 1e-14 && nh < h && nh > 0) ar = h / nh;
 
           nw *= ar;
           nh *= ar;
 
+          // Дополнительная проверка после применения ar
+          if (nw <= 0 || nh <= 0) return;
+
           final double cw = math.min(iw / (nw / w), iw);
           final double ch = math.min(ih / (nh / h), ih);
+
+          // Проверка на валидность результатов
+          if (cw <= 0 || ch <= 0 || !cw.isFinite || !ch.isFinite) return;
+
           final double cx = math.max((iw - cw) * offsetX, 0);
           final double cy = math.max((ih - ch) * offsetY, 0);
+
+          final scale = w / cw;
+
+          // Финальная проверка перед отрисовкой
+          if (!scale.isFinite || !cx.isFinite || !cy.isFinite) return;
 
           canvas.drawAtlas(
             image,
             [
               RSTransform.fromComponents(
                 rotation: 0,
-                scale: w / cw,
+                scale: scale,
                 anchorX: cw * .5,
                 anchorY: ch * .5,
                 translateX: cdx + w * .5,
