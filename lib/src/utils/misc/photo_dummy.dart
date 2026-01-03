@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 class PhotolineAlbumPhotoDummy extends StatelessWidget {
@@ -9,19 +11,20 @@ class PhotolineAlbumPhotoDummy extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) =>
-      LayoutBuilder(builder: (context, constraints) {
-        return ClipRect(
-          child: OverflowBox(
-            minWidth: 0,
-            minHeight: 0,
-            maxWidth: double.infinity,
-            maxHeight: double.infinity,
-            child: SizedBox(
-              height: constraints.maxHeight - 20,
-              child: child,
-            ),
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      return ClipRect(
+        child: OverflowBox(
+          minWidth: 0,
+          minHeight: 0,
+          maxWidth: double.infinity,
+          maxHeight: double.infinity,
+          child: SizedBox(
+            height: math.max(0, constraints.maxHeight - 20),
+            child: child,
           ),
-        );
-      });
+        ),
+      );
+    },
+  );
 }

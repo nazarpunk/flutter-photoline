@@ -131,8 +131,8 @@ class RenderViewportPhotoline extends RenderBox with ContainerRenderObjectMixin<
     }
     assert(center!.parent == this);
 
-    final mainAxisExtent = size.height;
-    final crossAxisExtent = size.width;
+    final mainAxisExtent = math.max(0.0, size.height);
+    final crossAxisExtent = math.max(0.0, size.width);
 
     final double centerOffsetAdjustment = center!.centerOffsetAdjustment;
     final int maxLayoutCycles = _maxLayoutCyclesPerChild * childCount;
@@ -353,6 +353,10 @@ class RenderViewportPhotoline extends RenderBox with ContainerRenderObjectMixin<
       assert(sliverScrollOffset >= 0.0);
       assert(cacheExtentCorrection <= 0.0);
 
+      // Защита от отрицательных/невалидных значений extent
+      final safeMainAxisExtent = mainAxisExtent.isFinite && mainAxisExtent >= 0 ? mainAxisExtent : 0.0;
+      final safeCrossAxisExtent = crossAxisExtent.isFinite && crossAxisExtent >= 0 ? crossAxisExtent : 0.0;
+
       child.layout(
         SliverConstraints(
           axisDirection: AxisDirection.down,
@@ -365,9 +369,9 @@ class RenderViewportPhotoline extends RenderBox with ContainerRenderObjectMixin<
             0.0,
             remainingPaintExtent - layoutOffset + initialLayoutOffset,
           ),
-          crossAxisExtent: crossAxisExtent,
+          crossAxisExtent: safeCrossAxisExtent,
           crossAxisDirection: crossAxisDirection,
-          viewportMainAxisExtent: mainAxisExtent,
+          viewportMainAxisExtent: safeMainAxisExtent,
           remainingCacheExtent: math.max(
             0.0,
             remainingCacheExtent + cacheExtentCorrection,
