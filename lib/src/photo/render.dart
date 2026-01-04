@@ -5,11 +5,13 @@ class _PhotolinePhotoRender extends SingleChildRenderObjectWidget {
     required this.uri,
     required this.sigma,
     required this.animation,
+    this.mainImageBlur,
   });
 
   final PhotolineUri uri;
   final double sigma;
   final AnimationController animation;
+  final double? Function()? mainImageBlur;
 
   @override
   _PhotolinePhotoPaint createRenderObject(BuildContext context) {
@@ -17,6 +19,7 @@ class _PhotolinePhotoRender extends SingleChildRenderObjectWidget {
       animation: animation,
       uri: uri.cached,
       sigma: sigma,
+      mainImageBlur: mainImageBlur,
     );
   }
 
@@ -27,6 +30,7 @@ class _PhotolinePhotoRender extends SingleChildRenderObjectWidget {
   ) {
     renderObject
       ..animation = animation
-      .._uri = uri.cached;
+      .._uri = uri.cached
+      ..mainImageBlur = mainImageBlur;
   }
 }

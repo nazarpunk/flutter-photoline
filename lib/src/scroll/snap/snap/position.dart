@@ -336,6 +336,7 @@ class ScrollSnapPosition extends ViewportOffset with ScrollMetrics implements Sc
       for (var i = 0; i >= 0; i++) {
         final h = controller.snapBuilder!(i, dim);
         if (h == null) break;
+        if (h == 0) continue;
         sizes.add(allh);
         allh += h;
       }
@@ -677,40 +678,37 @@ class ScrollSnapPosition extends ViewportOffset with ScrollMetrics implements Sc
     double target;
     switch (_applyAxisDirectionToAlignmentPolicy(alignmentPolicy)) {
       case ScrollPositionAlignmentPolicy.explicit:
-        target =
-            viewport
-                .getOffsetToReveal(
-                  object,
-                  alignment,
-                  rect: targetRect,
-                  axis: axis,
-                )
-                .offset;
+        target = viewport
+            .getOffsetToReveal(
+              object,
+              alignment,
+              rect: targetRect,
+              axis: axis,
+            )
+            .offset;
         target = clampDouble(target, minScrollExtent, maxScrollExtent);
       case ScrollPositionAlignmentPolicy.keepVisibleAtEnd:
-        target =
-            viewport
-                .getOffsetToReveal(
-                  object,
-                  1.0, // Aligns to end
-                  rect: targetRect,
-                  axis: axis,
-                )
-                .offset;
+        target = viewport
+            .getOffsetToReveal(
+              object,
+              1.0, // Aligns to end
+              rect: targetRect,
+              axis: axis,
+            )
+            .offset;
         target = clampDouble(target, minScrollExtent, maxScrollExtent);
         if (target < pixels) {
           target = pixels;
         }
       case ScrollPositionAlignmentPolicy.keepVisibleAtStart:
-        target =
-            viewport
-                .getOffsetToReveal(
-                  object,
-                  0.0, // Aligns to start
-                  rect: targetRect,
-                  axis: axis,
-                )
-                .offset;
+        target = viewport
+            .getOffsetToReveal(
+              object,
+              0.0, // Aligns to start
+              rect: targetRect,
+              axis: axis,
+            )
+            .offset;
         target = clampDouble(target, minScrollExtent, maxScrollExtent);
         if (target > pixels) {
           target = pixels;
