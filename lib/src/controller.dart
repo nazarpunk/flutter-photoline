@@ -75,9 +75,6 @@ abstract class PhotolineController extends ScrollController {
 
   Widget? getWidget(int index) => null;
 
-  /// Returns blur sigma for main image at given index.
-  /// If null or <= 0, no blur is applied to the main image.
-  double? getMainImageBlur(int index) => null;
 
   final Widget Function(int index, bool show)? getBackside;
   final ValueGetter<int> getPhotoCount;

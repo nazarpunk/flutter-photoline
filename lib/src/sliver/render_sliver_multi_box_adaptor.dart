@@ -221,33 +221,10 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
             );
           }
         } else {
-          final double? blurSigma = _controller.getMainImageBlur(index);
-
-          if (blurSigma != null && blurSigma > 0) {
-            // Применяем blur через saveLayer для избежания чёрных краёв
-            canvas.saveLayer(
-              imrect,
-              Paint()
-                ..imageFilter = ui.ImageFilter.blur(
-                  sigmaX: blurSigma,
-                  sigmaY: blurSigma,
-                  tileMode: TileMode.clamp,
-                ),
-            );
-            img(
-              image: uri.image!,
-              opacity: Curves.easeOut.transform(opacity),
-            );
-            canvas
-              ..restore()
-              ..save()
-              ..clipRect(imrect);
-          } else {
-            img(
-              image: uri.image!,
-              opacity: Curves.easeOut.transform(opacity),
-            );
-          }
+          img(
+            image: uri.image!,
+            opacity: Curves.easeOut.transform(opacity),
+          );
         }
 
         if (uri.stripe != null) {
