@@ -828,16 +828,12 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
                               controller: controller,
                               photoline: this,
                               delegate: PhotolineSliverChildBuilderDelegate(
-                                (context, i) {
-
-
-                                  return PhotolineTile(
-                                    photoline: this,
-                                    key: controller.getKey(i),
-                                    index: i,
-                                    controller: controller,
-                                  );
-                                },
+                                (context, i) => PhotolineTile(
+                                  photoline: this,
+                                  key: controller.getKey(i),
+                                  index: i,
+                                  controller: controller,
+                                ),
                                 controller: controller,
                               ),
                             ),

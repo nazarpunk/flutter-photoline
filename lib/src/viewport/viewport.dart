@@ -4,6 +4,7 @@ import 'package:photoline/src/viewport/render.dart';
 
 export 'package:flutter/rendering.dart' show AxisDirection, GrowthDirection;
 
+
 class PhotolineViewport extends MultiChildRenderObjectWidget {
   const PhotolineViewport({
     super.key,
@@ -21,8 +22,7 @@ class PhotolineViewport extends MultiChildRenderObjectWidget {
   }
 
   @override
-  void updateRenderObject(
-      BuildContext context, PhotolineRenderViewport renderObject) {
+  void updateRenderObject(BuildContext context, PhotolineRenderViewport renderObject) {
     renderObject.offset = offset;
   }
 
@@ -30,15 +30,13 @@ class PhotolineViewport extends MultiChildRenderObjectWidget {
   MultiChildRenderObjectElement createElement() => _ViewportElement(this);
 }
 
-class _ViewportElement extends MultiChildRenderObjectElement
-    with NotifiableElementMixin, ViewportElementMixin {
+class _ViewportElement extends MultiChildRenderObjectElement with NotifiableElementMixin, ViewportElementMixin {
   _ViewportElement(PhotolineViewport super.widget);
 
   bool _doingMountOrUpdate = false;
 
   @override
-  PhotolineRenderViewport get renderObject =>
-      super.renderObject as PhotolineRenderViewport;
+  PhotolineRenderViewport get renderObject => super.renderObject as PhotolineRenderViewport;
 
   @override
   void mount(Element? parent, Object? newSlot) {
@@ -59,17 +57,18 @@ class _ViewportElement extends MultiChildRenderObjectElement
   }
 
   @override
-  void moveRenderObjectChild(RenderObject child, IndexedSlot<Element?> oldSlot,
-      IndexedSlot<Element?> newSlot) {
+  void moveRenderObjectChild(RenderObject child, IndexedSlot<Element?> oldSlot, IndexedSlot<Element?> newSlot) {
     super.moveRenderObjectChild(child, oldSlot, newSlot);
     assert(_doingMountOrUpdate);
   }
 
   @override
   void debugVisitOnstageChildren(ElementVisitor visitor) {
-    children.where((e) {
-      final renderSliver = e.renderObject! as RenderSliver;
-      return renderSliver.geometry!.visible;
-    }).forEach(visitor);
+    children
+        .where((e) {
+          final renderSliver = e.renderObject! as RenderSliver;
+          return renderSliver.geometry!.visible;
+        })
+        .forEach(visitor);
   }
 }

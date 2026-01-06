@@ -50,11 +50,8 @@ class PhotolineTileState extends State<PhotolineTile> with TickerProviderStateMi
     }
   }
 
-  /// [LongPressEndDetails]
-  /// [ReorderableDelayedDragStartListener]
   @override
   Widget build(BuildContext context) {
-    //_data = MediaQuery.of(context);
     return RepaintBoundary(
       child: LayoutBuilder(
         builder: (context, constraints) {

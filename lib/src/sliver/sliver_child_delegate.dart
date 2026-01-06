@@ -32,8 +32,7 @@ class PhotolineSliverChildBuilderDelegate extends SliverChildDelegate {
 
     final Widget? child = builder(context, index - 1);
     if (child == null) return null;
-    //child = RepaintBoundary(child: child);
-    return child;
+    return RepaintBoundary(child: child);
   }
 
   @override
