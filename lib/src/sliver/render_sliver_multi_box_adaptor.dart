@@ -176,50 +176,33 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
         }
 
         final double opacity = loader.opacity;
-        final double opacityBack = 1 - opacity;
 
         // Draw blur with inverse opacity
-        if (loader.blur != null && opacityBack > 0) {
+        if (loader.blur != null && opacity < 1) {
           img(
             image: loader.blur!,
-            opacity: opacityBack,
+            opacity: 1,
             filter: ui.ImageFilter.blur(
               sigmaX: 10,
               sigmaY: 10,
               tileMode: TileMode.mirror,
             ),
           );
-        } else if (loader.color != null && opacityBack > 0) {
-          // Draw placeholder color if no blur
+        } else if (loader.color != null) {
           canvas.drawRect(
             imrect,
             Paint()
-              ..color = loader.color!.withValues(alpha: opacityBack)
+              ..color = loader.color!
               ..style = PaintingStyle.fill,
           );
         }
 
         // Draw image with opacity
-        if (loader.image != null && opacity > 0) {
+        if (loader.image != null) {
           img(
             image: loader.image!,
             opacity: opacity,
           );
-        } else if (loader.image == null) {
-          // Fallback to getImage if loader doesn't have image
-          final im = _controller.getImage.call(index);
-          if (im != null) {
-            img(
-              image: im,
-              opacity: 1,
-              filter: const ColorFilter.matrix(<double>[
-                0.2126, 0.7152, 0.0722, 0, 0, //
-                0.2126, 0.7152, 0.0722, 0, 0, //
-                0.2126, 0.7152, 0.0722, 0, 0, //
-                0, 0, 0, 1, 0,
-              ]),
-            );
-          }
         }
 
         if (loader.stripe != null) {
