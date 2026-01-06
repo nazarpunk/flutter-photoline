@@ -70,9 +70,8 @@ abstract class PhotolineLoader {
     // Already loading or loaded
     if (data.loading || data.image != null) return;
 
-    data
-      ..loading = true
-      ..index = ++_counter;
+    // Mark for loading and add to queue
+    data.index = ++_counter;
     _next();
   }
 
@@ -84,7 +83,13 @@ abstract class PhotolineLoader {
 
     for (final entry in _map.entries) {
       final data = entry.value;
-      if (data.loading || data.image != null) continue;
+      // Skip if already loaded
+      if (data.image != null) continue;
+      // Skip if not in queue (index = 0)
+      if (data.index == 0) continue;
+      // Skip if already loading
+      if (data.loading) continue;
+
       if (next == null || data.index < next.index) {
         next = data;
         nextUri = entry.key;
@@ -98,7 +103,6 @@ abstract class PhotolineLoader {
   static Future<void> _load(String uri, _PhotolineLoaderData data) async {
     data.loading = true;
     data.attempt++;
-    data.index = ++_counter + 10;
     _count++;
 
     ui.Image? img;
