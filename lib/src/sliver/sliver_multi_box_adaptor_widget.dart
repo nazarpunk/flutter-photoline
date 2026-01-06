@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:photoline/src/controller.dart';
-import 'package:photoline/src/photoline.dart';
+import 'package:photoline/src/photoline/controller.dart';
+import 'package:photoline/src/photoline/photoline.dart';
 import 'package:photoline/src/sliver/render_sliver_multi_box_adaptor.dart';
 
 class PhotolineSliverMultiBoxAdaptorWidget extends SliverMultiBoxAdaptorWidget {

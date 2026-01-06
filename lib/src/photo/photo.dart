@@ -5,7 +5,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:photoline/src/mixin/state/rebuild.dart';
-import 'package:photoline/src/tile/uri.dart';
+import 'package:photoline/src/photoline/tile/uri.dart';
 
 part 'render.dart';
 

@@ -5,7 +5,7 @@ import 'package:photoline/photoline.dart';
 class PhotolineTileData {
   const PhotolineTileData({
     required this.index,
-    required this.uri,
+    this.uri,
     required this.closeDw,
     required this.openDw,
     required this.dragging,
@@ -13,7 +13,7 @@ class PhotolineTileData {
   });
 
   final int index;
-  final PhotolineUri uri;
+  final PhotolineUri? uri;
   final double closeDw;
   final double openDw;
   final bool dragging;

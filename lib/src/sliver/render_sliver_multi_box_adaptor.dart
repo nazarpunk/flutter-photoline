@@ -3,8 +3,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/animation.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
-import 'package:photoline/src/controller.dart';
-import 'package:photoline/src/photoline.dart';
+import 'package:photoline/src/photoline/controller.dart';
+import 'package:photoline/src/photoline/photoline.dart';
 import 'package:photoline/src/utils/action.dart';
 
 class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
@@ -17,13 +17,13 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
   @override
   void attach(PipelineOwner owner) {
-    _controller.photoline?.animationRepaint.addListener(markNeedsLayout);
+    _controller.photoline?.animationRepaint.addListener(markNeedsPaint);
     super.attach(owner);
   }
 
   @override
   void detach() {
-    _controller.photoline?.animationRepaint.removeListener(markNeedsLayout);
+    _controller.photoline?.animationRepaint.removeListener(markNeedsPaint);
     super.detach();
   }
 
@@ -96,9 +96,9 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
       if (dragBox != null && child == dragBox) canPaint = false;
 
       final velocity = _controller.photoline?.animationRepaint.velocity ?? 0;
-      final uri = _controller.getUri(index).cached;
+      final uri = _controller.getUri(index)?.cached;
 
-      if (canPaint) {
+      if (canPaint && uri != null) {
         uri.spawn();
 
         final canvas = context.canvas;
@@ -177,16 +177,34 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
         }
 
         if (uri.image != null) {
-          uri.opacity = velocity;
+          // Check if we're allowed to change opacity for this image
+          if (_controller.canChangeOpacity(index)) {
+            // Allowed - check if image is loaded
+            if (uri.imageLoaded) {
+              // Image fully loaded - set to max opacity
+              if (uri.opacity < 1) {
+                uri.opacity = 1;
+              }
+            } else {
+              // Image still loading - gradually increase opacity
+              uri.opacity = velocity;
+            }
+          } else {
+            // NOT allowed to change opacity - keep at 0 to show blur
+            if (uri.opacity > 0) {
+              uri.opacity = -1; // Reset to 0
+            }
+          }
         }
 
         final double opacity = uri.opacity;
         final double opacityback = 1 - opacity;
+
+        // Show blur/placeholder with fading opacity while image fades in
         if (opacity < 1) {
           if (uri.blur != null) {
             img(
               image: uri.blur!,
-              //opacity: Curves.easeOut.transform(opacityback),
               opacity: 1,
               filter: ui.ImageFilter.blur(
                 sigmaX: 10,
@@ -240,8 +258,8 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
         context.paintChild(child, childOffset);
       } else {
-        if (uri.image != null) {
-          uri.opacity = -1;
+        if (uri?.image != null) {
+          uri!.opacity = -1;
         }
       }
 

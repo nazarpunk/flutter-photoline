@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:photoline/src/holder/controller/drag.dart';
-import 'package:photoline/src/photoline.dart';
+import 'package:photoline/src/photoline/photoline.dart';
 
 class PhotolineHolder extends StatefulWidget {
   const PhotolineHolder({

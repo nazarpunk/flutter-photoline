@@ -14,13 +14,13 @@ int _count = 0;
 int _counter = 0;
 
 class PhotolineUriNotifier extends ChangeNotifier {
-  factory PhotolineUriNotifier() => _instance;
-
   PhotolineUriNotifier._();
 
-  Uri uri = Uri();
+  static PhotolineUriNotifier? _instance;
 
-  static final _instance = PhotolineUriNotifier._();
+  static PhotolineUriNotifier get instance => _instance ??= PhotolineUriNotifier._();
+
+  Uri uri = Uri();
 
   set notify(Uri? uri) {
     if (uri == null || uri == this.uri) return;
@@ -30,15 +30,7 @@ class PhotolineUriNotifier extends ChangeNotifier {
 }
 
 class PhotolineUri {
-  PhotolineUri({
-    this.uri,
-    this.blur,
-    this.color,
-    this.width = 0,
-    this.height = 0,
-    this.stripe,
-    double? opacity
-  }) {
+  PhotolineUri({this.uri, this.blur, this.color, this.width = 0, this.height = 0, this.stripe, double? opacity}) {
     if (opacity != null) _opacity = opacity * _mo;
   }
 
@@ -46,9 +38,13 @@ class PhotolineUri {
     if (uri == null) {
       return this;
     }
-    final cur = _map[uri] ?? this;
+    final cur = _map[uri];
+    if (cur == null) {
+      return this;
+    }
+    // Return cached instance directly - it has accumulated opacity
+    // Don't transfer opacity to new instance
     return cur
-      .._opacity = math.max(_opacity, cur._opacity)
       ..color = color
       ..width = width
       ..height = height;
@@ -68,6 +64,7 @@ class PhotolineUri {
   ui.Image? blur;
 
   bool _loading = false;
+  bool _imageLoaded = false;
   int _index = 0;
   int _attempt = -1;
 
@@ -85,6 +82,9 @@ class PhotolineUri {
   set opacity(double value) {
     _opacity = value < 0 ? _mo : math.min(_mo, _opacity + value);
   }
+
+  /// Returns true if image is fully loaded
+  bool get imageLoaded => _imageLoaded;
 
   static void _next() {
     if (_count > 0) return;
@@ -121,7 +121,8 @@ class PhotolineUri {
 
     if (im != null) {
       image = im;
-      PhotolineUriNotifier().notify = uri;
+      _imageLoaded = true;
+      PhotolineUriNotifier.instance.notify = uri;
     }
 
     _count--;
@@ -134,12 +135,14 @@ Future<Uint8List?> _getBytes(String uri) async {
   http.Response? response;
 
   try {
-    response = await http.get(Uri.parse(uri)).timeout(
-      const Duration(seconds: 10),
-      onTimeout: () {
-        return http.Response('Error', 408);
-      },
-    );
+    response = await http
+        .get(Uri.parse(uri))
+        .timeout(
+          const Duration(seconds: 10),
+          onTimeout: () {
+            return http.Response('Error', 408);
+          },
+        );
   } catch (e) {
     if (kDebugMode) {
       print('⚠️PhotolineUri: $e');
@@ -158,11 +161,9 @@ Future<ui.Image?> _getImage(Uri uri) async {
   final Uint8List? bytes = await compute(_getBytes, uri.toString());
   if (bytes == null) return null;
 
-  final ui.ImmutableBuffer buffer =
-  await ui.ImmutableBuffer.fromUint8List(bytes);
+  final ui.ImmutableBuffer buffer = await ui.ImmutableBuffer.fromUint8List(bytes);
 
-  final ui.ImageDescriptor descriptor =
-  await ui.ImageDescriptor.encoded(buffer);
+  final ui.ImageDescriptor descriptor = await ui.ImageDescriptor.encoded(buffer);
 
   buffer.dispose();
   final ui.Codec codec = await descriptor.instantiateCodec();

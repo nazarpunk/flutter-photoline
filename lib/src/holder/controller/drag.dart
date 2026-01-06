@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:photoline/src/controller.dart';
+import 'package:photoline/src/photoline/controller.dart';
 import 'package:photoline/src/holder/holder.dart';
 import 'package:photoline/src/scroll/snap/controller.dart';
-import 'package:photoline/src/tile/tile.dart';
+import 'package:photoline/src/photoline/tile/tile.dart';
 import 'package:photoline/src/utils/action.dart';
 import 'package:photoline/src/utils/photoline_tile_intersection.dart';
 

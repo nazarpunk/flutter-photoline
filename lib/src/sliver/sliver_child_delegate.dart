@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:photoline/src/controller.dart';
+import 'package:photoline/src/photoline/controller.dart';
 
 export 'package:flutter/rendering.dart' show SliverGridDelegate, SliverGridDelegateWithFixedCrossAxisCount, SliverGridDelegateWithMaxCrossAxisExtent;
 

@@ -6,11 +6,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:photoline/src/holder/controller/drag.dart';
-import 'package:photoline/src/photoline.dart';
+import 'package:photoline/src/photoline/photoline.dart';
+import 'package:photoline/src/photoline/tile/data.dart';
+import 'package:photoline/src/photoline/tile/tile.dart';
+import 'package:photoline/src/photoline/tile/uri.dart';
 import 'package:photoline/src/scroll/photoline/position.dart';
-import 'package:photoline/src/tile/data.dart';
-import 'package:photoline/src/tile/tile.dart';
-import 'package:photoline/src/tile/uri.dart';
 import 'package:photoline/src/utils/action.dart';
 import 'package:photoline/src/utils/drag.dart';
 import 'package:photoline/src/utils/mod.dart';
@@ -67,7 +67,7 @@ abstract class PhotolineController extends ScrollController {
 
   int get getPagerIndexOffset => 0;
 
-  PhotolineUri getUri(int index);
+  PhotolineUri? getUri(int index) => null;
 
   ui.Image? getImage(int index) => null;
 
@@ -75,6 +75,9 @@ abstract class PhotolineController extends ScrollController {
 
   Widget? getWidget(int index) => null;
 
+  /// Check if opacity can be changed for image at given index.
+  /// Return false to prevent blur->image transition (keep blur visible).
+  bool canChangeOpacity(int index) => true;
 
   final Widget Function(int index, bool show)? getBackside;
   final ValueGetter<int> getPhotoCount;

@@ -8,11 +8,11 @@ import 'package:photoline/photoline.dart';
 import 'package:photoline/src/backside/backside.dart';
 import 'package:photoline/src/mixin/state/rebuild.dart';
 import 'package:photoline/src/paginaror/paginator.dart';
+import 'package:photoline/src/photoline/tile/tile.dart';
 import 'package:photoline/src/scroll/photoline/position.dart';
 import 'package:photoline/src/scroll/physics.dart';
 import 'package:photoline/src/sliver/sliver_child_delegate.dart';
 import 'package:photoline/src/sliver/sliver_multi_box_adaptor_widget.dart';
-import 'package:photoline/src/tile/tile.dart';
 import 'package:photoline/src/utils/position.dart';
 import 'package:photoline/src/viewport/viewport.dart';
 
@@ -821,25 +821,24 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
                         axisDirection: AxisDirection.right,
                         controller: controller,
                         physics: _physics,
-                        viewportBuilder:
-                            (context, position) => PhotolineViewport(
-                              offset: position,
-                              slivers: [
-                                PhotolineSliverMultiBoxAdaptorWidget(
-                                  controller: controller,
+                        viewportBuilder: (context, position) => PhotolineViewport(
+                          offset: position,
+                          slivers: [
+                            PhotolineSliverMultiBoxAdaptorWidget(
+                              controller: controller,
+                              photoline: this,
+                              delegate: PhotolineSliverChildBuilderDelegate(
+                                (context, i) => PhotolineTile(
                                   photoline: this,
-                                  delegate: PhotolineSliverChildBuilderDelegate(
-                                    (context, i) => PhotolineTile(
-                                      photoline: this,
-                                      key: controller.getKey(i),
-                                      index: i,
-                                      controller: controller,
-                                    ),
-                                    controller: controller,
-                                  ),
+                                  key: controller.getKey(i),
+                                  index: i,
+                                  controller: controller,
                                 ),
-                              ],
+                                controller: controller,
+                              ),
                             ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
