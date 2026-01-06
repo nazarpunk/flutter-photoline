@@ -5,7 +5,6 @@ class _PhotolinePhotoPaint extends RenderProxyBox {
     required AnimationController animation,
     required PhotolineUri uri,
     required this.sigma,
-    this.mainImageBlur,
   }) {
     _animation = animation;
     _uri = uri;
@@ -16,10 +15,6 @@ class _PhotolinePhotoPaint extends RenderProxyBox {
   AnimationController get animation => _animation;
 
   final double sigma;
-
-  /// Blur sigma function for the main image. If null, no blur is applied.
-  /// If non-null and returns > 0, applies ImageFilter.blur with returned sigma value.
-  double? Function()? mainImageBlur;
 
   set animation(AnimationController value) {
     if (_animation == value) {
@@ -149,19 +144,10 @@ class _PhotolinePhotoPaint extends RenderProxyBox {
     }
 
     if (uri.image != null) {
-      final double? blurValue = mainImageBlur?.call();
-      final ui.ImageFilter? mainFilter = blurValue != null && blurValue > 0
-          ? ui.ImageFilter.blur(
-              sigmaX: blurValue,
-              sigmaY: blurValue,
-              tileMode: TileMode.clamp,
-            )
-          : null;
-
       img(
         image: uri.image!,
         opacity: Curves.easeOut.transform(opacity),
-        filter: mainFilter,
+
       );
     }
 

@@ -16,15 +16,10 @@ class PhotolinePhoto extends StatefulWidget {
     super.key,
     required this.uri,
     required this.sigma,
-    this.mainImageBlur,
   });
 
   final PhotolineUri? uri;
   final double sigma;
-
-  /// Optional blur sigma for the main image.
-  /// If provided and returns > 0, the main image will be blurred.
-  final double? Function()? mainImageBlur;
 
   @override
   State<PhotolinePhoto> createState() => _PhotolinePhotoState();
@@ -65,7 +60,6 @@ class _PhotolinePhotoState extends State<PhotolinePhoto> with SingleTickerProvid
           uri: widget.uri!,
           animation: _animationRepaint,
           sigma: widget.sigma,
-          mainImageBlur: widget.mainImageBlur,
         ),
       );
     }
