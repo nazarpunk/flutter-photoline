@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:photoline/photoline.dart';
+import 'package:photoline/library.dart';
 
 class NestedScrollWidgetExample extends StatefulWidget {
   const NestedScrollWidgetExample({super.key});

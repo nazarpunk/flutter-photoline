@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:photoline/photoline.dart';
+import 'package:photoline/library.dart';
 import 'package:photoline/src/scroll/snap/snap/position.dart';
 
 class ScrollSnapPhysics extends ScrollPhysics {

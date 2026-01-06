@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:photoline/photoline.dart';
+import 'package:photoline/library.dart';
 
 /// [PageView], [ScrollPositionWithSingleContext], [ScrollPosition]
 class ScrollSnapPosition extends ViewportOffset with ScrollMetrics implements ScrollPosition, ScrollActivityDelegate {

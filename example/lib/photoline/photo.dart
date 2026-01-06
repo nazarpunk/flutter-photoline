@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:photoline/photoline.dart';
+import 'package:photoline/library.dart';
 
 class PhotolinePhotoWidget extends StatefulWidget {
   const PhotolinePhotoWidget({super.key});

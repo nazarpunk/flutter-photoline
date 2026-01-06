@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:photoline/photoline.dart';
+import 'package:photoline/library.dart';
 
 import 'package:photoline/src/mixin/state/rebuild.dart';
 

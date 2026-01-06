@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:photoline/photoline.dart';
+import 'package:photoline/library.dart';
 import 'package:photoline/src/mixin/state/rebuild.dart';
 import 'package:photoline/src/scroll/snap/snap/physics.dart';
 import 'package:photoline/src/scroll/snap/snap/viewport/viewport.dart';

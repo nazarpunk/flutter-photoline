@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:photoline/photoline.dart';
+import 'package:photoline/library.dart';
 import 'package:photoline_example/generated/assets.gen.dart';
 import 'package:photoline_example/photoline/controller.dart';
 import 'package:photoline_example/photoline/dummy.dart';

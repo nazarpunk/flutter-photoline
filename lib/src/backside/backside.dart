@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:photoline/photoline.dart';
+import 'package:photoline/library.dart';
 import 'package:photoline/src/mixin/state/rebuild.dart';
 import 'package:photoline/src/utils/position.dart';
 

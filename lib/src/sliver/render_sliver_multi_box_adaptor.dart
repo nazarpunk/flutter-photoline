@@ -51,10 +51,16 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
     markNeedsLayout();
   }
 
+  void paintLoader(PaintingContext context, Offset offset) {}
+
   /// --- paint
   @override
   void paint(PaintingContext context, Offset offset) {
     if (firstChild == null) return;
+
+    if (controller.getLoader != null) {
+      return paintLoader(context, offset);
+    }
 
     RenderBox? child = childAfter(firstChild!);
     RenderBox? dragBox;

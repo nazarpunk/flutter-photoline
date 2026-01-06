@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:photoline/photoline.dart';
+import 'package:photoline/library.dart';
 
 @immutable
 class PhotolineTileData {

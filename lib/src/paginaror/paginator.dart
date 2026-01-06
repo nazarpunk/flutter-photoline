@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:photoline/photoline.dart';
+import 'package:photoline/library.dart';
 import 'package:photoline/src/paginaror/item.dart';
 
 class PhotolinePager extends StatefulWidget {

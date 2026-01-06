@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:photoline/photoline.dart';
+import 'package:photoline/library.dart';
 
 class SnapKeyboard extends StatefulWidget {
   const SnapKeyboard({super.key});
