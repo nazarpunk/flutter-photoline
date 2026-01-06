@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:photoline/src/holder/controller/drag.dart';
 import 'package:photoline/src/mixin/state/rebuild.dart';
 import 'package:photoline/src/photoline/controller.dart';
+import 'package:photoline/src/photoline/loader/loader.dart';
 import 'package:photoline/src/photoline/photoline.dart';
 import 'package:photoline/src/photoline/tile/data.dart';
 import 'package:photoline/src/photoline/tile/uri.dart';
@@ -35,17 +36,26 @@ class PhotolineTileState extends State<PhotolineTile> with TickerProviderStateMi
   void initState() {
     super.initState();
     PhotolineUriNotifier.instance.addListener(_onUriChange);
+    PhotolineLoaderNotifier.instance.addListener(_onLoaderChange);
   }
 
   @override
   void dispose() {
     PhotolineUriNotifier.instance.removeListener(_onUriChange);
+    PhotolineLoaderNotifier.instance.removeListener(_onLoaderChange);
     super.dispose();
   }
 
   void _onUriChange() {
     final uri = _controller.getUri(_index)?.cached.uri;
     if (uri != null && uri == PhotolineUriNotifier.instance.uri) {
+      rebuild();
+    }
+  }
+
+  void _onLoaderChange() {
+    final loader = _controller.getLoader?.call(_index);
+    if (loader?.uri != null && loader!.uri == PhotolineLoaderNotifier.instance.uri) {
       rebuild();
     }
   }
@@ -58,6 +68,7 @@ class PhotolineTileState extends State<PhotolineTile> with TickerProviderStateMi
           final size = _controller.size;
 
           final uri = _controller.getUri(widget.index)?.cached;
+          final loader = _controller.getLoader?.call(widget.index);
 
           final (double, double) limit = size.close > size.side2 ? (size.side2, size.close) : (size.close, size.side2);
           final double cdwa = constraints.maxWidth.clamp(limit.$1, limit.$2) - size.side2;
@@ -65,6 +76,7 @@ class PhotolineTileState extends State<PhotolineTile> with TickerProviderStateMi
           final data = PhotolineTileData(
             index: _index,
             uri: uri,
+            loader: loader,
             closeDw: (cdwa / (size.close - size.side2)).clamp(0, 1),
             openDw: (constraints.maxWidth - size.close) / (size.open - size.close).clamp(-1, 1),
             dragging: (_drag?.isDrag ?? false) && _controller.pageDragInitial == _index,

@@ -51,7 +51,223 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
     markNeedsLayout();
   }
 
-  void paintLoader(PaintingContext context, Offset offset) {}
+  void paintLoader(PaintingContext context, Offset offset) {
+    if (firstChild == null) return;
+
+    RenderBox? child = childAfter(firstChild!);
+    RenderBox? dragBox;
+    Offset? dragOffset;
+
+    final vp = constraints.viewportMainAxisExtent;
+
+    var index = -1;
+
+    while (child != null) {
+      index++;
+      final double cdx = childMainAxisPosition(child);
+      final double cdy = childCrossAxisPosition(child);
+      final childOffset = Offset(
+        offset.dx + cdx,
+        offset.dy + cdy,
+      );
+
+      var canPaint = true;
+
+      switch (controller.action.value) {
+        case PhotolineAction.close:
+          if (childOffset.dx + child.size.width <= precisionErrorTolerance || childOffset.dx > vp - precisionErrorTolerance) {
+            canPaint = false;
+          }
+        case PhotolineAction.drag:
+          if (indexOf(child) - 1 == controller.pageDragInitial) {
+            canPaint = false;
+            dragBox = child;
+            dragOffset = childOffset;
+          }
+        case PhotolineAction.open:
+        case PhotolineAction.opening:
+        case PhotolineAction.closing:
+          canPaint = cdx < constraints.remainingPaintExtent && cdx + paintExtentOf(child) > 0;
+        case PhotolineAction.upload:
+      }
+      if (child.size.width == 0) canPaint = false;
+      if (dragBox != null && child == dragBox) canPaint = false;
+
+      final velocity = _controller.photoline?.animationRepaint.velocity ?? 0;
+      final loader = _controller.getLoader?.call(index);
+
+      if (canPaint && loader != null) {
+        loader.spawn();
+
+        final canvas = context.canvas;
+        final size = child.size;
+        final w = size.width;
+        final h = size.height;
+        final imrect = Rect.fromLTWH(childOffset.dx, childOffset.dy, w, h);
+
+        canvas
+          ..save()
+          ..clipRect(imrect);
+
+        void img({
+          required ui.Image image,
+          required double opacity,
+          ui.ImageFilter? filter,
+        }) {
+          const offsetX = .5;
+          const offsetY = .5;
+          final iw = image.width.toDouble();
+          final ih = image.height.toDouble();
+
+          // Защита от деления на ноль
+          if (iw <= 0 || ih <= 0 || w <= 0 || h <= 0) return;
+
+          final r = math.min(w / iw, h / ih);
+
+          double nw = iw * r, nh = ih * r, ar = 1;
+          if (nw < w && nw > 0) ar = w / nw;
+          if ((ar - 1).abs() < 1e-14 && nh < h && nh > 0) ar = h / nh;
+
+          nw *= ar;
+          nh *= ar;
+
+          // Дополнительная проверка после применения ar
+          if (nw <= 0 || nh <= 0) return;
+
+          final double cw = math.min(iw / (nw / w), iw);
+          final double ch = math.min(ih / (nh / h), ih);
+
+          // Проверка на валидность результатов
+          if (cw <= 0 || ch <= 0 || !cw.isFinite || !ch.isFinite) return;
+
+          final double cx = math.max((iw - cw) * offsetX, 0);
+          final double cy = math.max((ih - ch) * offsetY, 0);
+
+          final scale = w / cw;
+
+          // Финальная проверка перед отрисовкой
+          if (!scale.isFinite || !cx.isFinite || !cy.isFinite) return;
+
+          canvas.drawAtlas(
+            image,
+            [
+              RSTransform.fromComponents(
+                rotation: 0,
+                scale: scale,
+                anchorX: cw * .5,
+                anchorY: ch * .5,
+                translateX: cdx + w * .5,
+                translateY: cdy + h * .5,
+              ),
+            ],
+            [
+              Rect.fromLTWH(cx, cy, cw, ch),
+            ],
+            null,
+            BlendMode.srcOver,
+            null,
+            Paint()
+              ..isAntiAlias = true
+              ..filterQuality = FilterQuality.medium
+              ..color = Color.fromRGBO(0, 0, 0, opacity)
+              ..imageFilter = filter,
+          );
+        }
+
+        if (loader.image != null) {
+          // Check if we're allowed to change opacity for this image
+          if (_controller.canChangeOpacity(index)) {
+            // Allowed - check if image is loaded
+            if (loader.image != null) {
+              // Image fully loaded - set to max opacity
+              if (loader.opacity < 1) {
+                loader.opacity = 1;
+              }
+            } else {
+              // Image still loading - gradually increase opacity
+              loader.opacity = velocity;
+            }
+          } else {
+            // NOT allowed to change opacity - keep at 0 to show blur
+            if (loader.opacity > 0) {
+              loader.opacity = -1; // Reset to 0
+            }
+          }
+        }
+
+        final double opacity = loader.opacity;
+        final double opacityback = 1 - opacity;
+
+        // Show blur/placeholder with fading opacity while image fades in
+        if (opacity < 1) {
+          if (loader.blur != null) {
+            img(
+              image: loader.blur!,
+              opacity: 1,
+              filter: ui.ImageFilter.blur(
+                sigmaX: 10,
+                sigmaY: 10,
+                tileMode: TileMode.mirror,
+              ),
+            );
+          } else {
+            if (loader.color != null) {
+              canvas.drawRect(
+                imrect,
+                Paint()
+                  ..color = loader.color!.withValues(alpha: opacityback)
+                  ..style = PaintingStyle.fill,
+              );
+            }
+          }
+        }
+
+        if (loader.image == null) {
+          final im = _controller.getImage.call(index);
+          if (im != null) {
+            img(
+              image: im,
+              opacity: 1,
+              filter: const ColorFilter.matrix(<double>[
+                0.2126, 0.7152, 0.0722, 0, 0, //
+                0.2126, 0.7152, 0.0722, 0, 0, //
+                0.2126, 0.7152, 0.0722, 0, 0, //
+                0, 0, 0, 1, 0,
+              ]),
+            );
+          }
+        } else {
+          img(
+            image: loader.image!,
+            opacity: Curves.easeOut.transform(opacity),
+          );
+        }
+
+        if (loader.stripe != null) {
+          context.canvas.drawRect(
+            Rect.fromLTWH(cdx, cdy, math.min(w, 10), h),
+            Paint()
+              ..color = loader.stripe!
+              ..style = PaintingStyle.fill,
+          );
+        }
+
+        canvas.restore();
+
+        context.paintChild(child, childOffset);
+      } else {
+        if (loader?.image != null) {
+          loader!.opacity = -1;
+        }
+      }
+
+      child = childAfter(child);
+    }
+
+    if (dragBox != null && dragOffset != null) {
+      //context.paintChild(dragBox, dragOffset);
+    }
+  }
 
   /// --- paint
   @override
