@@ -32,9 +32,6 @@ class Photoline extends StatefulWidget {
 
 class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProviderStateMixin {
   PhotolineController get controller => widget.controller;
-  late final AnimationController animationPosition;
-  late final AnimationController animationOpacity;
-  late final AnimationController animationAdd;
 
   PhotolineScrollPosition get _position => widget.controller.position;
 
@@ -147,60 +144,6 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
           }
         }
       }
-    }
-  }
-
-  void _listenerPosition() {
-    switch (controller.action.value) {
-      case PhotolineAction.opening:
-        _listenerPositionOpening();
-      case PhotolineAction.upload:
-        _listenerPositionUpload();
-      case PhotolineAction.closing:
-        _listenerPositionClosing();
-      case PhotolineAction.open || PhotolineAction.close || PhotolineAction.drag:
-    }
-    rebuild();
-  }
-
-  void _listenerOpacity() {
-    final dx = animationOpacity.velocity.abs() * 1.8;
-    switch (controller.action.value) {
-      case PhotolineAction.open || PhotolineAction.opening:
-        _aspectRatio = dx;
-      case PhotolineAction.closing || PhotolineAction.close || PhotolineAction.drag || PhotolineAction.upload:
-        _aspectRatio = -dx;
-    }
-  }
-
-  void _listenerPositionStatus(AnimationStatus status) {
-    if (status == AnimationStatus.completed) {
-      switch (controller.action.value) {
-        case PhotolineAction.open:
-        case PhotolineAction.close:
-        case PhotolineAction.drag:
-          return;
-        case PhotolineAction.opening:
-          controller.action.value = PhotolineAction.open;
-          _position.jumpToPage(controller.pageTargetOpen.value);
-          positionWidth.clear();
-          controller
-            ..pageActiveOpen.value = controller.pageTargetOpen.value
-            ..pageActiveOpenComplete.value = controller.pageTargetOpen.value
-            ..pageActivePaginator.value = controller.pageTargetOpen.value;
-
-        case PhotolineAction.closing:
-          controller.action.value = PhotolineAction.close;
-          _position.jumpToPage(_pageTargetClose);
-          controller.pageTargetOpen.value = -1;
-          positionWidth.clear();
-        case PhotolineAction.upload:
-          controller.action.value = PhotolineAction.close;
-          _position.jumpToPage(0);
-          controller.pageTargetOpen.value = -1;
-          positionWidth.clear();
-      }
-      rebuild();
     }
   }
 
@@ -745,6 +688,78 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
     return false;
   }
 
+  late final AnimationController animationPosition =
+      AnimationController(
+          vsync: this,
+          duration: const Duration(milliseconds: 400),
+        )
+        ..addListener(() {
+          switch (controller.action.value) {
+            case PhotolineAction.opening:
+              _listenerPositionOpening();
+            case PhotolineAction.upload:
+              _listenerPositionUpload();
+            case PhotolineAction.closing:
+              _listenerPositionClosing();
+            case PhotolineAction.open || PhotolineAction.close || PhotolineAction.drag:
+          }
+          rebuild();
+        })
+        ..addStatusListener((status) {
+          if (status == AnimationStatus.completed) {
+            switch (controller.action.value) {
+              case PhotolineAction.open:
+              case PhotolineAction.close:
+              case PhotolineAction.drag:
+                return;
+              case PhotolineAction.opening:
+                controller.action.value = PhotolineAction.open;
+                _position.jumpToPage(controller.pageTargetOpen.value);
+                positionWidth.clear();
+                controller
+                  ..pageActiveOpen.value = controller.pageTargetOpen.value
+                  ..pageActiveOpenComplete.value = controller.pageTargetOpen.value
+                  ..pageActivePaginator.value = controller.pageTargetOpen.value;
+
+              case PhotolineAction.closing:
+                controller.action.value = PhotolineAction.close;
+                _position.jumpToPage(_pageTargetClose);
+                controller.pageTargetOpen.value = -1;
+                positionWidth.clear();
+              case PhotolineAction.upload:
+                controller.action.value = PhotolineAction.close;
+                _position.jumpToPage(0);
+                controller.pageTargetOpen.value = -1;
+                positionWidth.clear();
+            }
+            rebuild();
+          }
+        });
+
+  late final AnimationController animationOpacity =
+      AnimationController(
+          vsync: this,
+          duration: const Duration(milliseconds: 50 * 1000),
+        )
+        ..addListener(() {
+          final dx = animationOpacity.velocity.abs() * 1.8;
+          switch (controller.action.value) {
+            case PhotolineAction.open || PhotolineAction.opening:
+              _aspectRatio = dx;
+            case PhotolineAction.closing || PhotolineAction.close || PhotolineAction.drag || PhotolineAction.upload:
+              _aspectRatio = -dx;
+          }
+        })
+        ..repeat();
+
+  late final AnimationController animationAdd =
+      AnimationController(
+          vsync: this,
+          duration: const Duration(milliseconds: 20 * 1000),
+        )
+        ..addListener(controller.onAnimationAdd)
+        ..repeat();
+
   late final animationRepaint = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 1000),
@@ -758,26 +773,6 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
 
     holder?.photolines.add(this);
     controller.dragController = holder?.dragController;
-
-    animationPosition =
-        AnimationController(
-            vsync: this,
-            duration: const Duration(milliseconds: 400),
-          )
-          ..addListener(_listenerPosition)
-          ..addStatusListener(_listenerPositionStatus);
-
-    animationOpacity = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 50 * 1000),
-    )..addListener(_listenerOpacity);
-    unawaited(animationOpacity.repeat());
-
-    animationAdd = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 20 * 1000),
-    )..addListener(controller.onAnimationAdd);
-    unawaited(animationAdd.repeat());
 
     holder?.animationDrag.addListener(rebuild);
 

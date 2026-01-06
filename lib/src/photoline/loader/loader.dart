@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -16,7 +17,8 @@ class PhotolineLoaderNotifier extends ChangeNotifier {
 
   static PhotolineLoaderNotifier? _instance;
 
-  static PhotolineLoaderNotifier get instance => _instance ??= PhotolineLoaderNotifier._();
+  static PhotolineLoaderNotifier get instance =>
+      _instance ??= PhotolineLoaderNotifier._();
 
   String uri = '';
 
@@ -47,7 +49,9 @@ abstract class PhotolineLoader {
 
   Color? color;
 
-  bool initiallyLoaded = false;
+  /// Flag indicating if image is immediately available (e.g., from local cache).
+  /// This is checked when loader instance is created to determine rendering strategy.
+  bool get initiallyLoaded => false;
 
   _PhotolineLoaderData get _data {
     final u = uri;
@@ -59,6 +63,8 @@ abstract class PhotolineLoader {
 
   double opacity = 0;
 
+  bool get imageLoaded => _data.image != null;
+
   /// Called by Photoline render to signal that loading should start.
   /// Automatically handles deduplication by URI.
   void spawn() {
@@ -69,6 +75,9 @@ abstract class PhotolineLoader {
 
     // Already loading or loaded
     if (data.loading || data.image != null) return;
+
+    // Don't load if image is initially available
+    if (initiallyLoaded) return;
 
     data
       ..loading = true
@@ -133,9 +142,9 @@ Future<Uint8List?> _getBytes(String uri) async {
     response = await http
         .get(Uri.parse(uri))
         .timeout(
-          const Duration(seconds: 10),
-          onTimeout: () => http.Response('Error', 408),
-        );
+      const Duration(seconds: 10),
+      onTimeout: () => http.Response('Error', 408),
+    );
   } catch (e) {
     if (kDebugMode) {
       print('⚠️PhotolineLoader: $e');
@@ -151,8 +160,10 @@ Future<ui.Image?> _getImage(String uri) async {
   final Uint8List? bytes = await compute(_getBytes, uri);
   if (bytes == null) return null;
 
-  final ui.ImmutableBuffer buffer = await ui.ImmutableBuffer.fromUint8List(bytes);
-  final ui.ImageDescriptor descriptor = await ui.ImageDescriptor.encoded(buffer);
+  final ui.ImmutableBuffer buffer = await ui.ImmutableBuffer.fromUint8List(
+      bytes);
+  final ui.ImageDescriptor descriptor = await ui.ImageDescriptor.encoded(
+      buffer);
 
   buffer.dispose();
 

@@ -15,19 +15,21 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
   }) : _photoline = photoline,
        _controller = controller;
 
+  int get _count => _controller.count;
+
   @override
   void attach(PipelineOwner owner) {
     _controller.photoline?.animationRepaint.addListener(markNeedsPaint);
+    //_controller.photoline?.animationPosition.addListener(markNeedsPaint);
     super.attach(owner);
   }
 
   @override
   void detach() {
     _controller.photoline?.animationRepaint.removeListener(markNeedsPaint);
+    //_controller.photoline?.animationPosition.removeListener(markNeedsPaint);
     super.detach();
   }
-
-  int get _count => _controller.count;
 
   /// -- photoline
   PhotolineState _photoline;
@@ -93,7 +95,6 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
       if (child.size.width == 0) canPaint = false;
       if (dragBox != null && child == dragBox) canPaint = false;
 
-      final velocity = _controller.photoline?.animationRepaint.velocity ?? 0;
       final loader = _controller.getLoader?.call(index);
 
       if (canPaint && loader != null) {
@@ -174,55 +175,38 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
           );
         }
 
-        if (loader.image != null) {
-          // Check if we're allowed to change opacity for this image
-          if (_controller.canChangeOpacity(index)) {
-            // Allowed - check if image is loaded
-            if (loader.image != null) {
-              // Image fully loaded - set to max opacity
-              if (loader.opacity < 1) {
-                loader.opacity = 1;
-              }
-            } else {
-              // Image still loading - gradually increase opacity
-              loader.opacity = velocity;
-            }
-          } else {
-            // NOT allowed to change opacity - keep at 0 to show blur
-            if (loader.opacity > 0) {
-              loader.opacity = -1; // Reset to 0
-            }
-          }
-        }
-
         final double opacity = loader.opacity;
-        final double opacityback = 1 - opacity;
+        final double opacityBack = 1 - opacity;
 
-        // Show blur/placeholder with fading opacity while image fades in
-        if (opacity < 1) {
-          if (loader.blur != null) {
-            img(
-              image: loader.blur!,
-              opacity: 1,
-              filter: ui.ImageFilter.blur(
-                sigmaX: 10,
-                sigmaY: 10,
-                tileMode: TileMode.mirror,
-              ),
-            );
-          } else {
-            if (loader.color != null) {
-              canvas.drawRect(
-                imrect,
-                Paint()
-                  ..color = loader.color!.withValues(alpha: opacityback)
-                  ..style = PaintingStyle.fill,
-              );
-            }
-          }
+        // Draw blur with inverse opacity
+        if (loader.blur != null && opacityBack > 0) {
+          img(
+            image: loader.blur!,
+            opacity: opacityBack,
+            filter: ui.ImageFilter.blur(
+              sigmaX: 10,
+              sigmaY: 10,
+              tileMode: TileMode.mirror,
+            ),
+          );
+        } else if (loader.color != null && opacityBack > 0) {
+          // Draw placeholder color if no blur
+          canvas.drawRect(
+            imrect,
+            Paint()
+              ..color = loader.color!.withValues(alpha: opacityBack)
+              ..style = PaintingStyle.fill,
+          );
         }
 
-        if (loader.image == null) {
+        // Draw image with opacity
+        if (loader.image != null && opacity > 0) {
+          img(
+            image: loader.image!,
+            opacity: opacity,
+          );
+        } else if (loader.image == null) {
+          // Fallback to getImage if loader doesn't have image
           final im = _controller.getImage.call(index);
           if (im != null) {
             img(
@@ -236,11 +220,6 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
               ]),
             );
           }
-        } else {
-          img(
-            image: loader.image!,
-            opacity: Curves.easeOut.transform(opacity),
-          );
         }
 
         if (loader.stripe != null) {
@@ -255,12 +234,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
         canvas.restore();
 
         context.paintChild(child, childOffset);
-      } else {
-        if (loader?.image != null) {
-          loader!.opacity = -1;
-        }
       }
-
       child = childAfter(child);
     }
 
@@ -317,7 +291,6 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
       if (child.size.width == 0) canPaint = false;
       if (dragBox != null && child == dragBox) canPaint = false;
 
-      final velocity = _controller.photoline?.animationRepaint.velocity ?? 0;
       final uri = _controller.getUri(index)?.cached;
 
       if (canPaint && uri != null) {
@@ -409,7 +382,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
               }
             } else {
               // Image still loading - gradually increase opacity
-              uri.opacity = velocity;
+              uri.opacity = 1;
             }
           } else {
             // NOT allowed to change opacity - keep at 0 to show blur
