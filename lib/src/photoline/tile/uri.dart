@@ -35,15 +35,9 @@ class PhotolineUri {
   }
 
   PhotolineUri get cached {
-    if (uri == null) {
-      return this;
-    }
+    if (uri == null) return this;
     final cur = _map[uri];
-    if (cur == null) {
-      return this;
-    }
-    // Return cached instance directly - it has accumulated opacity
-    // Don't transfer opacity to new instance
+    if (cur == null) return this;
     return cur
       ..color = color
       ..width = width
