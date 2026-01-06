@@ -55,7 +55,10 @@ class PhotolineTileState extends State<PhotolineTile> with TickerProviderStateMi
 
   void _onLoaderChange() {
     final loader = _controller.getLoader?.call(_index);
-    if (loader?.uri != null && loader!.uri == PhotolineLoaderNotifier.instance.uri) {
+    if (loader == null) return;
+    final uri = loader.uri;
+    if (uri != null && uri == PhotolineLoaderNotifier.instance.uri) {
+      loader.opacity = 1;
       rebuild();
     }
   }

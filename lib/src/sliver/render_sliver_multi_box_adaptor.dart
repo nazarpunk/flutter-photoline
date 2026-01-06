@@ -229,11 +229,11 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
   /// --- paint
   @override
   void paint(PaintingContext context, Offset offset) {
-    if (firstChild == null) return;
-
     if (controller.getLoader != null) {
       return paintLoader(context, offset);
     }
+
+    if (firstChild == null) return;
 
     RenderBox? child = childAfter(firstChild!);
     RenderBox? dragBox;
