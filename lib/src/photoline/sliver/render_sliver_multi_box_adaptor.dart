@@ -53,6 +53,77 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
     markNeedsLayout();
   }
 
+  /// Helper method to draw image with proper scaling and filtering
+  void _drawImage({
+    required Canvas canvas,
+    required ui.Image image,
+    required double width,
+    required double height,
+    required double dx,
+    required double dy,
+    required double opacity,
+    ui.ImageFilter? filter,
+  }) {
+    const offsetX = .5;
+    const offsetY = .5;
+    final iw = image.width.toDouble();
+    final ih = image.height.toDouble();
+
+    // Защита от деления на ноль
+    if (iw <= 0 || ih <= 0 || width <= 0 || height <= 0) return;
+
+    final r = math.min(width / iw, height / ih);
+
+    double nw = iw * r, nh = ih * r, ar = 1;
+    if (nw < width && nw > 0) ar = width / nw;
+    if ((ar - 1).abs() < 1e-14 && nh < height && nh > 0) ar = height / nh;
+
+    nw *= ar;
+    nh *= ar;
+
+    // Дополнительная проверка после применения ar
+    if (nw <= 0 || nh <= 0) return;
+
+    final double cw = math.min(iw / (nw / width), iw);
+    final double ch = math.min(ih / (nh / height), ih);
+
+    // Проверка на валидность результатов
+    if (cw <= 0 || ch <= 0 || !cw.isFinite || !ch.isFinite) return;
+
+    final double cx = math.max((iw - cw) * offsetX, 0);
+    final double cy = math.max((ih - ch) * offsetY, 0);
+
+    final scale = width / cw;
+
+    // Финальная проверка перед отрисовкой
+    if (!scale.isFinite || !cx.isFinite || !cy.isFinite) return;
+
+    canvas.drawAtlas(
+      image,
+      [
+        RSTransform.fromComponents(
+          rotation: 0,
+          scale: scale,
+          anchorX: cw * .5,
+          anchorY: ch * .5,
+          translateX: dx + width * .5,
+          translateY: dy + height * .5,
+        ),
+      ],
+      [
+        Rect.fromLTWH(cx, cy, cw, ch),
+      ],
+      null,
+      BlendMode.srcOver,
+      null,
+      Paint()
+        ..isAntiAlias = true
+        ..filterQuality = FilterQuality.medium
+        ..color = Color.fromRGBO(0, 0, 0, opacity)
+        ..imageFilter = filter,
+    );
+  }
+
   void paintLoader(PaintingContext context, Offset offset) {
     if (firstChild == null) return;
 
@@ -110,77 +181,17 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
           ..save()
           ..clipRect(imrect);
 
-        void img({
-          required ui.Image image,
-          required double opacity,
-          ui.ImageFilter? filter,
-        }) {
-          const offsetX = .5;
-          const offsetY = .5;
-          final iw = image.width.toDouble();
-          final ih = image.height.toDouble();
-
-          // Защита от деления на ноль
-          if (iw <= 0 || ih <= 0 || w <= 0 || h <= 0) return;
-
-          final r = math.min(w / iw, h / ih);
-
-          double nw = iw * r, nh = ih * r, ar = 1;
-          if (nw < w && nw > 0) ar = w / nw;
-          if ((ar - 1).abs() < 1e-14 && nh < h && nh > 0) ar = h / nh;
-
-          nw *= ar;
-          nh *= ar;
-
-          // Дополнительная проверка после применения ar
-          if (nw <= 0 || nh <= 0) return;
-
-          final double cw = math.min(iw / (nw / w), iw);
-          final double ch = math.min(ih / (nh / h), ih);
-
-          // Проверка на валидность результатов
-          if (cw <= 0 || ch <= 0 || !cw.isFinite || !ch.isFinite) return;
-
-          final double cx = math.max((iw - cw) * offsetX, 0);
-          final double cy = math.max((ih - ch) * offsetY, 0);
-
-          final scale = w / cw;
-
-          // Финальная проверка перед отрисовкой
-          if (!scale.isFinite || !cx.isFinite || !cy.isFinite) return;
-
-          canvas.drawAtlas(
-            image,
-            [
-              RSTransform.fromComponents(
-                rotation: 0,
-                scale: scale,
-                anchorX: cw * .5,
-                anchorY: ch * .5,
-                translateX: cdx + w * .5,
-                translateY: cdy + h * .5,
-              ),
-            ],
-            [
-              Rect.fromLTWH(cx, cy, cw, ch),
-            ],
-            null,
-            BlendMode.srcOver,
-            null,
-            Paint()
-              ..isAntiAlias = true
-              ..filterQuality = FilterQuality.medium
-              ..color = Color.fromRGBO(0, 0, 0, opacity)
-              ..imageFilter = filter,
-          );
-        }
-
         final double opacity = loader.opacity;
 
         // Draw blur with inverse opacity
         if (loader.blur != null && opacity < 1) {
-          img(
+          _drawImage(
+            canvas: canvas,
             image: loader.blur!,
+            width: w,
+            height: h,
+            dx: cdx,
+            dy: cdy,
             opacity: 1,
             filter: ui.ImageFilter.blur(
               sigmaX: 10,
@@ -199,8 +210,13 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
         // Draw image with opacity
         if (loader.image != null) {
-          img(
+          _drawImage(
+            canvas: canvas,
             image: loader.image!,
+            width: w,
+            height: h,
+            dx: cdx,
+            dy: cdy,
             opacity: opacity,
           );
         }
@@ -289,71 +305,6 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
           ..save()
           ..clipRect(imrect);
 
-        void img({
-          required ui.Image image,
-          required double opacity,
-          ui.ImageFilter? filter,
-        }) {
-          const offsetX = .5;
-          const offsetY = .5;
-          final iw = image.width.toDouble();
-          final ih = image.height.toDouble();
-
-          // Защита от деления на ноль
-          if (iw <= 0 || ih <= 0 || w <= 0 || h <= 0) return;
-
-          final r = math.min(w / iw, h / ih);
-
-          double nw = iw * r, nh = ih * r, ar = 1;
-          if (nw < w && nw > 0) ar = w / nw;
-          if ((ar - 1).abs() < 1e-14 && nh < h && nh > 0) ar = h / nh;
-
-          nw *= ar;
-          nh *= ar;
-
-          // Дополнительная проверка после применения ar
-          if (nw <= 0 || nh <= 0) return;
-
-          final double cw = math.min(iw / (nw / w), iw);
-          final double ch = math.min(ih / (nh / h), ih);
-
-          // Проверка на валидность результатов
-          if (cw <= 0 || ch <= 0 || !cw.isFinite || !ch.isFinite) return;
-
-          final double cx = math.max((iw - cw) * offsetX, 0);
-          final double cy = math.max((ih - ch) * offsetY, 0);
-
-          final scale = w / cw;
-
-          // Финальная проверка перед отрисовкой
-          if (!scale.isFinite || !cx.isFinite || !cy.isFinite) return;
-
-          canvas.drawAtlas(
-            image,
-            [
-              RSTransform.fromComponents(
-                rotation: 0,
-                scale: scale,
-                anchorX: cw * .5,
-                anchorY: ch * .5,
-                translateX: cdx + w * .5,
-                translateY: cdy + h * .5,
-              ),
-            ],
-            [
-              Rect.fromLTWH(cx, cy, cw, ch),
-            ],
-            null,
-            BlendMode.srcOver,
-            null,
-            Paint()
-              ..isAntiAlias = true
-              ..filterQuality = FilterQuality.medium
-              ..color = Color.fromRGBO(0, 0, 0, opacity)
-              ..imageFilter = filter,
-          );
-        }
-
         if (uri.image != null) {
           if (uri.imageLoaded) {
             if (uri.opacity < 1) {
@@ -370,8 +321,13 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
         // Show blur/placeholder with fading opacity while image fades in
         if (opacity < 1) {
           if (uri.blur != null) {
-            img(
+            _drawImage(
+              canvas: canvas,
               image: uri.blur!,
+              width: w,
+              height: h,
+              dx: cdx,
+              dy: cdy,
               opacity: 1,
               filter: ui.ImageFilter.blur(
                 sigmaX: 10,
@@ -394,8 +350,13 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
         if (uri.image == null) {
           final im = _controller.getImage.call(index);
           if (im != null) {
-            img(
+            _drawImage(
+              canvas: canvas,
               image: im,
+              width: w,
+              height: h,
+              dx: cdx,
+              dy: cdy,
               opacity: 1,
               filter: const ColorFilter.matrix(<double>[
                 0.2126, 0.7152, 0.0722, 0, 0, //
@@ -406,8 +367,13 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
             );
           }
         } else {
-          img(
+          _drawImage(
+            canvas: canvas,
             image: uri.image!,
+            width: w,
+            height: h,
+            dx: cdx,
+            dy: cdy,
             opacity: Curves.easeOut.transform(opacity),
           );
         }
