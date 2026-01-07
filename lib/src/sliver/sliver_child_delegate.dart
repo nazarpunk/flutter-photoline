@@ -14,7 +14,7 @@ class PhotolineSliverChildBuilderDelegate extends SliverChildDelegate {
   });
 
   final PhotolineController controller;
-  final NullableIndexedWidgetBuilder builder;
+  final Widget? Function(BuildContext context, int index) builder;
 
   final ChildIndexGetter? findChildIndexCallback;
 

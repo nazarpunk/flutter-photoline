@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:photoline/src/holder/controller/drag.dart';
 import 'package:photoline/src/mixin/state/rebuild.dart';
 import 'package:photoline/src/photoline/controller.dart';
-import 'package:photoline/src/photoline/loader/loader.dart';
+import 'package:photoline/src/photoline/loader.dart';
 import 'package:photoline/src/photoline/photoline.dart';
 import 'package:photoline/src/photoline/tile/data.dart';
 import 'package:photoline/src/photoline/tile/uri.dart';

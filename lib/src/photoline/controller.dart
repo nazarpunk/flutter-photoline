@@ -6,7 +6,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:photoline/src/holder/controller/drag.dart';
-import 'package:photoline/src/photoline/loader/loader.dart';
+import 'package:photoline/src/photoline/loader.dart';
 import 'package:photoline/src/photoline/photoline.dart';
 import 'package:photoline/src/photoline/tile/data.dart';
 import 'package:photoline/src/photoline/tile/tile.dart';
@@ -54,6 +54,7 @@ abstract class PhotolineController extends ScrollController {
     this.rebuilder = _rebuilder,
     this.wrapHeight = _wrapHeight,
     this.getLoader,
+    this.getTile,
   }) {
     addListener(() {
       final p = position.page?.round();
@@ -77,12 +78,10 @@ abstract class PhotolineController extends ScrollController {
 
   Widget? getWidget(int index) => null;
 
-  /// Check if opacity can be changed for image at given index.
-  /// Return false to prevent blur->image transition (keep blur visible).
-  bool canChangeOpacity(int index) => true;
-
+  final Widget Function(int index)? getTile;
   final PhotolineLoader? Function(int index)? getLoader;
   final Widget Function(int index, bool show)? getBackside;
+
   final ValueGetter<int> getPhotoCount;
   final int Function(double? width) getViewCount;
   final void Function(int index, Object data)? onAdd;

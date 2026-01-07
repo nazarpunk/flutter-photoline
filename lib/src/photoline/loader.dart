@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 Map<String, _PhotolineLoaderData> _map = {};
+final _PhotolineLoaderData _emptyData = _PhotolineLoaderData();
 
 int _count = 0;
 int _counter = 0;
@@ -49,7 +50,7 @@ abstract class PhotolineLoader {
 
   _PhotolineLoaderData get _data {
     final u = uri;
-    if (u == null) return _PhotolineLoaderData();
+    if (u == null) return _emptyData;
     return _map[u] ??= _PhotolineLoaderData();
   }
 
@@ -122,6 +123,9 @@ abstract class PhotolineLoader {
     if (img != null) {
       data.image = img;
       PhotolineLoaderNotifier.instance.notify = uri;
+    } else {
+      // Failed to load - move to end of queue for retry
+      data.index = ++_counter;
     }
 
     _count--;

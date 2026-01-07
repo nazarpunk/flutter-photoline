@@ -19,14 +19,14 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
   @override
   void attach(PipelineOwner owner) {
-    _controller.photoline?.animationRepaint.addListener(markNeedsPaint);
+    //_controller.photoline?.animationRepaint.addListener(markNeedsPaint);
     //_controller.photoline?.animationPosition.addListener(markNeedsPaint);
     super.attach(owner);
   }
 
   @override
   void detach() {
-    _controller.photoline?.animationRepaint.removeListener(markNeedsPaint);
+    //_controller.photoline?.animationRepaint.removeListener(markNeedsPaint);
     //_controller.photoline?.animationPosition.removeListener(markNeedsPaint);
     super.detach();
   }
@@ -355,23 +355,12 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
         }
 
         if (uri.image != null) {
-          // Check if we're allowed to change opacity for this image
-          if (_controller.canChangeOpacity(index)) {
-            // Allowed - check if image is loaded
-            if (uri.imageLoaded) {
-              // Image fully loaded - set to max opacity
-              if (uri.opacity < 1) {
-                uri.opacity = 1;
-              }
-            } else {
-              // Image still loading - gradually increase opacity
+          if (uri.imageLoaded) {
+            if (uri.opacity < 1) {
               uri.opacity = 1;
             }
           } else {
-            // NOT allowed to change opacity - keep at 0 to show blur
-            if (uri.opacity > 0) {
-              uri.opacity = -1; // Reset to 0
-            }
+            uri.opacity = 1;
           }
         }
 
