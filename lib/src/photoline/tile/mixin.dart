@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:photoline/library.dart';
+import 'package:photoline/src/photoline/sliver/render_sliver_multi_box_adaptor.dart';
 
 mixin PhotolineTileMixin<T extends StatefulWidget> on State<T> {
   Widget buildContent();
@@ -12,11 +13,32 @@ mixin PhotolineTileMixin<T extends StatefulWidget> on State<T> {
 
   PhotolineLoader? loader;
 
+  VoidCallback markNeedsPaint = () {};
+
+  void onImageLoad() {
+    final l = loader;
+    if (l == null) return;
+    l.opacity = 1;
+    markNeedsPaint();
+    if (super.mounted) super.setState(() {});
+  }
+
   @override
   void initState() {
+    super.initState();
     loader = photoline.getLoader?.call(index);
     PhotolineLoaderNotifier.instance.addListener(_onLoaderChange);
-    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final renderSliver = context.findAncestorRenderObjectOfType<PhotolineRenderSliverMultiBoxAdaptor>();
+    markNeedsPaint = renderSliver?.markNeedsPaint ?? () {};
+    final l = loader;
+    if (l != null && l.image != null) {
+      onImageLoad();
+    }
   }
 
   @override
@@ -30,8 +52,7 @@ mixin PhotolineTileMixin<T extends StatefulWidget> on State<T> {
     if (l == null) return;
     final uri = l.uri;
     if (uri != null && uri == _loaderNotifier.uri) {
-      l.opacity = 1;
-      super.setState(() {});
+      onImageLoad();
     }
   }
 
