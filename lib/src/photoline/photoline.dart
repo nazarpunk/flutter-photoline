@@ -8,10 +8,10 @@ import 'package:photoline/library.dart';
 import 'package:photoline/src/backside/backside.dart';
 import 'package:photoline/src/mixin/state/rebuild.dart';
 import 'package:photoline/src/paginaror/paginator.dart';
+import 'package:photoline/src/photoline/sliver/sliver_multi_box_adaptor_widget.dart';
 import 'package:photoline/src/photoline/tile/tile.dart';
 import 'package:photoline/src/scroll/photoline/position.dart';
 import 'package:photoline/src/scroll/physics.dart';
-import 'package:photoline/src/photoline/sliver/sliver_multi_box_adaptor_widget.dart';
 import 'package:photoline/src/utils/position.dart';
 import 'package:photoline/src/viewport/viewport.dart';
 
