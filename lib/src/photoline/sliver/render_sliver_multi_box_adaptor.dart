@@ -19,15 +19,15 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
   @override
   void attach(PipelineOwner owner) {
-    //_controller.photoline?.animationRepaint.addListener(markNeedsPaint);
-    //_controller.photoline?.animationPosition.addListener(markNeedsPaint);
+    _controller.photoline?.animationRepaint.addListener(markNeedsLayout);
+    //_controller.photoline?.animationPosition.addListener(markNeedsLayout);
     super.attach(owner);
   }
 
   @override
   void detach() {
-    //_controller.photoline?.animationRepaint.removeListener(markNeedsPaint);
-    //_controller.photoline?.animationPosition.removeListener(markNeedsPaint);
+    _controller.photoline?.animationRepaint.removeListener(markNeedsLayout);
+    //_controller.photoline?.animationPosition.removeListener(markNeedsLayout);
     super.detach();
   }
 
@@ -118,7 +118,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
       null,
       Paint()
         ..isAntiAlias = true
-        ..filterQuality = FilterQuality.medium
+        ..filterQuality = FilterQuality.high
         ..color = Color.fromRGBO(0, 0, 0, opacity)
         ..imageFilter = filter,
     );
@@ -316,7 +316,6 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
         }
 
         final double opacity = uri.opacity;
-        final double opacityback = 1 - opacity;
 
         // Show blur/placeholder with fading opacity while image fades in
         if (opacity < 1) {
@@ -340,7 +339,7 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
               canvas.drawRect(
                 imrect,
                 Paint()
-                  ..color = uri.color!.withValues(alpha: opacityback)
+                  ..color = uri.color!
                   ..style = PaintingStyle.fill,
               );
             }
@@ -390,10 +389,6 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
         canvas.restore();
 
         context.paintChild(child, childOffset);
-      } else {
-        if (uri?.image != null) {
-          uri!.opacity = -1;
-        }
       }
 
       child = childAfter(child);
