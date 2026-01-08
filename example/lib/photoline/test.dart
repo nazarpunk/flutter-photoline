@@ -44,7 +44,6 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
 
       _photolines.add(PhotolineWrap(
         photos: photos,
-        rebuilder: rebuild,
       ));
     }
   }

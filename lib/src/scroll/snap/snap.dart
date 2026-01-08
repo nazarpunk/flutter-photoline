@@ -8,15 +8,19 @@ import 'package:photoline/src/scroll/snap/snap/viewport/viewport.dart';
 
 export 'snap/sliver/list.dart';
 
+typedef ScrollSnapRebuilder = List<Widget> Function(VoidCallback fn);
+
 class ScrollSnap extends StatefulWidget {
   const ScrollSnap({
     super.key,
     required this.controller,
-    required this.slivers,
+    this.slivers,
+    this.builder,
     this.cacheExtent = double.infinity,
   });
 
-  final List<Widget> slivers;
+  final ScrollSnapRebuilder? builder;
+  final List<Widget>? slivers;
   final ScrollSnapController controller;
   final double cacheExtent;
 
@@ -96,39 +100,34 @@ class ScrollSnapState extends State<ScrollSnap> with StateRebuildMixin, WidgetsB
   }
 
   @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        controller.boxConstraints = constraints;
-        _physics ??= ScrollSnapPhysics(controller: controller);
-        return NotificationListener(
-          onNotification: (notification) {
-            if (notification is PhotolinePointerScrollNotification) {
-              final dx = notification.event.scrollDelta.dy;
-              final double velocity = (math.max(dx.abs(), 50) * dx.sign) * 10;
-              controller.position.goBallistic(velocity);
-              return false;
-            }
-
-            if (notification is ScrollUpdateNotification) {
-              controller.isUserDrag.value = notification.dragDetails != null;
-            }
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      controller.boxConstraints = constraints;
+      _physics ??= ScrollSnapPhysics(controller: controller);
+      return NotificationListener(
+        onNotification: (notification) {
+          if (notification is PhotolinePointerScrollNotification) {
+            final dx = notification.event.scrollDelta.dy;
+            final double velocity = (math.max(dx.abs(), 50) * dx.sign) * 10;
+            controller.position.goBallistic(velocity);
             return false;
-          },
-          child: PhotolineScrollable(
-            controller: controller,
-            physics: _physics,
-            viewportBuilder: (context, position) {
-              //print('😍 $position');
-              return ScrollSnapViewport(
-                cacheExtent: widget.cacheExtent,
-                offset: position,
-                children: widget.slivers,
-              );
-            },
+          }
+
+          if (notification is ScrollUpdateNotification) {
+            controller.isUserDrag.value = notification.dragDetails != null;
+          }
+          return false;
+        },
+        child: PhotolineScrollable(
+          controller: controller,
+          physics: _physics,
+          viewportBuilder: (context, position) => ScrollSnapViewport(
+            cacheExtent: widget.cacheExtent,
+            offset: position,
+            children: widget.builder?.call(rebuild) ?? widget.slivers ?? [],
           ),
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
 }

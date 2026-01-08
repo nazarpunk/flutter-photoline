@@ -8,7 +8,6 @@ import 'package:photoline_example/generated/assets.gen.dart';
 class PhotolineWrap extends PhotolineController {
   PhotolineWrap({
     required this.photos,
-    required super.rebuilder,
   });
 
   List<Uri> photos;

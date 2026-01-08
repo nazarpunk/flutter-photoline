@@ -28,8 +28,6 @@ double _wrapHeight(double w, double h, double t) {
 
 int _getPhotoCount() => 0;
 
-void _rebuilder() {}
-
 /// Photoline controller
 /// [ClipRect]
 abstract class PhotolineController extends ScrollController {
@@ -51,7 +49,6 @@ abstract class PhotolineController extends ScrollController {
     this.useOpenSimulation = true,
     this.useOpenSideResize = true,
     this.useOpenSideResizeScale = true,
-    this.rebuilder = _rebuilder,
     this.wrapHeight = _wrapHeight,
     this.getLoader,
     this.getTile,
@@ -100,15 +97,13 @@ abstract class PhotolineController extends ScrollController {
   final bool useOpenSideResize;
   final bool useOpenSideResizeScale;
 
-  final void Function() rebuilder;
-
   double get openRatio => .8;
 
   double get closeRatio => 1 / getViewCount(photolineWidth);
 
   double? photolineWidth;
 
-  late final fullScreenExpander = ValueNotifier<double>(0)..addListener(rebuilder);
+  late final fullScreenExpander = ValueNotifier<double>(0);
 
   final action = ValueNotifier<PhotolineAction>(PhotolineAction.close);
   final pageActivePaginator = ValueNotifier<int>(-1);

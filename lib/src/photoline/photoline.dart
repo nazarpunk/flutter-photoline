@@ -15,15 +15,19 @@ import 'package:photoline/src/scroll/physics.dart';
 import 'package:photoline/src/utils/position.dart';
 import 'package:photoline/src/viewport/viewport.dart';
 
+void _nope() {}
+
 class Photoline extends StatefulWidget {
   const Photoline({
     required this.controller,
     required this.photoStripeColor,
     super.key,
+    this.rebuilder = _nope,
   });
 
   final PhotolineController controller;
   final Color photoStripeColor;
+  final VoidCallback rebuilder;
 
   @override
   State<Photoline> createState() => PhotolineState();
@@ -768,6 +772,8 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
   void initState() {
     controller.photoline = this;
 
+    controller.fullScreenExpander.addListener(widget.rebuilder);
+
     holder = context.findAncestorStateOfType<PhotolineHolderState>();
 
     holder?.photolines.add(this);
@@ -780,6 +786,8 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
 
   @override
   void dispose() {
+    controller.fullScreenExpander.removeListener(widget.rebuilder);
+
     /// anim
     animationRepaint.dispose();
     animationPosition.dispose();
