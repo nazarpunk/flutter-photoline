@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:photoline/library.dart';
 import 'package:photoline/src/photoline/sliver/render_sliver_multi_box_adaptor.dart';
