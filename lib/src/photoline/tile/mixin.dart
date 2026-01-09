@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:photoline/library.dart';
 import 'package:photoline/src/photoline/sliver/render_sliver_multi_box_adaptor.dart';
@@ -59,6 +60,7 @@ mixin PhotolineTileMixin<T extends StatefulWidget> on State<T> {
   @override
   Widget build(BuildContext context) {
     final Widget child = buildContent();
+
     return GestureDetector(
       onTap: () => photoline.photoline?.toPage(index),
       behavior: HitTestBehavior.opaque,

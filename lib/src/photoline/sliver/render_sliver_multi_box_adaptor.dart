@@ -72,11 +72,20 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
     // Защита от деления на ноль
     if (iw <= 0 || ih <= 0 || width <= 0 || height <= 0) return;
 
-    final r = math.min(width / iw, height / ih);
+    // For web blur: expand image and clip to hide edge artifacts
+    const bool hasBlur = kIsWeb;
+    const double blurExpand = hasBlur ? 20 : 0; // Expand by blur radius * 2
+
+    final double renderWidth = width + blurExpand * 2;
+    final double renderHeight = height + blurExpand * 2;
+    final double renderDx = dx - blurExpand;
+    final double renderDy = dy - blurExpand;
+
+    final r = math.min(renderWidth / iw, renderHeight / ih);
 
     double nw = iw * r, nh = ih * r, ar = 1;
-    if (nw < width && nw > 0) ar = width / nw;
-    if ((ar - 1).abs() < 1e-14 && nh < height && nh > 0) ar = height / nh;
+    if (nw < renderWidth && nw > 0) ar = renderWidth / nw;
+    if ((ar - 1).abs() < 1e-14 && nh < renderHeight && nh > 0) ar = renderHeight / nh;
 
     nw *= ar;
     nh *= ar;
@@ -84,8 +93,8 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
     // Дополнительная проверка после применения ar
     if (nw <= 0 || nh <= 0) return;
 
-    final double cw = math.min(iw / (nw / width), iw);
-    final double ch = math.min(ih / (nh / height), ih);
+    final double cw = math.min(iw / (nw / renderWidth), iw);
+    final double ch = math.min(ih / (nh / renderHeight), ih);
 
     // Проверка на валидность результатов
     if (cw <= 0 || ch <= 0 || !cw.isFinite || !ch.isFinite) return;
@@ -93,10 +102,17 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
     final double cx = math.max((iw - cw) * offsetX, 0);
     final double cy = math.max((ih - ch) * offsetY, 0);
 
-    final scale = width / cw;
+    final scale = renderWidth / cw;
 
     // Финальная проверка перед отрисовкой
     if (!scale.isFinite || !cx.isFinite || !cy.isFinite) return;
+
+    // Clip to original rect to hide blur artifacts on edges
+    if (hasBlur) {
+      canvas
+        ..save()
+        ..clipRect(Rect.fromLTWH(dx, dy, width, height));
+    }
 
     canvas.drawAtlas(
       image,
@@ -106,8 +122,8 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
           scale: scale,
           anchorX: cw * .5,
           anchorY: ch * .5,
-          translateX: dx + width * .5,
-          translateY: dy + height * .5,
+          translateX: renderDx + renderWidth * .5,
+          translateY: renderDy + renderHeight * .5,
         ),
       ],
       [
@@ -122,6 +138,10 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
         ..color = Color.fromRGBO(0, 0, 0, opacity)
         ..imageFilter = filter,
     );
+
+    if (hasBlur) {
+      canvas.restore();
+    }
   }
 
   void paintLoader(PaintingContext context, Offset offset) {
