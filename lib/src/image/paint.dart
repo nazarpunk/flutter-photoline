@@ -127,5 +127,3 @@ class _PhotolineImagePaint extends RenderProxyBox {
     canvas.restore();
   }
 }
-
-

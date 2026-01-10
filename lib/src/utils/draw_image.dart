@@ -95,4 +95,3 @@ void drawPhotolineImage({
     canvas.restore();
   }
 }
-

@@ -76,7 +76,6 @@ class PhotolineWrap extends PhotolineController {
         photos.insert(index, data as Uri);
       };
 
-  @override
   double Function(double p1, double p2, double p3) get wrapHeight => (w, h, t) {
         const double footer = 64;
         return ui.lerpDouble(w * .7 + footer, h, t)! + 20;
