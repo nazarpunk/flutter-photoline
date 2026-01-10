@@ -2,12 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:photoline/library.dart';
 
-import 'package:photoline/src/holder/holder.dart';
-import 'package:photoline/src/photoline/controller.dart';
-import 'package:photoline/src/photoline/tile/tile.dart';
-import 'package:photoline/src/scroll/snap/controller.dart';
-import 'package:photoline/src/utils/action.dart';
 import 'package:photoline/src/utils/photoline_tile_intersection.dart';
 
 /// Drag controller.
@@ -29,7 +25,7 @@ class PhotolineHolderDragController implements Drag {
   late PhotolineController _initialController;
   late PhotolineController _currentController;
 
-  late PhotolineTileState _initialTile;
+  late PhotolineTileMixin _initialTile;
 
   final _recognizerDelay = DelayedMultiDragGestureRecognizer();
   final _recogniserAbsorb = ImmediateMultiDragGestureRecognizer();
@@ -232,7 +228,7 @@ class PhotolineHolderDragController implements Drag {
     _snapTimer?.cancel();
   }
 
-  void onPointerDown(PhotolineController controller, PhotolineTileState tile,
+  void onPointerDown(PhotolineController controller, PhotolineTileMixin tile,
       PointerDownEvent event) {
     if (controller.action.value != PhotolineAction.close) return;
     if (isDrag) {
@@ -242,7 +238,7 @@ class PhotolineHolderDragController implements Drag {
         _initialController = controller;
         _currentController = controller;
         _initialTile = tile;
-        controller.pageDragInitial = tile.widget.index;
+        controller.pageDragInitial = tile.index;
       }
       _recognizerDelay
         ..onStart = _onDragStart

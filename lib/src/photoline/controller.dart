@@ -5,14 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
-import 'package:photoline/src/holder/controller/drag.dart';
-import 'package:photoline/src/photoline/loader.dart';
-import 'package:photoline/src/photoline/photoline.dart';
-import 'package:photoline/src/photoline/tile/data.dart';
-import 'package:photoline/src/photoline/tile/tile.dart';
-import 'package:photoline/src/photoline/tile/uri.dart';
+import 'package:photoline/library.dart';
 import 'package:photoline/src/scroll/photoline/position.dart';
-import 'package:photoline/src/utils/action.dart';
 import 'package:photoline/src/utils/drag.dart';
 import 'package:photoline/src/utils/mod.dart';
 import 'package:photoline/src/utils/size.dart';
@@ -20,11 +14,6 @@ import 'package:photoline/src/utils/size.dart';
 int _getViewCount(double? width) => 3;
 
 Color _getPagerColor() => Colors.white;
-
-double _wrapHeight(double w, double h, double t) {
-  const double footer = 64;
-  return w * .7 + footer;
-}
 
 int _getPhotoCount() => 0;
 
@@ -49,7 +38,6 @@ abstract class PhotolineController extends ScrollController {
     this.useOpenSimulation = true,
     this.useOpenSideResize = true,
     this.useOpenSideResizeScale = true,
-    this.wrapHeight = _wrapHeight,
     this.getLoader,
     this.getTile,
   }) {
@@ -114,8 +102,6 @@ abstract class PhotolineController extends ScrollController {
   int pageOpenInitial = -1;
 
   final aspectRatio = ValueNotifier<double>(0);
-
-  final double Function(double, double, double) wrapHeight;
 
   @override
   void dispose() {
@@ -226,7 +212,7 @@ abstract class PhotolineController extends ScrollController {
   bool isDragStart = false;
   bool isDragMain = false;
 
-  void onPointerDown(PhotolineTileState tile, PointerDownEvent event) => dragController?.onPointerDown(this, tile, event);
+  void onPointerDown(PhotolineTileMixin tile, PointerDownEvent event) => dragController?.onPointerDown(this, tile, event);
 
   void onChangeCurrent(bool isCurrent) {
     final size = this.size;

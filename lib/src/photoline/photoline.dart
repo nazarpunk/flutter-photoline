@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/rendering.dart';
@@ -830,34 +829,14 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
                             PhotolineSliverMultiBoxAdaptorWidget(
                               controller: controller,
                               photoline: this,
-                              builder: (context, i) {
-                                if (kDebugMode) {
-                                  return Center(
-                                    child: GestureDetector(
-                                      child: MouseRegion(
-                                        onEnter: (e) {
-                                          print('enter $e');
-                                        },
-                                        onExit: (e) {
-                                          print('exit $e');
-                                        },
-                                        onHover: (e) {
-                                          print('hover $e');
-                                        },
-                                        child: const Text("data"),
-                                      ),
-                                    ),
-                                  );
-                                }
-
-                                return controller.getTile?.call(i) ??
-                                    PhotolineTile(
-                                      photoline: this,
-                                      key: controller.getKey(i),
-                                      index: i,
-                                      controller: controller,
-                                    );
-                              },
+                              builder: (context, i) =>
+                                  controller.getTile?.call(i) ??
+                                  PhotolineTile(
+                                    photoline: this,
+                                    key: controller.getKey(i),
+                                    index: i,
+                                    controller: controller,
+                                  ),
                             ),
                           ],
                         ),

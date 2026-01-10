@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:photoline/src/holder/controller/drag.dart';
 import 'package:photoline/src/mixin/state/rebuild.dart';
@@ -89,7 +88,7 @@ class PhotolineTileState extends State<PhotolineTile> with TickerProviderStateMi
 
           final List<Widget>? persistent = _controller.getPersistentWidgets?.call(data);
 
-          Widget child = Stack(
+          final Widget child = Stack(
             children: [
               Positioned.fill(
                 key: const ValueKey('widget'),
@@ -99,6 +98,7 @@ class PhotolineTileState extends State<PhotolineTile> with TickerProviderStateMi
             ],
           );
 
+          /*
           if (_controller.canDrag && _photoline.holder?.dragController != null && _controller.getPhotoCount() > _index) {
             child = Listener(
               behavior: HitTestBehavior.opaque,
@@ -106,6 +106,7 @@ class PhotolineTileState extends State<PhotolineTile> with TickerProviderStateMi
               child: child,
             );
           }
+           */
 
           return GestureDetector(
             onTap: () => _photoline.toPage(_index),

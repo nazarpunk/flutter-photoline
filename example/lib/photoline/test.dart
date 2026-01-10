@@ -25,6 +25,12 @@ class PhotolineTestWidget extends StatefulWidget {
   State<PhotolineTestWidget> createState() => _PhotolineTestWidgetState();
 }
 
+double _wrapHeight(double w, double h, double t) {
+  const double footer = 64;
+  return w * .7 + footer;
+}
+
+
 class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
   final List<PhotolineController> _photolines = [];
   int _start = -1;
@@ -69,15 +75,15 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
       final w = dimensions.crossAxisExtent;
       final h = dimensions.viewportMainAxisExtent;
 
-      if (p.wrapHeight(w, h, 0) - 20 > h) return false;
-      if (p.wrapHeight(w, h, 1) - 20 > h) return false;
+      if (_wrapHeight(w, h, 0) - 20 > h) return false;
+      if (_wrapHeight(w, h, 1) - 20 > h) return false;
 
       return true;
     },
     snapBuilder: (index, dimensions) {
       final p = _photolines.elementAtOrNull(index);
       if (p == null) return null;
-      return p.wrapHeight(
+      return _wrapHeight(
         dimensions.crossAxisExtent,
         dimensions.viewportMainAxisExtent,
         p.fullScreenExpander.value,

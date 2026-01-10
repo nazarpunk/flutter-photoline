@@ -58,7 +58,15 @@ mixin PhotolineTileMixin<T extends StatefulWidget> on State<T> {
 
   @override
   Widget build(BuildContext context) {
-    final Widget child = buildContent();
+    Widget child = buildContent();
+
+    if (photoline.canDrag && photoline.photoline?.holder?.dragController != null && photoline.getPhotoCount() > index) {
+      child = Listener(
+        behavior: HitTestBehavior.opaque,
+        onPointerDown: (event) => photoline.onPointerDown(this, event),
+        child: child,
+      );
+    }
 
     return GestureDetector(
       onTap: () => photoline.photoline?.toPage(index),
