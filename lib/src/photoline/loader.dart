@@ -104,7 +104,7 @@ abstract class PhotolineLoader {
   /// Automatically handles deduplication by URI.
   void spawn() {
     final u = uri;
-    if (u == null) return;
+    if (u == null || u.isEmpty) return;
 
     // Check if already in map
     final existing = _map[u];

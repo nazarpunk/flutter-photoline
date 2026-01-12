@@ -176,6 +176,7 @@ abstract class PhotolineController extends ScrollController {
     }
     mod.insert(index, PhotolineMod(0, 1));
     photoline?.rebuild();
+
     return true;
   }
 

@@ -98,16 +98,6 @@ class PhotolineTileState extends State<PhotolineTile> with TickerProviderStateMi
             ],
           );
 
-          /*
-          if (_controller.canDrag && _photoline.holder?.dragController != null && _controller.getPhotoCount() > _index) {
-            child = Listener(
-              behavior: HitTestBehavior.opaque,
-              onPointerDown: (event) => _controller.onPointerDown(this, event),
-              child: child,
-            );
-          }
-           */
-
           return GestureDetector(
             onTap: () => _photoline.toPage(_index),
             behavior: HitTestBehavior.opaque,
