@@ -739,34 +739,29 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
           }
         });
 
-  late final AnimationController animationOpacity =
+  late final AnimationController animationAspectRatio =
       AnimationController(
-          vsync: this,
-          duration: const Duration(milliseconds: 50 * 1000),
-        )
-        ..addListener(() {
-          final dx = animationOpacity.velocity.abs() * 1.8;
-          switch (controller.action.value) {
-            case PhotolineAction.open || PhotolineAction.opening:
-              _aspectRatio = dx;
-            case PhotolineAction.closing || PhotolineAction.close || PhotolineAction.drag || PhotolineAction.upload:
-              _aspectRatio = -dx;
-          }
-        })
-        ..repeat();
+        vsync: this,
+        duration: const Duration(milliseconds: 50 * 1000),
+      )..addListener(() {
+        final dx = animationAspectRatio.velocity.abs() * 1.8;
+        switch (controller.action.value) {
+          case PhotolineAction.open || PhotolineAction.opening:
+            _aspectRatio = dx;
+          case PhotolineAction.closing || PhotolineAction.close || PhotolineAction.drag || PhotolineAction.upload:
+            _aspectRatio = -dx;
+        }
+      });
 
-  late final AnimationController animationAdd =
-      AnimationController(
-          vsync: this,
-          duration: const Duration(milliseconds: 20 * 1000),
-        )
-        ..addListener(controller.onAnimationAdd)
-        ..repeat();
+  late final AnimationController animationAdd = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 20 * 1000),
+  )..addListener(controller.onAnimationAdd);
 
   late final animationRepaint = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 1000),
-  )..repeat();
+  );
 
   @override
   void initState() {
@@ -781,6 +776,10 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
 
     holder?.animationDrag.addListener(rebuild);
 
+    unawaited(animationRepaint.repeat());
+    unawaited(animationAdd.repeat());
+    unawaited(animationAspectRatio.repeat());
+
     super.initState();
   }
 
@@ -792,7 +791,7 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
     animationRepaint.dispose();
     animationPosition.dispose();
     animationAdd.dispose();
-    animationOpacity.dispose();
+    animationAspectRatio.dispose();
 
     /// holder
     holder?.animationDrag.removeListener(rebuild);
