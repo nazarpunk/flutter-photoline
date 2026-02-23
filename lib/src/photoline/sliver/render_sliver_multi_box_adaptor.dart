@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 import 'dart:ui' as ui;
-import 'package:flutter/animation.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:photoline/src/photoline/controller.dart';
@@ -77,7 +76,9 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
     );
   }
 
-  void paintLoader(PaintingContext context, Offset offset) {
+  /// --- paint
+  @override
+  void paint(PaintingContext context, Offset offset) {
     if (firstChild == null) return;
 
     RenderBox? child = childAfter(firstChild!);
@@ -187,163 +188,6 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
         context.paintChild(child, childOffset);
       }
-      child = childAfter(child);
-    }
-
-    if (dragBox != null && dragOffset != null) {
-      //context.paintChild(dragBox, dragOffset);
-    }
-  }
-
-  /// --- paint
-  @override
-  void paint(PaintingContext context, Offset offset) {
-    if (controller.getLoader != null) {
-      return paintLoader(context, offset);
-    }
-
-    if (firstChild == null) return;
-
-    RenderBox? child = childAfter(firstChild!);
-    RenderBox? dragBox;
-    Offset? dragOffset;
-
-    final vp = constraints.viewportMainAxisExtent;
-
-    var index = -1;
-
-    while (child != null) {
-      index++;
-      final double cdx = childMainAxisPosition(child);
-      final double cdy = childCrossAxisPosition(child);
-      final childOffset = Offset(
-        offset.dx + cdx,
-        offset.dy + cdy,
-      );
-
-      var canPaint = true;
-
-      switch (controller.action.value) {
-        case PhotolineAction.close:
-          if (childOffset.dx + child.size.width <= precisionErrorTolerance || childOffset.dx > vp - precisionErrorTolerance) {
-            canPaint = false;
-          }
-        case PhotolineAction.drag:
-          if (indexOf(child) - 1 == controller.pageDragInitial) {
-            canPaint = false;
-            dragBox = child;
-            dragOffset = childOffset;
-          }
-        case PhotolineAction.open:
-        case PhotolineAction.opening:
-        case PhotolineAction.closing:
-          canPaint = cdx < constraints.remainingPaintExtent && cdx + paintExtentOf(child) > 0;
-        case PhotolineAction.upload:
-      }
-      if (child.size.width == 0) canPaint = false;
-      if (dragBox != null && child == dragBox) canPaint = false;
-
-      final uri = _controller.getUri(index)?.cached;
-
-      if (canPaint && uri != null) {
-        uri.spawn();
-
-        final canvas = context.canvas;
-        final size = child.size;
-        final w = size.width;
-        final h = size.height;
-        final imrect = Rect.fromLTWH(childOffset.dx, childOffset.dy, w, h);
-
-        canvas
-          ..save()
-          ..clipRect(imrect);
-
-        if (uri.image != null) {
-          if (uri.imageLoaded) {
-            if (uri.opacity < 1) {
-              uri.opacity = 1;
-            }
-          } else {
-            uri.opacity = 1;
-          }
-        }
-
-        final double opacity = uri.opacity;
-
-        // Show blur/placeholder with fading opacity while image fades in
-        if (opacity < 1) {
-          if (uri.blur != null) {
-            _drawImage(
-              canvas: canvas,
-              image: uri.blur!,
-              width: w,
-              height: h,
-              dx: cdx,
-              dy: cdy,
-              opacity: 1,
-              filter: ui.ImageFilter.blur(
-                sigmaX: 10,
-                sigmaY: 10,
-                tileMode: TileMode.mirror,
-              ),
-            );
-          } else {
-            if (uri.color != null) {
-              canvas.drawRect(
-                imrect,
-                Paint()
-                  ..color = uri.color!
-                  ..style = PaintingStyle.fill,
-              );
-            }
-          }
-        }
-
-        if (uri.image == null) {
-          final im = _controller.getImage.call(index);
-          if (im != null) {
-            _drawImage(
-              canvas: canvas,
-              image: im,
-              width: w,
-              height: h,
-              dx: cdx,
-              dy: cdy,
-              opacity: 1,
-              filter: const ColorFilter.matrix(<double>[
-                0.2126, 0.7152, 0.0722, 0, 0, //
-                0.2126, 0.7152, 0.0722, 0, 0, //
-                0.2126, 0.7152, 0.0722, 0, 0, //
-                0, 0, 0, 1, 0,
-              ]),
-            );
-          }
-        } else {
-          _drawImage(
-            canvas: canvas,
-            image: uri.image!,
-            width: w,
-            height: h,
-            dx: cdx,
-            dy: cdy,
-            opacity: Curves.easeOut.transform(opacity),
-          );
-        }
-
-        if (uri.stripe != null) {
-          context.canvas.drawRect(
-            Rect.fromLTWH(cdx, cdy, math.min(w, 10), h),
-            Paint()
-              ..color = uri.stripe!
-              ..style = PaintingStyle.fill,
-          );
-        }
-
-        canvas.restore();
-
-        context.paintChild(child, childOffset);
-      }
-
       child = childAfter(child);
     }
 

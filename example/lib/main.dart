@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:photoline_example/keyboard/keyboard.dart';
+import 'package:photoline_example/nested_scroll/nested_widget.dart';
 
 import 'package:photoline_example/photoline/photo.dart';
 import 'package:photoline_example/photoline/test.dart';
@@ -40,6 +41,7 @@ class MyApp extends StatelessWidget {
       },
       home: Material(
         child: const [
+          NestedScrollWidgetExample(),
           PhotolineTestWidget(),
           PhotolinePhotoWidget(),
           SnapExampleList(),

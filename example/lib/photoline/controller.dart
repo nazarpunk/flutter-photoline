@@ -13,15 +13,6 @@ class PhotolineWrap extends PhotolineController {
   List<Uri> photos;
 
   @override
-  PhotolineUri getUri(index) => PhotolineUri(
-        uri: photos[index],
-        stripe: const Color.fromRGBO(10, 10, 10, .5),
-      );
-
-  @override
-  Key getKey(index) => ValueKey(photos[index]);
-
-  @override
   Widget Function(int index, bool show)? get getBackside => (index, show) {
         if (kDebugMode) return const SizedBox();
 
@@ -39,33 +30,6 @@ class PhotolineWrap extends PhotolineController {
             ),
           ),
         );
-      };
-
-  @override
-  List<Widget> Function(PhotolineTileData data)? get getPersistentWidgets => (data) {
-        //if (kDebugMode) return [];
-
-        final List<Widget> out = [
-          ColoredBox(
-            color: Color.lerp(Colors.transparent, const Color.fromRGBO(0, 0, 0, .7), 1 - data.closeDw)!,
-            child: const SizedBox.expand(),
-          ),
-          Center(
-            child: ColoredBox(
-              color: Colors.black,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text('${data.index}| ${data.closeDw.toStringAsFixed(2)}'),
-              ),
-            ),
-          )
-        ];
-
-        if (data.dragging) {
-          out.add(const Placeholder());
-        }
-
-        return out;
       };
 
   @override

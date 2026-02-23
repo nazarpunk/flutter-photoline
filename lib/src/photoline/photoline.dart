@@ -9,7 +9,6 @@ import 'package:photoline/src/backside/backside.dart';
 import 'package:photoline/src/mixin/state/rebuild.dart';
 import 'package:photoline/src/paginaror/paginator.dart';
 import 'package:photoline/src/photoline/sliver/sliver_multi_box_adaptor_widget.dart';
-import 'package:photoline/src/photoline/tile/tile.dart';
 import 'package:photoline/src/scroll/photoline/position.dart';
 import 'package:photoline/src/scroll/physics.dart';
 import 'package:photoline/src/utils/position.dart';
@@ -828,14 +827,7 @@ class PhotolineState extends State<Photoline> with StateRebuildMixin, TickerProv
                             PhotolineSliverMultiBoxAdaptorWidget(
                               controller: controller,
                               photoline: this,
-                              builder: (context, i) =>
-                                  controller.getTile?.call(i) ??
-                                  PhotolineTile(
-                                    photoline: this,
-                                    key: controller.getKey(i),
-                                    index: i,
-                                    controller: controller,
-                                  ),
+                              builder: (context, i) => controller.getTile?.call(i),
                             ),
                           ],
                         ),

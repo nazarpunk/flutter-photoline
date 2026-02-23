@@ -31,7 +31,6 @@ abstract class PhotolineController extends ScrollController {
     this.getPagerSize,
     this.getPagerItem,
     this.getPagerColor = _getPagerColor,
-    this.getPersistentWidgets,
     this.getTransferState,
     this.onTransfer,
     this.onDebugAdd,
@@ -55,13 +54,7 @@ abstract class PhotolineController extends ScrollController {
 
   int get getPagerIndexOffset => 0;
 
-  PhotolineUri? getUri(int index) => null;
-
   ui.Image? getImage(int index) => null;
-
-  Key getKey(int index);
-
-  Widget? getWidget(int index) => null;
 
   final Widget Function(int index)? getTile;
   final PhotolineLoader? Function(int index)? getLoader;
@@ -71,7 +64,6 @@ abstract class PhotolineController extends ScrollController {
   final int Function(double? width) getViewCount;
   final void Function(int index, Object data)? onAdd;
   final void Function(int index)? onRemove;
-  final List<Widget> Function(PhotolineTileData data)? getPersistentWidgets;
   final void Function(int oldIndex, int newIndex)? onReorder;
   final double Function()? getPagerSize;
   final List<Widget> Function(int index, Color color)? getPagerItem;

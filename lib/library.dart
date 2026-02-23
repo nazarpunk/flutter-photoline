@@ -9,7 +9,6 @@ export 'src/photo/photo.dart';
 export 'src/photoline/controller.dart';
 export 'src/photoline/loader.dart';
 export 'src/photoline/photoline.dart';
-export 'src/photoline/tile/data.dart';
 export 'src/photoline/tile/mixin.dart';
 export 'src/photoline/tile/uri.dart';
 export 'src/scroll/activity/idle.dart';
