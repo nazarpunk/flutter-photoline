@@ -26,6 +26,7 @@ class PhotolineHolderDragController implements Drag {
   late PhotolineController _currentController;
 
   late PhotolineTileMixin _initialTile;
+  Widget? _overlayChild;
 
   final _recognizerDelay = DelayedMultiDragGestureRecognizer();
   final _recogniserAbsorb = ImmediateMultiDragGestureRecognizer();
@@ -47,38 +48,45 @@ class PhotolineHolderDragController implements Drag {
     final dx = holder!.animationDrag.velocity;
 
     if (isDragClose) {
-      // close time
-      closeDx = (closeDx + dx * (isRemove ? .7 : 1)).clamp(0, 1);
+      // Use animation value directly with easing for smooth close
+      final animValue = holder!.animationDrag.value;
+      closeDx = Curves.easeOut.transform(animValue);
 
-      if (isRemove) {
-      } else {
-        _tileOffsetVisible =
-            Offset.lerp(_closeOffsetStart, _closeOffsetEnd, closeDx)!;
-      }
+      _tileOffsetVisible =
+          Offset.lerp(_closeOffsetStart, _closeOffsetEnd, closeDx)!;
       _animateControllers(dx);
       _overlayEntry?.markNeedsBuild();
-      if (closeDx < 1) return;
+      if (animValue < 1) return;
+
+      // First pass: reorder within same photoline or prepare for transfer
       for (final photoline in holder!.photolines) {
         final controller = photoline.controller;
         if (!controller.isDragStart) continue;
         if (isRemove) {
-          controller.onDragEndRemove();
-        } else {
-          if (_initialController == _currentController) {
-            controller.onDragEndReorder();
-          } else {
-            if (controller == _initialController) {
-              controller.onTransfer?.call(
-                _initialController.getTransferState!()!,
-                _initialController.pageDragInitial,
-                _currentController.getTransferState!()!,
-                _currentController.pageDragTransferTarget,
-              );
-            }
-          }
+          controller.onDragEndReorder();
+        } else if (_initialController == _currentController) {
+          controller.onDragEndReorder();
         }
+      }
 
+      // Cache transfer parameters before onDragEndEnd resets them
+      final doTransfer = !isRemove && _initialController != _currentController;
+      final State? fromState = doTransfer ? _initialController.getTransferState?.call() : null;
+      final int fromIndex = _initialController.pageDragInitial;
+      final State? toState = doTransfer ? _currentController.getTransferState?.call() : null;
+      final int toIndex = _currentController.pageDragTransferTarget;
+      final transferCallback = doTransfer ? _initialController.onTransfer : null;
+
+      // Second pass: end drag on all controllers (resets action to close)
+      for (final photoline in holder!.photolines) {
+        final controller = photoline.controller;
+        if (!controller.isDragStart) continue;
         controller.onDragEndEnd();
+      }
+
+      // Third: perform transfer after all controllers are back to close state
+      if (doTransfer && fromState != null && toState != null) {
+        transferCallback?.call(fromState, fromIndex, toState, toIndex);
       }
 
       holder?.animationDrag.stop();
@@ -195,6 +203,18 @@ class PhotolineHolderDragController implements Drag {
     _tileOffset = tileBox.localToGlobal(Offset.zero, ancestor: overlayBox);
     _tileOffsetVisible = _tileOffset;
 
+    // Build overlay child from the loader image
+    final loader = _initialController.getLoader?.call(_initialTile.index);
+    _overlayChild = ClipRRect(
+      borderRadius: BorderRadius.circular(4),
+      child: loader?.image != null
+          ? PhotolineImage(
+              loader: loader,
+              sigma: 0,
+            )
+          : const ColoredBox(color: Color.fromRGBO(50, 50, 50, 1)),
+    );
+
     _overlayState!.insert(
       _overlayEntry = OverlayEntry(
         builder: (context) => Stack(
@@ -204,10 +224,7 @@ class PhotolineHolderDragController implements Drag {
               top: _tileOffsetVisible.dy,
               width: _tileSize.width,
               height: _tileSize.height,
-              child: Transform.scale(
-                scale: isRemove ? (1 - closeDx).clamp(0, 1) : 1,
-                child: _initialTile.widget,
-              ),
+              child: _overlayChild!,
             ),
           ],
         ),
@@ -221,11 +238,25 @@ class PhotolineHolderDragController implements Drag {
     isDrag = false;
     isDragClose = true;
 
-    if (!isRemove) {
-      _closeOffsetStart = _tileOffsetVisible;
+    _closeOffsetStart = _tileOffsetVisible;
+    if (isRemove) {
+      // Animate back to original position
+      _closeOffsetEnd = _initialController.closeOffsetEnd;
+      _currentController = _initialController;
+    } else {
       _closeOffsetEnd = _currentController.closeOffsetEnd;
     }
     _snapTimer?.cancel();
+
+    // Restart animation with a fixed duration for smooth close
+    final anim = holder?.animationDrag;
+    if (anim != null) {
+      anim
+        ..stop()
+        ..duration = const Duration(milliseconds: 300);
+      closeDx = 0;
+      unawaited(anim.forward(from: 0));
+    }
   }
 
   void onPointerDown(PhotolineController controller, PhotolineTileMixin tile,

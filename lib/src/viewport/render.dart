@@ -511,7 +511,11 @@ class PhotolineRenderViewport<ParentDataClass extends ContainerParentDataMixin<R
         parentUsesSize: true,
       );
 
-      final SliverGeometry childLayoutGeometry = child.geometry!;
+      final SliverGeometry? childLayoutGeometry = child.geometry;
+      if (childLayoutGeometry == null) {
+        child = childAfter(child);
+        continue;
+      }
       assert(childLayoutGeometry.debugAssertIsValid());
 
       if (childLayoutGeometry.scrollOffsetCorrection != null) {

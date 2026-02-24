@@ -6,11 +6,13 @@ class _Child extends StatefulWidget {
     required this.index,
     required this.constraints,
     required this.controller,
+    required this.rebuilder,
   });
 
   final int index;
   final BoxConstraints constraints;
-  final PhotolineController controller;
+  final PhotolineWrap controller;
+  final VoidCallback rebuilder;
 
   @override
   State<_Child> createState() => _ChildState();
@@ -19,13 +21,24 @@ class _Child extends StatefulWidget {
 class _ChildState extends State<_Child> {
   @override
   void initState() {
-    //print('✅ ${widget.index}');
+    widget.controller.state = this;
+    if (kDebugMode) {
+      print('✅ init: ${widget.index} (${widget.controller.loaders.length} photos)');
+    }
     super.initState();
   }
 
   @override
+  void didUpdateWidget(covariant _Child oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    widget.controller.state = this;
+  }
+
+  @override
   void dispose() {
-    //print('❌ ${widget.index}');
+    if (kDebugMode) {
+      print('❌ dispose: ${widget.index}');
+    }
     super.dispose();
   }
 
@@ -37,29 +50,31 @@ class _ChildState extends State<_Child> {
           child: Photoline(
             controller: widget.controller,
             photoStripeColor: const Color.fromRGBO(255, 255, 255, .2),
+            rebuilder: widget.rebuilder,
           ),
         ),
-        Row(
-          children: [
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () {
-                  widget.controller.addItemUpload(0, PhotolineDummys.next());
-                  //widget.controller.photoline?.toPage(0);
-                  //print();
-                },
-                child: Center(child: Text('Add ${widget.index}')),
+        SizedBox(
+          height: 44,
+          child: Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    widget.controller.addItemUpload(0, PhotolineDummys.next());
+                  },
+                  child: Center(child: Text('Add ${widget.index}')),
+                ),
               ),
-            ),
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () {
-                  unawaited(pickForUpload());
-                },
-                child: const Center(child: Text('Upload')),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    unawaited(pickForUpload());
+                  },
+                  child: const Center(child: Text('Upload')),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
         const SizedBox(height: 20),
       ],

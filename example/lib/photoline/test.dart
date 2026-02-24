@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -27,12 +28,12 @@ class PhotolineTestWidget extends StatefulWidget {
 
 double _wrapHeight(double w, double h, double t) {
   const double footer = 64;
-  return w * .7 + footer;
+  return ui.lerpDouble(w * .7 + footer, h, t)! + 20;
 }
 
 
 class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
-  final List<PhotolineController> _photolines = [];
+  final List<PhotolineWrap> _photolines = [];
   int _start = -1;
 
   void rebuild() {
@@ -66,8 +67,6 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
     snapArea: true,
     onRefresh: () async {
       await Future.delayed(const Duration(milliseconds: 500));
-      _reload();
-      setState(() {});
     },
     snapCan: (index, dimensions) {
       final p = _photolines.elementAtOrNull(index);
@@ -108,13 +107,13 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
         Expanded(
           child: LayoutBuilder(
             builder: (context, constraints) => SizedBox(
-              width: 800,
+              width: 600,
               child: PhotolineHolder(
                 dragController: _photolineHolderDragController,
                 child: ScrollSnap(
                   controller: _snap,
                   cacheExtent: .1,
-                  slivers: [
+                  builder: (rebuilder) => [
                     ScrollSnapRefresh(controller: _snap),
                     SliverSnapList(
                       controller: _snap,
@@ -123,6 +122,7 @@ class _PhotolineTestWidgetState extends State<PhotolineTestWidget> {
                         controller: _photolines[index],
                         index: index,
                         constraints: constraints,
+                        rebuilder: rebuilder,
                       ),
                       childCount: _photolines.length,
                     ),

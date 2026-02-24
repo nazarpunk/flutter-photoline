@@ -15,19 +15,26 @@ class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
     markNeedsLayout();
   }
 
+  static const double _defaultExtent = 100.0;
+
+  double? _snapExtent(int index) {
+    final builder = controller.snapBuilder;
+    if (builder == null) return _defaultExtent;
+    return builder(index, _currentLayoutDimensions);
+  }
+
   double indexToLayoutOffset(double itemExtent, int index) {
     var offset = 0.0;
-    double? itemExtent;
     for (var i = 0; i < index; i++) {
       final int? childCount = childManager.estimatedChildCount;
       if (childCount != null && i > childCount - 1) {
         break;
       }
-      itemExtent = controller.snapBuilder!(i, _currentLayoutDimensions);
-      if (itemExtent == null) {
+      final extent = _snapExtent(i);
+      if (extent == null) {
         break;
       }
-      offset += itemExtent;
+      offset += extent;
     }
     return offset;
   }
@@ -40,7 +47,7 @@ class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
       final childCount = childManager.estimatedChildCount;
       if (childCount != null && index >= childCount) break;
 
-      final extent = controller.snapBuilder!(index, _currentLayoutDimensions);
+      final extent = _snapExtent(index);
       if (extent == null) break;
 
       if (position + extent > scrollOffset) {
@@ -62,7 +69,7 @@ class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
       final childCount = childManager.estimatedChildCount;
       if (childCount != null && index >= childCount) break;
 
-      final extent = controller.snapBuilder!(index, _currentLayoutDimensions);
+      final extent = _snapExtent(index);
       if (extent == null) break;
 
       position += extent;
@@ -98,19 +105,18 @@ class RenderSliverSnapMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
     double itemExtent,
   ) {
     var offset = 0.0;
-    double? itemExtent;
     for (var i = 0; i < childManager.childCount; i++) {
-      itemExtent = controller.snapBuilder!(i, _currentLayoutDimensions);
-      if (itemExtent == null) {
+      final extent = _snapExtent(i);
+      if (extent == null) {
         break;
       }
-      offset += itemExtent;
+      offset += extent;
     }
     return offset;
   }
 
   BoxConstraints _getChildConstraints(int index) {
-    final double extent = controller.snapBuilder!(index, _currentLayoutDimensions) ?? 0;
+    final double extent = _snapExtent(index) ?? 0;
     final double clampedExtent = extent < 0 ? 0 : extent;
     return constraints.asBoxConstraints(minExtent: clampedExtent, maxExtent: clampedExtent);
   }

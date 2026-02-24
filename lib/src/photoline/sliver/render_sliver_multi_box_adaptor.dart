@@ -231,13 +231,21 @@ class PhotolineRenderSliverMultiBoxAdaptor extends RenderSliverMultiBoxAdaptor {
 
     final double scrollOffset = constraints.scrollOffset;
     final count = _count;
+    final pw = photoline.positionWidth;
+
+    if (pw.length < count) {
+      _firstChild();
+      geometry = SliverGeometry.zero;
+      childManager.didFinishLayout();
+      return;
+    }
 
     RenderBox prev = _firstChild();
 
     for (var index = 0; index < count; index++) {
       RenderBox? child = childAfter(prev);
 
-      final p = photoline.positionWidth[index];
+      final p = pw[index];
       final offset = p.offset.current + scrollOffset;
       final width = p.width.current;
 

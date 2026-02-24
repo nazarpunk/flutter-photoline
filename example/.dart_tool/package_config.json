@@ -425,7 +425,7 @@
       "name": "photoline",
       "rootUri": "../../",
       "packageUri": "lib/",
-      "languageVersion": "3.10"
+      "languageVersion": "3.11"
     },
     {
       "name": "plugin_platform_interface",
