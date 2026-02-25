@@ -173,6 +173,13 @@ abstract class PhotolineController extends ScrollController {
     return true;
   }
 
+  /// Add item without expand animation (used after drag transfer).
+  void addItemDirect(int index, Object data) {
+    onAdd?.call(index, data);
+    photoline?.rebuild();
+    photoline?.widget.rebuilder();
+  }
+
   void addItemUpload(int index, Object data) {
     photoline?.toUpload(index, data);
   }
@@ -233,6 +240,9 @@ abstract class PhotolineController extends ScrollController {
     if (!isDragMain) pageDragInitial = -1;
 
     isDragStart = true;
+    dragOffset = Offset.zero;
+    direction = 0;
+    pageDragTransferTarget = 0;
     photoline?.holder?.active.value = true;
 
     final size = this.size;
@@ -419,7 +429,7 @@ abstract class PhotolineController extends ScrollController {
     }
   }
 
-  void onDragEndEnd() {
+  void onDragEndEnd({bool setHolderInactive = true}) {
     action.value = PhotolineAction.close;
     for (var i = 0; i < positionDrag.length; i++) {
       final pi = positionDrag[i];
@@ -431,9 +441,14 @@ abstract class PhotolineController extends ScrollController {
     positionDrag.clear();
     pageDragInitial = -1;
     pageDragTile = 0;
+    pageDragTransferTarget = 0;
     isDragMain = false;
     isDragStart = false;
-    photoline?.holder?.active.value = false;
+    direction = 0;
+    dragOffset = Offset.zero;
+    if (setHolderInactive) {
+      photoline?.holder?.active.value = false;
+    }
   }
 
   Offset get closeOffsetEnd {

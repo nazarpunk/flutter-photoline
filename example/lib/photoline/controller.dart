@@ -89,9 +89,7 @@ class PhotolineWrap extends PhotolineController {
         if (fi < 0 || fi >= fromController.loaders.length) return;
 
         final loader = fromController.loaders.removeAt(fi);
-        fromController.photoline?.rebuild();
-
-        toController.addItemPhotoline(ti, loader);
+        toController.loaders.insert(ti, loader);
 
         if (kDebugMode) {
           print('Transfer: from=$fi to=$ti');
