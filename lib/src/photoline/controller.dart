@@ -397,7 +397,7 @@ abstract class PhotolineController extends ScrollController {
   }
 
   void onDragEndRemove() {
-    if (positionDrag.length <= pageDragInitial) {
+    if (pageDragInitial >= 0 && pageDragInitial < positionDrag.length) {
       positionDrag.removeAt(pageDragInitial);
     }
     onRemove?.call(pageDragInitial);

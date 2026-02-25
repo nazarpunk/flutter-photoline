@@ -1,5 +1,3 @@
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 import 'package:photoline/library.dart';
 
@@ -27,11 +25,4 @@ class PhotoLoaderWrap extends PhotolineLoader {
 
   @override
   Color? get stripe => const Color.fromRGBO(10, 10, 10, .5);
-
-  @override
-  Color? color;
-
-  @override
-  ui.Image? blur;
 }
-

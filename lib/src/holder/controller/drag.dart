@@ -1,15 +1,17 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:photoline/library.dart';
 import 'package:photoline/src/utils/photoline_tile_intersection.dart';
+
 /// Drag controller.
 class PhotolineHolderDragController implements Drag {
   PhotolineHolderDragController({
     required this.snapController,
   });
+
   final ScrollSnapController snapController;
+
   /// === [Drag]
   PhotolineHolderState? holder;
   OverlayState? _overlayState;
@@ -32,6 +34,7 @@ class PhotolineHolderDragController implements Drag {
   late int _scrollDirection;
   late double closeDx;
   bool isRemove = false;
+
   /// Fully reset drag controller state so the next drag can start cleanly.
   void _fullReset() {
     _snapTimer?.cancel();
@@ -47,6 +50,7 @@ class PhotolineHolderDragController implements Drag {
     _overlayChild = null;
     holder?.active.value = false;
   }
+
   void onAnimationDrag() {
     if (holder == null) return;
     final dx = holder!.animationDrag.velocity;
@@ -54,8 +58,7 @@ class PhotolineHolderDragController implements Drag {
       // Use animation value directly with easing for smooth close
       final animValue = holder!.animationDrag.value;
       closeDx = Curves.easeOut.transform(animValue);
-      _tileOffsetVisible =
-          Offset.lerp(_closeOffsetStart, _closeOffsetEnd, closeDx)!;
+      _tileOffsetVisible = Offset.lerp(_closeOffsetStart, _closeOffsetEnd, closeDx)!;
       _animateControllers(dx);
       _overlayEntry?.markNeedsBuild();
       if (animValue < 1) return;
@@ -72,8 +75,12 @@ class PhotolineHolderDragController implements Drag {
       if (doTransfer && fromState != null && toState != null) {
         transferCallback?.call(fromState, fromIndex, toState, toIndex);
       }
+      // Remove photo if dragged outside all photolines
+      if (isRemove) {
+        _initialController.onDragEndRemove();
+      }
       // Reorder within same photoline (only for the main controller)
-      if (!doTransfer) {
+      if (!doTransfer && !isRemove) {
         for (final photoline in holder!.photolines) {
           final controller = photoline.controller;
           if (!controller.isDragStart) continue;
@@ -83,43 +90,46 @@ class PhotolineHolderDragController implements Drag {
       // End drag on ALL controllers (not only those with isDragStart,
       // to guarantee no stale state remains after transfer).
       for (final photoline in holder!.photolines) {
-        final controller = photoline.controller;
-        controller.onDragEndEnd(setHolderInactive: false);
+        photoline.controller.onDragEndEnd(setHolderInactive: false);
       }
-      // Rebuild photolines after transfer so they reflect the new item counts
+      // Rebuild photolines after transfer/remove so they reflect the new item counts
       if (doTransfer) {
         _initialController.photoline?.rebuild();
         _initialController.photoline?.widget.rebuilder();
         _currentController.photoline?.rebuild();
         _currentController.photoline?.widget.rebuilder();
       }
+      if (isRemove) {
+        _initialController.photoline?.rebuild();
+        _initialController.photoline?.widget.rebuilder();
+      }
       // Full reset of the drag controller state
       _fullReset();
-      if (kDebugMode) print('✅ Drag cleanup complete: doTransfer=\$doTransfer');
       return;
     }
     const curDh = .55;
     // Only process drag animation if we're actually dragging
     if (!isDrag) return;
-    final overlayBox =
-        _overlayState!.context.findRenderObject()! as RenderBox;
+    final overlayBox = _overlayState!.context.findRenderObject()! as RenderBox;
     PhotolineController? current;
     for (final photoline in holder!.photolines) {
       final controller = photoline.controller;
-      if (controller.action.value != PhotolineAction.drag &&
-          controller.action.value != PhotolineAction.close) {
+      if (controller.action.value != PhotolineAction.drag && controller.action.value != PhotolineAction.close) {
         continue;
       }
       controller
         ..renderBox = photoline.context.findRenderObject()! as RenderBox
-        ..renderOffset = controller.renderBox
-            .localToGlobal(Offset.zero, ancestor: overlayBox);
-      final dh = photolineTileIntersection(_tileOffset.dy, _tileSize.height,
-              controller.renderOffset.dy, controller.renderBox.size.height) /
-          _tileSize.height;
+        ..renderOffset = controller.renderBox.localToGlobal(Offset.zero, ancestor: overlayBox);
+      final dh = photolineTileIntersection(_tileOffset.dy, _tileSize.height, controller.renderOffset.dy, controller.renderBox.size.height) / _tileSize.height;
       if (dh >= curDh) current = controller;
     }
+    final prevIsRemove = isRemove;
     isRemove = current == null;
+    // Rebuild the initial photoline when isRemove changes so the tile
+    // overlay (red delete / blue move) updates in real-time.
+    if (prevIsRemove != isRemove) {
+      _initialController.photoline?.rebuild();
+    }
     if (!isRemove) {
       current!.onDragStart(false);
       if (_currentController != current) {
@@ -134,8 +144,7 @@ class PhotolineHolderDragController implements Drag {
     final pro = prb.localToGlobal(Offset.zero, ancestor: overlayBox);
     var direction = 0;
     const double preciese = 10;
-    if ((_tileOffset.dx + _tileSize.width) - (pro.dx + prb.size.width) >=
-        preciese) {
+    if ((_tileOffset.dx + _tileSize.width) - (pro.dx + prb.size.width) >= preciese) {
       direction = 1;
     }
     if (pro.dx - _tileOffset.dx >= preciese) {
@@ -146,6 +155,7 @@ class PhotolineHolderDragController implements Drag {
     }
     _animateControllers(dx);
   }
+
   void _animateControllers(double dx) {
     for (final photoline in holder!.photolines) {
       final controller = photoline.controller;
@@ -153,11 +163,11 @@ class PhotolineHolderDragController implements Drag {
       controller.onAnimationDrag(
         dx: dx,
         isCurrent: _currentController == controller && !isRemove,
-        tileOffset: (_tileOffsetVisible.dx - controller.renderOffset.dx)
-            .clamp(0, controller.renderBox.size.width),
+        tileOffset: (_tileOffsetVisible.dx - controller.renderOffset.dx).clamp(0, controller.renderBox.size.width),
       );
     }
   }
+
   Drag? _onDragStart(Offset offset) {
     if (_initialController.action.value != PhotolineAction.close) return null;
     if (!_initialTile.context.mounted) return null;
@@ -177,10 +187,8 @@ class PhotolineHolderDragController implements Drag {
     _initialController.onDragStart(true);
     unawaited(holder!.animationDrag.repeat());
     _overlayState = Overlay.of(holder!.context);
-    final tileBox =
-        _initialTile.context.findRenderObject()! as RenderBox;
-    final overlayBox =
-        _overlayState!.context.findRenderObject()! as RenderBox;
+    final tileBox = _initialTile.context.findRenderObject()! as RenderBox;
+    final overlayBox = _overlayState!.context.findRenderObject()! as RenderBox;
     _tileSize = tileBox.size;
     _tileOffset = tileBox.localToGlobal(Offset.zero, ancestor: overlayBox);
     _tileOffsetVisible = _tileOffset;
@@ -197,28 +205,44 @@ class PhotolineHolderDragController implements Drag {
     );
     _overlayState!.insert(
       _overlayEntry = OverlayEntry(
-        builder: (context) => Stack(
-          children: [
-            Positioned(
-              left: _tileOffsetVisible.dx,
-              top: _tileOffsetVisible.dy,
-              width: _tileSize.width,
-              height: _tileSize.height,
-              child: _overlayChild!,
-            ),
-          ],
-        ),
+        builder: (context) {
+          // Fade out when removing
+          final double opacity = (isRemove && isDragClose) ? 1.0 - closeDx : 1.0;
+          // Color overlay: red for remove, blue for move
+          final overlayColor = isRemove ? const Color.fromRGBO(200, 0, 0, .4) : const Color.fromRGBO(23, 162, 184, .4);
+          return Stack(
+            children: [
+              Positioned(
+                left: _tileOffsetVisible.dx,
+                top: _tileOffsetVisible.dy,
+                width: _tileSize.width,
+                height: _tileSize.height,
+                child: Opacity(
+                  opacity: opacity.clamp(0, 1),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      _overlayChild!,
+                      if (isDrag || (isDragClose && isRemove)) ColoredBox(color: overlayColor),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
     return this;
   }
+
   void _onDragEndStart() {
     isDrag = false;
     isDragClose = true;
     _closeOffsetStart = _tileOffsetVisible;
     if (isRemove) {
-      // Animate back to original position
-      _closeOffsetEnd = _initialController.closeOffsetEnd;
+      // Stay in place, fade out with opacity
+      _closeOffsetEnd = _tileOffsetVisible;
       _currentController = _initialController;
     } else {
       _closeOffsetEnd = _currentController.closeOffsetEnd;
@@ -242,8 +266,8 @@ class PhotolineHolderDragController implements Drag {
       _fullReset();
     }
   }
-  void onPointerDown(PhotolineController controller, PhotolineTileMixin tile,
-      PointerDownEvent event) {
+
+  void onPointerDown(PhotolineController controller, PhotolineTileMixin tile, PointerDownEvent event) {
     if (controller.action.value != PhotolineAction.close) return;
     if (isDrag) {
       _recogniserAbsorb.addPointer(event);
@@ -259,25 +283,27 @@ class PhotolineHolderDragController implements Drag {
         ..addPointer(event);
     }
   }
+
   @override
   void cancel() => _onDragEndStart();
+
   @override
   void end(DragEndDetails details) => _onDragEndStart();
+
   void _snapTimerRun() {
     if (_snapDirection == 0 || isDragClose) return;
     snapController.position.photolineScrollToNext(_snapDirection);
     _snapTimer = Timer(const Duration(milliseconds: 500), _snapTimerRun);
   }
+
   @override
   void update(DragUpdateDetails details) {
     _tileOffset += details.delta;
     double dx = _tileOffset.dx;
     final double dy = _tileOffset.dy;
     final overlayBox = _overlayState!.context.findRenderObject()! as RenderBox;
-    final photolineBox =
-        _currentController.photoline!.context.findRenderObject()! as RenderBox;
-    final photolineOffset =
-        photolineBox.localToGlobal(Offset.zero, ancestor: overlayBox);
+    final photolineBox = _currentController.photoline!.context.findRenderObject()! as RenderBox;
+    final photolineOffset = photolineBox.localToGlobal(Offset.zero, ancestor: overlayBox);
     // dx
     if (dx < photolineOffset.dx) dx = photolineOffset.dx;
     final pr = photolineBox.size.width + photolineOffset.dx;

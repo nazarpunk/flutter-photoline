@@ -26,7 +26,11 @@ class _PhotolineTileTestState extends State<PhotolineTileTest> with PhotolineTil
 
   PhotolineHolderDragController? get _drag => photoline.photoline?.holder?.dragController;
 
-  bool get _dragging => (_drag?.isDrag ?? false) && photoline.pageDragInitial == index;
+  bool get _dragging {
+    final d = _drag;
+    if (d == null) return false;
+    return (d.isDrag || d.isDragClose) && photoline.pageDragInitial == index;
+  }
 
   @override
   Widget buildContent() {
@@ -46,9 +50,7 @@ class _PhotolineTileTestState extends State<PhotolineTileTest> with PhotolineTil
             ),
           SizedBox.expand(
             child: ColoredBox(
-              color: isRemove
-                  ? const Color.fromRGBO(200, 0, 0, .4)
-                  : const Color.fromRGBO(23, 162, 184, .4),
+              color: isRemove ? const Color.fromRGBO(200, 0, 0, .4) : const Color.fromRGBO(23, 162, 184, .4),
               child: Icon(
                 isRemove ? Icons.delete : Icons.open_with,
                 size: 32,
@@ -61,4 +63,3 @@ class _PhotolineTileTestState extends State<PhotolineTileTest> with PhotolineTil
     return const SizedBox.expand();
   }
 }
-
