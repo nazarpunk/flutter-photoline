@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:photoline/library.dart';
 
@@ -12,8 +13,7 @@ class NestedScrollWidgetExample extends StatefulWidget {
   const NestedScrollWidgetExample({super.key});
 
   @override
-  State<NestedScrollWidgetExample> createState() =>
-      _NestedScrollWidgetExampleState();
+  State<NestedScrollWidgetExample> createState() => _NestedScrollWidgetExampleState();
 }
 
 class _NestedScrollWidgetExampleState extends State<NestedScrollWidgetExample> {
@@ -66,6 +66,9 @@ class _NestedScrollWidgetExampleState extends State<NestedScrollWidgetExample> {
 
   @override
   Widget build(BuildContext context) {
+    if (kDebugMode) {
+      return Text("Test");
+    }
     return ScrollSnapHeaderMultiChild(
       controller: _headerController,
 
@@ -108,8 +111,7 @@ class _NestedScrollWidgetExampleState extends State<NestedScrollWidgetExample> {
                 SliverSnapList(
                   controller: _gallery,
                   childCount: 25,
-                  builder: (_, i) =>
-                      _GalleryCard(index: i, height: _galleryH),
+                  builder: (_, i) => _GalleryCard(index: i, height: _galleryH),
                 ),
               ],
             ),
@@ -122,8 +124,7 @@ class _NestedScrollWidgetExampleState extends State<NestedScrollWidgetExample> {
                 SliverSnapList(
                   controller: _settings,
                   childCount: 20,
-                  builder: (_, i) =>
-                      _SettingsTile(index: i, height: _settingsH),
+                  builder: (_, i) => _SettingsTile(index: i, height: _settingsH),
                 ),
               ],
             ),
@@ -158,10 +159,7 @@ class _Header extends StatelessWidget {
       listenable: controller.height,
       builder: (context, _) {
         final range = controller.maxHeight - controller.minHeight;
-        final t = range > 0
-            ? ((controller.height.value - controller.minHeight) / range)
-                .clamp(0.0, 1.0)
-            : 0.0;
+        final t = range > 0 ? ((controller.height.value - controller.minHeight) / range).clamp(0.0, 1.0) : 0.0;
 
         return DecoratedBox(
           decoration: BoxDecoration(
@@ -169,10 +167,8 @@ class _Header extends StatelessWidget {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Color.lerp(
-                    const Color(0xFF0D253F), const Color(0xFF0B3D6E), t)!,
-                Color.lerp(
-                    const Color(0xFF1B3A5C), const Color(0xFF11477A), t)!,
+                Color.lerp(const Color(0xFF0D253F), const Color(0xFF0B3D6E), t)!,
+                Color.lerp(const Color(0xFF1B3A5C), const Color(0xFF11477A), t)!,
               ],
             ),
             boxShadow: const [
@@ -217,6 +213,7 @@ class _Header extends StatelessWidget {
 
 class _Avatar extends StatelessWidget {
   const _Avatar({required this.progress});
+
   final double progress;
 
   @override
@@ -239,6 +236,7 @@ class _Avatar extends StatelessWidget {
 
 class _HeaderInfo extends StatelessWidget {
   const _HeaderInfo({required this.progress});
+
   final double progress;
 
   @override
@@ -287,6 +285,7 @@ class _HeaderInfo extends StatelessWidget {
 
 class _Chip extends StatelessWidget {
   const _Chip({required this.icon, required this.text});
+
   final IconData icon;
   final String text;
 
@@ -340,9 +339,7 @@ class _TabBar extends StatelessWidget {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(icons[i],
-                          size: 15,
-                          color: sel ? Colors.white : Colors.white30),
+                      Icon(icons[i], size: 15, color: sel ? Colors.white : Colors.white30),
                       const SizedBox(width: 5),
                       Text(
                         tabs[i],
@@ -379,21 +376,39 @@ class _TabBar extends StatelessWidget {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 const _names = [
-  'Алексей Петров',  'Мария Иванова',   'Дмитрий Сидоров',
-  'Анна Козлова',    'Иван Новиков',    'Елена Морозова',
-  'Сергей Волков',   'Ольга Лебедева',  'Николай Зайцев',
-  'Татьяна Соколова','Артём Попов',     'Наталья Миронова',
-  'Владимир Фёдоров','Екатерина Орлова','Андрей Кузнецов',
+  'Алексей Петров',
+  'Мария Иванова',
+  'Дмитрий Сидоров',
+  'Анна Козлова',
+  'Иван Новиков',
+  'Елена Морозова',
+  'Сергей Волков',
+  'Ольга Лебедева',
+  'Николай Зайцев',
+  'Татьяна Соколова',
+  'Артём Попов',
+  'Наталья Миронова',
+  'Владимир Фёдоров',
+  'Екатерина Орлова',
+  'Андрей Кузнецов',
 ];
 
 const _roles = [
-  'Дизайнер',   'Разработчик', 'Менеджер',    'Аналитик',
-  'Тестировщик', 'DevOps',      'Архитектор',  'Продакт',
-  'Скрам-мастер','Техлид',
+  'Дизайнер',
+  'Разработчик',
+  'Менеджер',
+  'Аналитик',
+  'Тестировщик',
+  'DevOps',
+  'Архитектор',
+  'Продакт',
+  'Скрам-мастер',
+  'Техлид',
 ];
 
 class _ContactTile extends StatelessWidget {
   const _ContactTile({required this.index, required this.height});
+
   final int index;
   final double height;
 
@@ -423,7 +438,9 @@ class _ContactTile extends StatelessWidget {
                   child: Text(
                     name.characters.first,
                     style: const TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
                     ),
                   ),
                 ),
@@ -433,17 +450,13 @@ class _ContactTile extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(name,
-                          style: const TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14)),
+                      Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14)),
                       const SizedBox(height: 2),
-                      Text(role,
-                          style: const TextStyle(color: Colors.white38, fontSize: 11)),
+                      Text(role, style: const TextStyle(color: Colors.white38, fontSize: 11)),
                     ],
                   ),
                 ),
-                Text('#${index + 1}',
-                    style: const TextStyle(color: Colors.white12, fontSize: 11)),
+                Text('#${index + 1}', style: const TextStyle(color: Colors.white12, fontSize: 11)),
                 const SizedBox(width: 4),
                 const Icon(Icons.chevron_right, color: Colors.white12, size: 18),
               ],
@@ -461,13 +474,17 @@ class _ContactTile extends StatelessWidget {
 
 class _GalleryCard extends StatelessWidget {
   const _GalleryCard({required this.index, required this.height});
+
   final int index;
   final double height;
 
   static const _titles = ['Пейзажи', 'Портреты', 'Абстракция', 'Макро', 'Архитектура'];
   static const _icons = [
-    Icons.landscape, Icons.photo_camera, Icons.palette,
-    Icons.filter_vintage, Icons.location_city,
+    Icons.landscape,
+    Icons.photo_camera,
+    Icons.palette,
+    Icons.filter_vintage,
+    Icons.location_city,
   ];
 
   @override
@@ -513,8 +530,7 @@ class _GalleryCard extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          Icon(_icons[index % _icons.length],
-                              color: Colors.white54, size: 24),
+                          Icon(_icons[index % _icons.length], color: Colors.white54, size: 24),
                           const Spacer(),
                           DecoratedBox(
                             decoration: BoxDecoration(
@@ -522,11 +538,8 @@ class _GalleryCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 7, vertical: 3),
-                              child: Text('${(index + 1) * 4} фото',
-                                  style: const TextStyle(
-                                      color: Colors.white54, fontSize: 10)),
+                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                              child: Text('${(index + 1) * 4} фото', style: const TextStyle(color: Colors.white54, fontSize: 10)),
                             ),
                           ),
                         ],
@@ -534,16 +547,12 @@ class _GalleryCard extends StatelessWidget {
                       const Spacer(),
                       Text(
                         _titles[index % _titles.length],
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold),
+                        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 3),
                       Text(
                         'Коллекция #${index + 1}',
-                        style:
-                            const TextStyle(color: Colors.white30, fontSize: 11),
+                        style: const TextStyle(color: Colors.white30, fontSize: 11),
                       ),
                     ],
                   ),
@@ -559,6 +568,7 @@ class _GalleryCard extends StatelessWidget {
 
 class _Circle extends StatelessWidget {
   const _Circle({required this.size, required this.opacity});
+
   final double size;
   final double opacity;
 
@@ -582,6 +592,7 @@ class _Circle extends StatelessWidget {
 
 class _SettingsTile extends StatefulWidget {
   const _SettingsTile({required this.index, required this.height});
+
   final int index;
   final double height;
 
@@ -593,26 +604,26 @@ class _SettingsTileState extends State<_SettingsTile> {
   bool _on = false;
 
   static const _items = [
-    (Icons.dark_mode,             'Тёмная тема',         'Оформление'),
-    (Icons.notifications_active,  'Уведомления',         'Push-уведомления'),
-    (Icons.cloud_sync,            'Синхронизация',       'Авто-синк данных'),
-    (Icons.fingerprint,           'Биометрия',           'Вход по отпечатку'),
-    (Icons.data_saver_on,         'Экономия трафика',    'Сжатие картинок'),
-    (Icons.translate,             'Язык',                'Русский'),
-    (Icons.storage,               'Кэш',                 'Очистка данных'),
-    (Icons.security,              'Безопасность',        '2FA'),
-    (Icons.speed,                 'Производительность',  'GPU-ускорение'),
-    (Icons.animation,             'Анимации',            'Плавные переходы'),
-    (Icons.wifi,                  'Только Wi-Fi',        'Загрузка по Wi-Fi'),
-    (Icons.battery_saver,         'Энергосбережение',    'Батарея'),
-    (Icons.text_fields,           'Размер текста',       'Шрифты'),
-    (Icons.color_lens,            'Акцент',              'Цвет приложения'),
-    (Icons.backup,                'Бэкап',               'Авто-резервирование'),
-    (Icons.vpn_key,               'VPN',                 'Защита трафика'),
-    (Icons.do_not_disturb,        'Не беспокоить',       'Тихий режим'),
-    (Icons.location_on,           'Геолокация',          'Доступ к GPS'),
-    (Icons.accessibility_new,     'Доступность',         'Специальные возможности'),
-    (Icons.update,                'Обновления',          'Авто-обновление'),
+    (Icons.dark_mode, 'Тёмная тема', 'Оформление'),
+    (Icons.notifications_active, 'Уведомления', 'Push-уведомления'),
+    (Icons.cloud_sync, 'Синхронизация', 'Авто-синк данных'),
+    (Icons.fingerprint, 'Биометрия', 'Вход по отпечатку'),
+    (Icons.data_saver_on, 'Экономия трафика', 'Сжатие картинок'),
+    (Icons.translate, 'Язык', 'Русский'),
+    (Icons.storage, 'Кэш', 'Очистка данных'),
+    (Icons.security, 'Безопасность', '2FA'),
+    (Icons.speed, 'Производительность', 'GPU-ускорение'),
+    (Icons.animation, 'Анимации', 'Плавные переходы'),
+    (Icons.wifi, 'Только Wi-Fi', 'Загрузка по Wi-Fi'),
+    (Icons.battery_saver, 'Энергосбережение', 'Батарея'),
+    (Icons.text_fields, 'Размер текста', 'Шрифты'),
+    (Icons.color_lens, 'Акцент', 'Цвет приложения'),
+    (Icons.backup, 'Бэкап', 'Авто-резервирование'),
+    (Icons.vpn_key, 'VPN', 'Защита трафика'),
+    (Icons.do_not_disturb, 'Не беспокоить', 'Тихий режим'),
+    (Icons.location_on, 'Геолокация', 'Доступ к GPS'),
+    (Icons.accessibility_new, 'Доступность', 'Специальные возможности'),
+    (Icons.update, 'Обновления', 'Авто-обновление'),
   ];
 
   @override
@@ -648,12 +659,8 @@ class _SettingsTileState extends State<_SettingsTile> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(s.$2,
-                          style: const TextStyle(
-                              color: Colors.white, fontSize: 13)),
-                      Text(s.$3,
-                          style: const TextStyle(
-                              color: Colors.white24, fontSize: 10)),
+                      Text(s.$2, style: const TextStyle(color: Colors.white, fontSize: 13)),
+                      Text(s.$3, style: const TextStyle(color: Colors.white24, fontSize: 10)),
                     ],
                   ),
                 ),
@@ -684,8 +691,7 @@ class _KeepAlive extends StatefulWidget {
   State<_KeepAlive> createState() => _KeepAliveState();
 }
 
-class _KeepAliveState extends State<_KeepAlive>
-    with AutomaticKeepAliveClientMixin {
+class _KeepAliveState extends State<_KeepAlive> with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
