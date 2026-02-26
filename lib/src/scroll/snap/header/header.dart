@@ -22,7 +22,7 @@ class ScrollSnapHeader extends StatefulWidget {
 class _ScrollSnapHeaderState extends State<ScrollSnapHeader> {
   @override
   Widget build(BuildContext context) {
-    return ScrollSnapHeader(
+    return ScrollSnapHeaderMultiChild(
       controller: widget.controller,
       header: widget.header,
       content: widget.content,

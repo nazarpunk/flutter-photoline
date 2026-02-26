@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:photoline/src/scroll/snap/refresh/refresh.dart';
@@ -63,11 +64,17 @@ class ScrollSnapRefreshSliverRender extends RenderSliver
 
     final double oh = refresh.overlapHeight;
 
+    final scrollOffsetCorrection =
+        constraints.overlap <= 0 && constraints.overlap > -oh
+            ? -oh - constraints.overlap
+            : null;
+
+    if (kDebugMode && scrollOffsetCorrection != null) {
+      debugPrint('🔃 RefreshSliver scrollOffsetCorrection=$scrollOffsetCorrection, overlap=${constraints.overlap}, oh=$oh');
+    }
+
     geometry = SliverGeometry(
-      scrollOffsetCorrection:
-          constraints.overlap <= 0 && constraints.overlap > -oh
-              ? -oh - constraints.overlap
-              : null,
+      scrollOffsetCorrection: scrollOffsetCorrection,
       paintOrigin: constraints.overlap,
       paintExtent: math.max(child!.size.height - constraints.scrollOffset, 0.0),
       maxPaintExtent:

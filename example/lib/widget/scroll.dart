@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:photoline/library.dart';
 
 class AppScrollBehavior extends MaterialScrollBehavior {
   const AppScrollBehavior({
@@ -28,10 +29,11 @@ class AppScrollBehavior extends MaterialScrollBehavior {
           BuildContext context, Widget child, ScrollableDetails details) =>
       switch (axisDirectionToAxis(details.direction)) {
         Axis.horizontal => child,
-        Axis.vertical => _Scrollbar(
-            controller: details.controller,
-            child: child,
-          )
+        Axis.vertical => details.controller is ScrollSnapController
+            ? child
+            : _Scrollbar(
+                child: child,
+              )
       };
 
   @override
@@ -42,7 +44,6 @@ class AppScrollBehavior extends MaterialScrollBehavior {
 class _Scrollbar extends RawScrollbar {
   const _Scrollbar({
     required super.child,
-    super.controller,
   }) : super(
         //fadeDuration: const Duration(milliseconds: 20),
         //timeToFade: const Duration(milliseconds: 20),
