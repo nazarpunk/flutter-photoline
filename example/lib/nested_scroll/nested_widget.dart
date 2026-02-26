@@ -16,12 +16,12 @@ class _State extends State<NestedScrollWidgetExample> {
 
   late final ScrollSnapController _c0 = ScrollSnapController(
     headerHolder: _headerController,
-    snapBuilder: (_, __) => 60,
+    snapBuilder: (i, _) => i < 30 ? 60.0 : null,
   );
 
   late final ScrollSnapController _c1 = ScrollSnapController(
     headerHolder: _headerController,
-    snapBuilder: (_, __) => 60,
+    snapBuilder: (i, _) => i < 30 ? 60.0 : null,
   );
 
   @override
@@ -58,10 +58,8 @@ class _State extends State<NestedScrollWidgetExample> {
       content: PageView(
         controller: _pageController,
         children: [
-          Placeholder(),
-          Placeholder(),
-          //_Page(controller: _c0, color: Colors.blue),
-          //_Page(controller: _c1, color: Colors.green),
+          _Page(controller: _c0, color: Colors.blue),
+          _Page(controller: _c1, color: Colors.green),
         ],
       ),
     );
@@ -149,13 +147,9 @@ class _Page extends StatefulWidget {
   State<_Page> createState() => _PageState();
 }
 
-class _PageState extends State<_Page> with AutomaticKeepAliveClientMixin {
-  @override
-  bool get wantKeepAlive => true;
-
+class _PageState extends State<_Page> {
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return ScrollSnap(
       controller: widget.controller,
       slivers: [
