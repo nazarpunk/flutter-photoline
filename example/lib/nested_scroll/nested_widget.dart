@@ -1,5 +1,49 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:photoline/library.dart';
+
+class _IconTile {
+  final IconData icon;
+  final Color color;
+
+  const _IconTile(this.icon, this.color);
+}
+
+final List<_IconTile> _kTiles = () {
+  const icons = <IconData>[
+    Icons.star,
+    Icons.favorite,
+    Icons.bolt,
+    Icons.pets,
+    Icons.music_note,
+    Icons.sunny,
+    Icons.water_drop,
+    Icons.rocket_launch,
+    Icons.local_fire_department,
+    Icons.forest,
+    Icons.diamond,
+    Icons.anchor,
+    Icons.bug_report,
+    Icons.cake,
+    Icons.extension,
+    Icons.fingerprint,
+    Icons.gavel,
+    Icons.headphones,
+    Icons.icecream,
+    Icons.key,
+  ];
+  final rng = Random(42);
+  return List.generate(icons.length, (i) {
+    final color = Color.fromARGB(
+      255,
+      50 + rng.nextInt(180),
+      50 + rng.nextInt(180),
+      50 + rng.nextInt(180),
+    );
+    return _IconTile(icons[i], color);
+  });
+}();
 
 class NestedScrollWidgetExample extends StatefulWidget {
   const NestedScrollWidgetExample({super.key});
@@ -68,7 +112,7 @@ class _State extends State<NestedScrollWidgetExample> {
 
 // ── Header ────────────────────────────────────────────────────────────────────
 
-class _Header extends StatelessWidget {
+class _Header extends StatefulWidget {
   const _Header({
     required this.controller,
     required this.currentPage,
@@ -80,54 +124,99 @@ class _Header extends StatelessWidget {
   final ValueChanged<int> onTabTap;
 
   @override
+  State<_Header> createState() => _HeaderState();
+}
+
+class _HeaderState extends State<_Header> {
+  int _counter = 0;
+
+  @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: controller.height,
+      listenable: widget.controller.height,
       builder: (context, _) => ColoredBox(
         color: Colors.blueGrey.shade900,
         child: SafeArea(
           bottom: false,
-          child: Column(
-            children: [
-              Expanded(
-                child: Center(
-                  child: Text(
-                    'h = ${controller.height.value.toStringAsFixed(1)}',
-                    style: const TextStyle(color: Colors.white, fontSize: 16),
+          child: SizedBox(
+            height: widget.controller.height.value,
+            child: Column(
+              children: [
+                // ── Counter button ──
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: Row(
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () => setState(() => _counter++),
+                        icon: const Icon(Icons.add),
+                        label: Text('Clicks: $_counter'),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-              Row(
-                children: List.generate(2, (i) {
-                  final sel = i == currentPage;
-                  return Expanded(
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => onTabTap(i),
-                      child: Container(
-                        height: 40,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              color: sel ? Colors.white : Colors.transparent,
-                              width: 2,
+                // ── Expander: pushes tiles & tabs to the bottom ──
+                const Spacer(),
+                // ── Icon tiles (fixed 60×60) ──
+                SizedBox(
+                  height: 60,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    itemCount: _kTiles.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 8),
+                    itemBuilder: (_, i) {
+                      final tile = _kTiles[i];
+                      return SizedBox(
+                        width: 60,
+                        height: 60,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: tile.color,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Center(
+                            child: Icon(tile.icon, color: Colors.white, size: 28),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 6),
+                // ── Tabs ──
+                Row(
+                  children: List.generate(2, (i) {
+                    final sel = i == widget.currentPage;
+                    return Expanded(
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => widget.onTabTap(i),
+                        child: Container(
+                          height: 40,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(
+                                color: sel ? Colors.white : Colors.transparent,
+                                width: 2,
+                              ),
+                            ),
+                          ),
+                          child: Text(
+                            'Tab $i',
+                            style: TextStyle(
+                              color: sel ? Colors.white : Colors.white38,
+                              fontWeight: sel ? FontWeight.bold : FontWeight.normal,
                             ),
                           ),
                         ),
-                        child: Text(
-                          'Tab $i',
-                          style: TextStyle(
-                            color: sel ? Colors.white : Colors.white38,
-                            fontWeight: sel ? FontWeight.bold : FontWeight.normal,
-                          ),
-                        ),
                       ),
-                    ),
-                  );
-                }),
-              ),
+                    );
+                  }),
+                ),
             ],
+          ),
           ),
         ),
       ),
