@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:photoline_example/keyboard/keyboard.dart';
-import 'package:photoline_example/nested_scroll/nested_widget.dart';
+import 'package:photoline_example/nested_scroll/widget.dart';
 
 import 'package:photoline_example/photoline/photo.dart';
 import 'package:photoline_example/photoline/test.dart';

@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:photoline/library.dart';
 
 class _IconTile {
-  final IconData icon;
-  final Color color;
 
   const _IconTile(this.icon, this.color);
+  final IconData icon;
+  final Color color;
 }
 
 final List<_IconTile> _kTiles = () {
@@ -68,13 +68,21 @@ class _State extends State<NestedScrollWidgetExample> {
     snapBuilder: (i, _) => i < 30 ? 60.0 : null,
   );
 
+  late final List<ScrollSnapController> _controllers = [_c0, _c1];
+
+  ScrollSnapController get _activeController => _controllers[_currentPage];
+
   @override
   void initState() {
     super.initState();
+    _headerController.activeScrollController = _activeController;
     _pageController = PageController();
     _pageController.addListener(() {
       final p = _pageController.page?.round() ?? 0;
-      if (p != _currentPage) setState(() => _currentPage = p);
+      if (p != _currentPage) {
+        setState(() => _currentPage = p);
+        _headerController.activeScrollController = _activeController;
+      }
     });
   }
 
@@ -88,7 +96,7 @@ class _State extends State<NestedScrollWidgetExample> {
 
   @override
   Widget build(BuildContext context) {
-    return ScrollSnapHeaderMultiChild(
+    return ScrollSnapHeader(
       controller: _headerController,
       header: _Header(
         controller: _headerController,
@@ -133,8 +141,8 @@ class _HeaderState extends State<_Header> {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: widget.controller.height,
-      builder: (context, _) => ColoredBox(
+        listenable: widget.controller.height,
+        builder: (context, _) => ColoredBox(
         color: Colors.blueGrey.shade900,
         child: SafeArea(
           bottom: false,

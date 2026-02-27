@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:photoline/src/scroll/snap/header/controller.dart';
@@ -20,11 +21,47 @@ class ScrollSnapHeader extends StatefulWidget {
 }
 
 class _ScrollSnapHeaderState extends State<ScrollSnapHeader> {
+  Drag? _drag;
+
+  void _onVerticalDragStart(DragStartDetails details) {
+    final sc = widget.controller.activeScrollController;
+    if (sc == null || !sc.hasClients) return;
+    _drag = sc.position.drag(
+      DragStartDetails(
+        globalPosition: details.globalPosition,
+        localPosition: details.localPosition,
+        sourceTimeStamp: details.sourceTimeStamp,
+      ),
+      () => _drag = null,
+    );
+  }
+
+  void _onVerticalDragUpdate(DragUpdateDetails details) {
+    _drag?.update(details);
+  }
+
+  void _onVerticalDragEnd(DragEndDetails details) {
+    _drag?.end(details);
+    _drag = null;
+  }
+
+  void _onVerticalDragCancel() {
+    _drag?.cancel();
+    _drag = null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return ScrollSnapHeaderMultiChild(
       controller: widget.controller,
-      header: widget.header,
+      header: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onVerticalDragStart: _onVerticalDragStart,
+        onVerticalDragUpdate: _onVerticalDragUpdate,
+        onVerticalDragEnd: _onVerticalDragEnd,
+        onVerticalDragCancel: _onVerticalDragCancel,
+        child: widget.header,
+      ),
       content: widget.content,
     );
   }
