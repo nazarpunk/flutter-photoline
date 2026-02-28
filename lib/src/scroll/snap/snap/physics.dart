@@ -103,6 +103,7 @@ class ScrollSnapPhysics extends ScrollPhysics {
     if (velocity.abs() < tolerance.velocity) {
       if (!snapCan) return null;
 
+
       /// snap box
       if (spos != null) {
         if (c.snapBuilder != null) {
@@ -133,6 +134,27 @@ class ScrollSnapPhysics extends ScrollPhysics {
           if (c.snapTop) {
             double all = 0;
             double dist = double.infinity;
+
+            // When a header is present, add both collapsed (-minHeight) and
+            // fully-expanded (-maxHeight) as snap anchors so the header
+            // settles to one extreme after the user releases.
+            if (c.headerHolder != null) {
+              final hh = c.headerHolder!;
+              // Fully expanded anchor
+              final expandedAnchor = -hh.maxHeight;
+              final dExpanded = (expandedAnchor - pp).abs();
+              if (dist.isInfinite || dExpanded < dist) {
+                dist = dExpanded;
+                target = expandedAnchor;
+              }
+              // Collapsed anchor
+              final collapsedAnchor = -hh.minHeight;
+              final dCollapsed = (collapsedAnchor - pp).abs();
+              if (dCollapsed < dist) {
+                dist = dCollapsed;
+                target = collapsedAnchor;
+              }
+            }
 
             for (var i = 0; i >= 0; i++) {
               final h = c.snapBuilder!(i, dim);
@@ -176,7 +198,10 @@ class ScrollSnapPhysics extends ScrollPhysics {
       return null;
     }
     if (velocity < 0.0 && pp <= position.minScrollExtent) {
-      return null;
+      // When a header is present the scroll position can go further negative
+      // (header can expand), so only bail if at the fully expanded limit.
+      if (c.headerHolder == null) return null;
+      if (pp <= -c.headerHolder!.maxHeight) return null;
     }
 
     if (position is ScrollSnapPosition) {

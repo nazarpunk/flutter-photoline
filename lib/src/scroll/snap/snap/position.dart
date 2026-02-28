@@ -117,6 +117,17 @@ class ScrollSnapPosition extends ViewportOffset with ScrollMetrics implements Sc
     final mw = controller.boxConstraints!.maxWidth;
     final vd = _viewportDimension!;
 
+    // When a header is present, include the header's fully-expanded position
+    // as the first offset so navigation can reach it.
+    if (controller.headerHolder != null && hasContentDimensions) {
+      offsets.add(minScrollExtent);
+      final d = minScrollExtent - pixels;
+      if (dist.isInfinite || d.abs() < dist.abs()) {
+        dist = d;
+        current = 0;
+      }
+    }
+
     for (var i = 0; i >= 0; i++) {
       final pix = controller.snapBuilder!(
         i,
@@ -234,6 +245,11 @@ class ScrollSnapPosition extends ViewportOffset with ScrollMetrics implements Sc
       return target;
     }
 
+    // Clamp the fling target so it does not go beyond the fully expanded header.
+    if (controller.headerHolder != null && hasContentDimensions) {
+      target = math.max(target, -controller.headerHolder!.maxHeight);
+    }
+
     if (hasOverflow) {
       if (!kProfileMode) return target;
 
@@ -308,6 +324,12 @@ class ScrollSnapPosition extends ViewportOffset with ScrollMetrics implements Sc
         if (h == null) break;
         if (i == _photolineLastScrollIndex) break;
         newPixels += h;
+      }
+
+      // Account for header offset: when header is present, the scroll
+      // position includes the negative header extent.
+      if (controller.headerHolder != null) {
+        newPixels -= controller.headerHolder!.height.value;
       }
 
       if (newPixels != oldPixels) {
@@ -488,11 +510,40 @@ class ScrollSnapPosition extends ViewportOffset with ScrollMetrics implements Sc
 
     if (controller.headerHolder != null) {
       final holder = controller.headerHolder!;
-      holder.height.value = clampDouble(
-        holder.height.value - delta,
-        holder.minHeight,
-        holder.maxHeight,
-      );
+
+      // Only adjust the header when the scroll position is within (or
+      // crosses into) the header zone (pixels <= 0).  When both old and
+      // new pixels are positive we are in the content area — the header
+      // must not change.
+      final double headerDelta;
+      if (pixels <= 0 && newPixels <= 0) {
+        // Fully inside the header zone.
+        headerDelta = delta;
+      } else if (pixels > 0 && newPixels <= 0) {
+        // Scrolling up past the content/header boundary.
+        headerDelta = newPixels; // only the negative portion
+      } else if (pixels <= 0 && newPixels > 0) {
+        // Scrolling down past the boundary into content.
+        headerDelta = -pixels; // collapse by the remaining header offset
+      } else {
+        // Both > 0 — fully in content, no header interaction.
+        headerDelta = 0;
+      }
+
+      if (headerDelta != 0) {
+        final oldHeight = holder.height.value;
+        holder.height.value = clampDouble(
+          oldHeight - headerDelta,
+          holder.minHeight,
+          holder.maxHeight,
+        );
+        final heightChange = holder.height.value - oldHeight;
+        // Keep minScrollExtent in sync with the new header height so the
+        // boundary conditions allow the pixel offset to follow the header.
+        if (heightChange != 0 && _minScrollExtent != null) {
+          _minScrollExtent = _minScrollExtent! - heightChange;
+        }
+      }
     }
 
     assert(activity!.isScrolling);

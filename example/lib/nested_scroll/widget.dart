@@ -1,11 +1,12 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:photoline/library.dart';
 
 class _IconTile {
-
   const _IconTile(this.icon, this.color);
+
   final IconData icon;
   final Color color;
 }
@@ -56,17 +57,27 @@ class _State extends State<NestedScrollWidgetExample> {
   late final PageController _pageController;
   int _currentPage = 0;
 
-  final _headerController = ScrollSnapHeaderController();
+  final _headerController = ScrollSnapHeaderController(
+    initialState: ScrollSnapHeaderInitialState.collapsed,
+  );
 
   late final ScrollSnapController _c0 = ScrollSnapController(
     headerHolder: _headerController,
     snapBuilder: (i, _) => i < 30 ? 60.0 : null,
+    //onRefresh: () => _onRefresh('Tab 0'),
   );
 
   late final ScrollSnapController _c1 = ScrollSnapController(
     headerHolder: _headerController,
     snapBuilder: (i, _) => i < 30 ? 60.0 : null,
+    //onRefresh: () => _onRefresh('Tab 1'),
   );
+
+  Future<void> _onRefresh(String tab) async {
+    debugPrint('🔄 Pull-to-refresh triggered on $tab');
+    await Future.delayed(const Duration(seconds: 2));
+    debugPrint('✅ Refresh complete on $tab');
+  }
 
   late final List<ScrollSnapController> _controllers = [_c0, _c1];
 
@@ -141,8 +152,8 @@ class _HeaderState extends State<_Header> {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-        listenable: widget.controller.height,
-        builder: (context, _) => ColoredBox(
+      listenable: widget.controller.height,
+      builder: (context, _) => ColoredBox(
         color: Colors.blueGrey.shade900,
         child: SafeArea(
           bottom: false,
@@ -223,8 +234,8 @@ class _HeaderState extends State<_Header> {
                     );
                   }),
                 ),
-            ],
-          ),
+              ],
+            ),
           ),
         ),
       ),
@@ -250,6 +261,7 @@ class _PageState extends State<_Page> {
     return ScrollSnap(
       controller: widget.controller,
       slivers: [
+        if (kProfileMode) ScrollSnapRefresh(controller: widget.controller),
         SliverSnapList(
           controller: widget.controller,
           childCount: 30,

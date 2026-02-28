@@ -19,6 +19,7 @@ class ScrollSnapRefreshState extends State<ScrollSnapRefresh> with StateRebuildM
   int viewState = 0;
   bool isWait = false;
   bool isWaitClose = false;
+  bool isClosing = false;
 
   int get _viewStateCurrent => isWaitClose ? 2 : viewState;
 
@@ -68,7 +69,29 @@ class ScrollSnapRefreshState extends State<ScrollSnapRefresh> with StateRebuildM
     if (!mounted) return;
     viewState = 0;
     isWait = false;
+    isClosing = true;
     animationController.stop();
+
+    // Remember the current overlap to animate back smoothly
+    final controller = widget.controller;
+
+    void onAnimationDone(AnimationStatus status) {
+      if (status != AnimationStatus.dismissed) return;
+      animationController.removeStatusListener(onAnimationDone);
+      isClosing = false;
+      isWaitClose = false;
+
+      // After closing, ensure scroll position is at the header boundary
+      if (controller.hasClients) {
+        final pos = controller.position;
+        final minExtent = pos.minScrollExtent;
+        if (pos.pixels < minExtent) {
+          pos.forcePixels(minExtent);
+        }
+      }
+    }
+
+    animationController.addStatusListener(onAnimationDone);
     unawaited(animationController.reverse(from: animationController.value));
 
     rebuild();
