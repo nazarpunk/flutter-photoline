@@ -394,8 +394,7 @@ class ScrollSnapPosition extends ViewportOffset with ScrollMetrics implements Sc
 
     if (controller.headerHolder != null) {
       final h = controller.headerHolder!;
-      final e = h.height.value;
-      minScrollExtent -= e;
+      minScrollExtent -= h.maxHeight;
       //maxScrollExtent += e;
     }
 
@@ -511,22 +510,22 @@ class ScrollSnapPosition extends ViewportOffset with ScrollMetrics implements Sc
     if (controller.headerHolder != null) {
       final holder = controller.headerHolder!;
 
-      // Only adjust the header when the scroll position is within (or
-      // crosses into) the header zone (pixels <= 0).  When both old and
-      // new pixels are positive we are in the content area — the header
-      // must not change.
+      // The header zone starts at -minHeight (the collapsed header
+      // position). Only when the scroll position enters this zone should
+      // the header start expanding/collapsing.
+      final double headerThreshold = -holder.minHeight;
       final double headerDelta;
-      if (pixels <= 0 && newPixels <= 0) {
-        // Fully inside the header zone.
+      if (pixels <= headerThreshold && newPixels <= headerThreshold) {
+        // Fully inside the header expansion zone.
         headerDelta = delta;
-      } else if (pixels > 0 && newPixels <= 0) {
+      } else if (pixels > headerThreshold && newPixels <= headerThreshold) {
         // Scrolling up past the content/header boundary.
-        headerDelta = newPixels; // only the negative portion
-      } else if (pixels <= 0 && newPixels > 0) {
+        headerDelta = newPixels - headerThreshold;
+      } else if (pixels <= headerThreshold && newPixels > headerThreshold) {
         // Scrolling down past the boundary into content.
-        headerDelta = -pixels; // collapse by the remaining header offset
+        headerDelta = -(pixels - headerThreshold);
       } else {
-        // Both > 0 — fully in content, no header interaction.
+        // Both above threshold — fully in content, no header interaction.
         headerDelta = 0;
       }
 
@@ -537,12 +536,6 @@ class ScrollSnapPosition extends ViewportOffset with ScrollMetrics implements Sc
           holder.minHeight,
           holder.maxHeight,
         );
-        final heightChange = holder.height.value - oldHeight;
-        // Keep minScrollExtent in sync with the new header height so the
-        // boundary conditions allow the pixel offset to follow the header.
-        if (heightChange != 0 && _minScrollExtent != null) {
-          _minScrollExtent = _minScrollExtent! - heightChange;
-        }
       }
     }
 

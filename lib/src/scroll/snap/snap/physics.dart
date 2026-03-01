@@ -128,7 +128,27 @@ class ScrollSnapPhysics extends ScrollPhysics {
               so = se;
             }
 
-            if (wH > vd + c.snapGap + precisionErrorTolerance) return null;
+            if (wH > vd + c.snapGap + precisionErrorTolerance) {
+              // Even when snapArea bails out, ensure the header snaps to an
+              // extreme position if it is currently intermediate.
+              if (c.headerHolder != null) {
+                final hh = c.headerHolder!;
+                final expanded = -hh.maxHeight;
+                final collapsed = -hh.minHeight;
+                if (pp > expanded && pp < collapsed) {
+                  final mid = (expanded + collapsed) / 2;
+                  final headerTarget = pp <= mid ? expanded : collapsed;
+                  return ScrollSpringSimulation(
+                    spring,
+                    pp,
+                    headerTarget,
+                    0.0,
+                    tolerance: tolerance,
+                  );
+                }
+              }
+              return null;
+            }
           }
 
           if (c.snapTop) {
@@ -171,6 +191,18 @@ class ScrollSnapPhysics extends ScrollPhysics {
 
           if (target == null || target == pp) return null;
 
+          // Final guard: if the computed target lands in the header
+          // intermediate zone, push it to the nearest extreme.
+          if (c.headerHolder != null) {
+            final hh = c.headerHolder!;
+            final expanded = -hh.maxHeight;
+            final collapsed = -hh.minHeight;
+            if (target > expanded && target < collapsed) {
+              final mid = (expanded + collapsed) / 2;
+              target = target <= mid ? expanded : collapsed;
+            }
+          }
+
           return ScrollSpringSimulation(
             spring,
             position.pixels,
@@ -184,14 +216,36 @@ class ScrollSnapPhysics extends ScrollPhysics {
       /// snap photoline at end
       final target = spos?.photolinePhysicSnap(velocity, pp);
 
-      if (target == null || pp == target) return null;
-      return ScrollSpringSimulation(
-        spring,
-        pp,
-        target,
-        math.min(0.0, velocity),
-        tolerance: tolerance,
-      );
+      if (target != null && target != pp) {
+        return ScrollSpringSimulation(
+          spring,
+          pp,
+          target,
+          math.min(0.0, velocity),
+          tolerance: tolerance,
+        );
+      }
+
+      // Fallback: if the header is at an intermediate position, snap it to
+      // the nearest extreme even when no other snap logic produced a target.
+      if (c.headerHolder != null) {
+        final hh = c.headerHolder!;
+        final expanded = -hh.maxHeight;
+        final collapsed = -hh.minHeight;
+        if (pp > expanded && pp < collapsed) {
+          final mid = (expanded + collapsed) / 2;
+          final headerTarget = pp <= mid ? expanded : collapsed;
+          return ScrollSpringSimulation(
+            spring,
+            pp,
+            headerTarget,
+            0.0,
+            tolerance: tolerance,
+          );
+        }
+      }
+
+      return null;
     }
 
     if (velocity > 0.0 && pp >= position.maxScrollExtent) {
@@ -211,6 +265,19 @@ class ScrollSnapPhysics extends ScrollPhysics {
         final nT = snapCan ? spos?.photolinePhysicSnap(velocity, target) : target;
         if (nT != null) target = nT;
       }
+
+      // If the fling target lands in the header zone, snap to the nearest
+      // header extreme so the header never rests at an intermediate size.
+      if (c.headerHolder != null) {
+        final hh = c.headerHolder!;
+        final expanded = -hh.maxHeight;
+        final collapsed = -hh.minHeight;
+        if (target > expanded && target < collapsed) {
+          // Pick the extreme based on fling direction.
+          target = velocity < 0 ? expanded : collapsed;
+        }
+      }
+
       return ScrollSnapSpringSimulation(
         spring,
         position.pixels,
