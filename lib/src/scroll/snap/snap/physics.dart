@@ -80,21 +80,25 @@ class ScrollSnapPhysics extends ScrollPhysics {
     final Tolerance tolerance = toleranceFor(position);
     if (position.outOfRange) {
       double? end;
+      double springVelocity;
       if (pp > position.maxScrollExtent) {
         end = position.maxScrollExtent;
-      }
-      if (pp < position.minScrollExtent) {
+        // Heading back down (pixels decreasing) — clamp to 0 or negative.
+        springVelocity = math.min(0.0, velocity);
+      } else if (pp < position.minScrollExtent) {
         end = position.minScrollExtent;
+        // Heading back up (pixels increasing) — clamp to 0 or positive.
+        springVelocity = math.max(0.0, velocity);
+      } else {
+        end = pp;
+        springVelocity = 0.0;
       }
-      assert(end != null);
-
-      //print('🤡 position.outOfRange');
 
       return ScrollSpringSimulation(
         spring,
         position.pixels,
-        end!,
-        math.min(0.0, velocity),
+        end,
+        springVelocity,
         tolerance: tolerance,
       );
     }

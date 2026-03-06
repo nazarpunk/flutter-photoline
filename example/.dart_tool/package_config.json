@@ -375,7 +375,7 @@
     },
     {
       "name": "matcher",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/matcher-0.12.18",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/matcher-0.12.19",
       "packageUri": "lib/",
       "languageVersion": "3.7"
     },
@@ -513,7 +513,7 @@
     },
     {
       "name": "test_api",
-      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/test_api-0.7.9",
+      "rootUri": "file:///Users/nazarpunk/.pub-cache/hosted/pub.dev/test_api-0.7.10",
       "packageUri": "lib/",
       "languageVersion": "3.7"
     },
@@ -603,8 +603,8 @@
     }
   ],
   "generator": "pub",
-  "generatorVersion": "3.11.0",
+  "generatorVersion": "3.11.1",
   "flutterRoot": "file:///Users/nazarpunk/flutter",
-  "flutterVersion": "3.41.2",
+  "flutterVersion": "3.41.4",
   "pubCache": "file:///Users/nazarpunk/.pub-cache"
 }

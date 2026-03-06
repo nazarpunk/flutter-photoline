@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:photoline/library.dart';
 
@@ -64,13 +63,13 @@ class _State extends State<NestedScrollWidgetExample> {
   late final ScrollSnapController _c0 = ScrollSnapController(
     headerHolder: _headerController,
     snapBuilder: (i, _) => i < 30 ? 60.0 : null,
-    //onRefresh: () => _onRefresh('Tab 0'),
+    onRefresh: () => _onRefresh('Tab 0'),
   );
 
   late final ScrollSnapController _c1 = ScrollSnapController(
     headerHolder: _headerController,
     snapBuilder: (i, _) => i < 30 ? 60.0 : null,
-    //onRefresh: () => _onRefresh('Tab 1'),
+    onRefresh: () => _onRefresh('Tab 1'),
   );
 
   Future<void> _onRefresh(String tab) async {
@@ -109,6 +108,7 @@ class _State extends State<NestedScrollWidgetExample> {
   Widget build(BuildContext context) {
     return ScrollSnapHeader(
       controller: _headerController,
+      onRefresh: _activeController.onRefresh,
       header: _Header(
         controller: _headerController,
         currentPage: _currentPage,
@@ -261,7 +261,6 @@ class _PageState extends State<_Page> {
     return ScrollSnap(
       controller: widget.controller,
       slivers: [
-        if (kProfileMode) ScrollSnapRefresh(controller: widget.controller),
         SliverSnapList(
           controller: widget.controller,
           childCount: 30,

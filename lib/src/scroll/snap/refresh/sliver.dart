@@ -92,7 +92,7 @@ class ScrollSnapRefreshSliverRender extends RenderSliver
     }
 
     if (kDebugMode && scrollOffsetCorrection != null) {
-      debugPrint('🔃 RefreshSliver scrollOffsetCorrection=$scrollOffsetCorrection, overlap=${constraints.overlap}, effectiveOverlap=$effectiveOverlap, oh=$oh');
+      //debugPrint('🔃 RefreshSliver scrollOffsetCorrection=$scrollOffsetCorrection, overlap=${constraints.overlap}, effectiveOverlap=$effectiveOverlap, oh=$oh');
     }
 
     // During closing, the child extent is driven by the animation (oh),

@@ -507,35 +507,45 @@ class ScrollSnapPosition extends ViewportOffset with ScrollMetrics implements Sc
     final delta = newPixels - pixels;
     if (delta == 0) return _setPixels(newPixels);
 
-    if (controller.headerHolder != null) {
+    if (controller.headerHolder != null && hasContentDimensions) {
       final holder = controller.headerHolder!;
+      final min = minScrollExtent;
 
-      // The header zone starts at -minHeight (the collapsed header
-      // position). Only when the scroll position enters this zone should
-      // the header start expanding/collapsing.
-      final double headerThreshold = -holder.minHeight;
-      final double headerDelta;
-      if (pixels <= headerThreshold && newPixels <= headerThreshold) {
-        // Fully inside the header expansion zone.
-        headerDelta = delta;
-      } else if (pixels > headerThreshold && newPixels <= headerThreshold) {
-        // Scrolling up past the content/header boundary.
-        headerDelta = newPixels - headerThreshold;
-      } else if (pixels <= headerThreshold && newPixels > headerThreshold) {
-        // Scrolling down past the boundary into content.
-        headerDelta = -(pixels - headerThreshold);
-      } else {
-        // Both above threshold — fully in content, no header interaction.
-        headerDelta = 0;
-      }
+      // Don't adjust the header when in overscroll territory (below
+      // minScrollExtent). The header should only expand/collapse within
+      // the normal scroll range, not during overscroll bounce-back.
+      final double clampedPixels = math.max(pixels, min);
+      final double clampedNew = math.max(newPixels, min);
+      final double clampedDelta = clampedNew - clampedPixels;
 
-      if (headerDelta != 0) {
-        final oldHeight = holder.height.value;
-        holder.height.value = clampDouble(
-          oldHeight - headerDelta,
-          holder.minHeight,
-          holder.maxHeight,
-        );
+      if (clampedDelta != 0) {
+        final double headerThreshold = -holder.minHeight;
+        final double headerDelta;
+        if (clampedPixels <= headerThreshold &&
+            clampedNew <= headerThreshold) {
+          // Fully inside the header expansion zone.
+          headerDelta = clampedDelta;
+        } else if (clampedPixels > headerThreshold &&
+            clampedNew <= headerThreshold) {
+          // Scrolling up past the content/header boundary.
+          headerDelta = clampedNew - headerThreshold;
+        } else if (clampedPixels <= headerThreshold &&
+            clampedNew > headerThreshold) {
+          // Scrolling down past the boundary into content.
+          headerDelta = -(clampedPixels - headerThreshold);
+        } else {
+          // Both above threshold — fully in content, no header interaction.
+          headerDelta = 0;
+        }
+
+        if (headerDelta != 0) {
+          final oldHeight = holder.height.value;
+          holder.height.value = clampDouble(
+            oldHeight - headerDelta,
+            holder.minHeight,
+            holder.maxHeight,
+          );
+        }
       }
     }
 
@@ -611,6 +621,7 @@ class ScrollSnapPosition extends ViewportOffset with ScrollMetrics implements Sc
     if (controller.onRefresh != null && value < pp && pp <= min) {
       return 0.0; // Bouncing underscroll
     }
+
 
     late final double result;
 

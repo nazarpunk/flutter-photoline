@@ -36,4 +36,8 @@ class ScrollSnapHeaderController {
   /// The currently active [ScrollController] whose position receives
   /// vertical drag events started on the header area.
   ScrollController? activeScrollController;
+
+  /// Set to `true` by [ScrollSnapHeader] when [onRefresh] is provided.
+  /// The scroll position uses this to allow overscroll past minScrollExtent.
+  bool canRefresh = false;
 }
