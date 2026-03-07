@@ -39,18 +39,14 @@ class _ScrollSnapHeaderState extends State<ScrollSnapHeader>
 
   // ── Refresh state ────────────────────────────────────────────────────────
 
-  /// How far the user has pulled the refresh indicator (logical pixels).
-  double _refreshPull = 0.0;
-
   /// Whether the pull has passed the trigger threshold.
   bool _armed = false;
 
   /// Whether we are currently awaiting the onRefresh future.
   bool _refreshing = false;
 
-  /// True while the user is actively dragging and we are consuming pull
-  /// towards the refresh indicator (header already fully expanded, scroll at
-  /// minimum).
+  /// True while the user is actively dragging on the header and consuming pull
+  /// towards the refresh indicator.
   bool _pullingRefresh = false;
 
   late final AnimationController _spinAnim;
@@ -62,7 +58,11 @@ class _ScrollSnapHeaderState extends State<ScrollSnapHeader>
   @override
   void initState() {
     super.initState();
-    widget.controller.canRefresh = widget.onRefresh != null;
+    final hc = widget.controller;
+    hc.canRefresh = widget.onRefresh != null;
+    hc.refreshTriggerExtent = widget.refreshTriggerExtent;
+    hc.refreshPull.addListener(_onRefreshPullChanged);
+
     _spinAnim = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
@@ -77,10 +77,12 @@ class _ScrollSnapHeaderState extends State<ScrollSnapHeader>
   void didUpdateWidget(ScrollSnapHeader oldWidget) {
     super.didUpdateWidget(oldWidget);
     widget.controller.canRefresh = widget.onRefresh != null;
+    widget.controller.refreshTriggerExtent = widget.refreshTriggerExtent;
   }
 
   @override
   void dispose() {
+    widget.controller.refreshPull.removeListener(_onRefreshPullChanged);
     _collapseAnim.removeListener(_onCollapseTick);
     _collapseAnim.dispose();
     _spinAnim.dispose();
@@ -89,11 +91,24 @@ class _ScrollSnapHeaderState extends State<ScrollSnapHeader>
 
   bool get _canRefresh => widget.onRefresh != null;
 
+  double get _refreshPull => widget.controller.refreshPull.value;
+
+  // ── Refresh pull listener (driven by scroll position) ────────────────────
+
+  void _onRefreshPullChanged() {
+    final pull = _refreshPull;
+    final wasArmed = _armed;
+    _armed = pull >= widget.refreshTriggerExtent;
+    if (_armed && !wasArmed) {
+      unawaited(HapticFeedback.mediumImpact());
+    }
+    setState(() {});
+  }
+
   // ── helpers ──────────────────────────────────────────────────────────────
 
   /// Whether the active scroll position is at (or past) its minimum extent
-  /// AND the header is fully expanded – i.e. the user can start pulling the
-  /// refresh indicator.
+  /// AND the header is fully expanded.
   bool get _isAtTop {
     final hc = widget.controller;
     if (hc.height.value < hc.maxHeight - 0.5) return false;
@@ -104,10 +119,10 @@ class _ScrollSnapHeaderState extends State<ScrollSnapHeader>
     return pos.pixels <= pos.minScrollExtent + 0.5;
   }
 
-  // ── Gesture handlers ────────────────────────────────────────────────────
+  // ── Gesture handlers (for drags started on the header) ──────────────────
 
   void _onVerticalDragStart(DragStartDetails details) {
-    if (_refreshing) return; // Ignore new gestures while refreshing.
+    if (_refreshing) return;
     _pullingRefresh = false;
 
     final sc = widget.controller.activeScrollController;
@@ -128,12 +143,9 @@ class _ScrollSnapHeaderState extends State<ScrollSnapHeader>
 
     final double dy = details.primaryDelta ?? 0.0;
 
-    // Pulling down (dy > 0).
+    // Pulling down (dy > 0) when header is fully expanded and at top.
     if (dy > 0 && _canRefresh && _isAtTop) {
-      // We've reached the top – start (or continue) feeding the refresh
-      // indicator instead of the scroll position.
       if (!_pullingRefresh) {
-        // Cancel the scroll drag so the list doesn't overscroll.
         _drag?.cancel();
         _drag = null;
         _pullingRefresh = true;
@@ -141,35 +153,27 @@ class _ScrollSnapHeaderState extends State<ScrollSnapHeader>
     }
 
     if (_pullingRefresh) {
-      // Apply rubber-band friction so the indicator doesn't grow linearly.
+      // Feed the refresh pull directly through the header controller.
+      final hc = widget.controller;
+      final currentPull = hc.refreshPull.value;
       final double friction =
-          (1.0 - (_refreshPull / (widget.refreshTriggerExtent * 3.0))
+          (1.0 -
+              (currentPull / (widget.refreshTriggerExtent * 3.0))
                   .clamp(0.0, 0.8));
       final double consumed = dy * friction;
+      final double newPull =
+          (currentPull + consumed).clamp(0.0, double.infinity);
 
-      final double newPull = (_refreshPull + consumed).clamp(0.0, double.infinity);
+      hc.refreshPull.value = newPull;
 
-      final wasArmed = _armed;
-      setState(() {
-        _refreshPull = newPull;
-        _armed = _refreshPull >= widget.refreshTriggerExtent;
-        if (_armed && !wasArmed) {
-          unawaited(HapticFeedback.mediumImpact());
-        }
-      });
-
-      // If user drags back up past zero, re-engage the scroll drag.
-      if (_refreshPull <= 0.0) {
+      if (newPull <= 0.0) {
         _pullingRefresh = false;
-        _refreshPull = 0.0;
+        hc.refreshPull.value = 0.0;
         _armed = false;
-        // Re-start the scroll drag so the list scrolls normally.
-        final sc = widget.controller.activeScrollController;
+        final sc = hc.activeScrollController;
         if (sc != null && sc.hasClients) {
           _drag = sc.position.drag(
-            DragStartDetails(
-              globalPosition: details.globalPosition,
-            ),
+            DragStartDetails(globalPosition: details.globalPosition),
             () => _drag = null,
           );
         }
@@ -215,28 +219,30 @@ class _ScrollSnapHeaderState extends State<ScrollSnapHeader>
 
   void _collapseIndicator() {
     _collapseFrom = _refreshPull;
+    if (_collapseFrom <= 0.0) {
+      widget.controller.refreshPull.value = 0.0;
+      _armed = false;
+      setState(() {});
+      return;
+    }
     _collapseAnim.forward(from: 0.0);
   }
 
   void _onCollapseTick() {
     final t = Curves.easeOut.transform(_collapseAnim.value);
-    setState(() {
-      _refreshPull = _collapseFrom * (1.0 - t);
-      _armed = false;
-      if (_collapseAnim.isCompleted) {
-        _refreshPull = 0.0;
-      }
-    });
+    widget.controller.refreshPull.value = _collapseFrom * (1.0 - t);
+    _armed = false;
+    if (_collapseAnim.isCompleted) {
+      widget.controller.refreshPull.value = 0.0;
+    }
   }
 
   // ── Refresh flow ─────────────────────────────────────────────────────────
 
   Future<void> _doRefresh() async {
-    setState(() {
-      _refreshing = true;
-      // Lock the indicator at the trigger extent for a clean look.
-      _refreshPull = widget.refreshTriggerExtent;
-    });
+    _refreshing = true;
+    widget.controller.refreshing = true;
+    widget.controller.refreshPull.value = widget.refreshTriggerExtent;
     unawaited(_spinAnim.repeat());
 
     try {
@@ -244,11 +250,9 @@ class _ScrollSnapHeaderState extends State<ScrollSnapHeader>
     } finally {
       if (mounted) {
         _spinAnim.stop();
-        setState(() {
-          _refreshing = false;
-          _armed = false;
-        });
-        // Smoothly collapse the indicator.
+        _refreshing = false;
+        widget.controller.refreshing = false;
+        _armed = false;
         _collapseIndicator();
       }
     }
@@ -257,12 +261,13 @@ class _ScrollSnapHeaderState extends State<ScrollSnapHeader>
   // ── Refresh indicator widget ─────────────────────────────────────────────
 
   Widget _buildRefreshIndicator() {
+    final pull = _refreshPull;
     final progress =
-        (_refreshPull / widget.refreshTriggerExtent).clamp(0.0, 1.0);
-    final opacity = ((_refreshPull - 8) / 24).clamp(0.0, 1.0);
+        (pull / widget.refreshTriggerExtent).clamp(0.0, 1.0);
+    final opacity = ((pull - 8) / 24).clamp(0.0, 1.0);
 
     return SizedBox(
-      height: _refreshPull,
+      height: pull,
       child: Center(
         child: Opacity(
           opacity: opacity,
@@ -277,13 +282,34 @@ class _ScrollSnapHeaderState extends State<ScrollSnapHeader>
     );
   }
 
+  // ── Scroll notification handling ─────────────────────────────────────────
+
+  bool _onScrollNotification(ScrollNotification notification) {
+    if (!_canRefresh || _refreshing) return false;
+
+    if (notification is ScrollEndNotification) {
+      // User released the scroll. If we have accumulated refresh pull,
+      // either trigger refresh or collapse.
+      if (_refreshPull > 0 && !_pullingRefresh) {
+        if (_armed && _canRefresh) {
+          unawaited(_doRefresh());
+        } else {
+          _collapseIndicator();
+        }
+      }
+    }
+
+    return false;
+  }
+
   // ── Build ────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
+    final pull = _refreshPull;
     return ScrollSnapHeaderMultiChild(
       controller: widget.controller,
-      refreshPull: _refreshPull,
+      refreshPull: pull,
       header: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onVerticalDragStart: _onVerticalDragStart,
@@ -293,8 +319,13 @@ class _ScrollSnapHeaderState extends State<ScrollSnapHeader>
         child: widget.header,
       ),
       refreshIndicator:
-          _canRefresh && _refreshPull > 0 ? _buildRefreshIndicator() : null,
-      content: widget.content,
+          _canRefresh && pull > 0 ? _buildRefreshIndicator() : null,
+      content: _canRefresh
+          ? NotificationListener<ScrollNotification>(
+              onNotification: _onScrollNotification,
+              child: widget.content,
+            )
+          : widget.content,
     );
   }
 }
@@ -412,9 +443,9 @@ class ScrollSnapScrollHeaderRenderBox extends RenderBox
     );
     size = Size(width, height);
 
-    // Content stays at top (0,0).
+    // Content is pushed down by the refresh pull amount.
     (_contentBox.parentData! as MultiChildLayoutParentData).offset =
-        Offset.zero;
+        Offset(0, _refreshPull);
 
     // Header is on top.
     (_headerBox.parentData! as MultiChildLayoutParentData).offset =

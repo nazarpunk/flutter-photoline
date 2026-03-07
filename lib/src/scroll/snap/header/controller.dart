@@ -38,6 +38,18 @@ class ScrollSnapHeaderController {
   ScrollController? activeScrollController;
 
   /// Set to `true` by [ScrollSnapHeader] when [onRefresh] is provided.
-  /// The scroll position uses this to allow overscroll past minScrollExtent.
+  /// The scroll position uses this to block underscroll and redirect the
+  /// delta into [refreshPull] instead.
   bool canRefresh = false;
+
+  /// Current refresh pull distance in logical pixels. Driven by the scroll
+  /// position when the user overscrolls past the fully-expanded header.
+  final refreshPull = ValueNotifier<double>(0.0);
+
+  /// How far the user must pull to arm the refresh. Set by [ScrollSnapHeader].
+  double refreshTriggerExtent = 80.0;
+
+  /// Whether the refresh is currently in progress (loading). While true the
+  /// scroll position must not reduce [refreshPull].
+  bool refreshing = false;
 }

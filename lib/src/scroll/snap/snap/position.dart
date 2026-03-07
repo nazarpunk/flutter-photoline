@@ -511,6 +511,41 @@ class ScrollSnapPosition extends ViewportOffset with ScrollMetrics implements Sc
       final holder = controller.headerHolder!;
       final min = minScrollExtent;
 
+      // ── Refresh pull handling ──────────────────────────────────────────
+      // When canRefresh is set, redirect overscroll below minScrollExtent
+      // into the refresh pull indicator, and consume upward scroll to
+      // reduce the pull before scrolling content.
+      if (holder.canRefresh && !holder.refreshing) {
+        final currentPull = holder.refreshPull.value;
+
+        if (currentPull > 0 && delta > 0) {
+          // User is dragging up (increasing pixels) while refresh indicator
+          // is showing – consume the delta to reduce the pull first.
+          final consume = math.min(delta, currentPull);
+          holder.refreshPull.value = currentPull - consume;
+          newPixels = pixels + (delta - consume);
+          if ((newPixels - pixels).abs() < precisionErrorTolerance) {
+            return 0.0;
+          }
+          // Continue with the remaining delta for header/content.
+        } else if (delta < 0 && newPixels < min) {
+          // User is dragging down and the new position would go below min.
+          // Redirect the excess below min into the refresh pull.
+          final excess = min - newPixels; // How far below min
+          // Apply rubber-band friction.
+          final friction = (1.0 -
+                  (currentPull / (holder.refreshTriggerExtent * 3.0))
+                      .clamp(0.0, 0.8));
+          holder.refreshPull.value = currentPull + excess * friction;
+          // Clamp newPixels to min so position doesn't go below.
+          newPixels = min;
+          if ((newPixels - pixels).abs() < precisionErrorTolerance) {
+            return 0.0;
+          }
+        }
+      }
+
+      // ── Header height adjustment ───────────────────────────────────────
       // Don't adjust the header when in overscroll territory (below
       // minScrollExtent). The header should only expand/collapse within
       // the normal scroll range, not during overscroll bounce-back.
@@ -618,8 +653,13 @@ class ScrollSnapPosition extends ViewportOffset with ScrollMetrics implements Sc
     final min = minScrollExtent;
     final max = maxScrollExtent;
 
-    if (controller.onRefresh != null && value < pp && pp <= min) {
-      return 0.0; // Bouncing underscroll
+    // Allow bouncing underscroll only when using sliver-based refresh
+    // (not when header manages the refresh indicator via setPixels).
+    if (controller.onRefresh != null &&
+        value < pp &&
+        pp <= min &&
+        controller.headerHolder == null) {
+      return 0.0; // Bouncing underscroll (sliver-based refresh only)
     }
 
 
