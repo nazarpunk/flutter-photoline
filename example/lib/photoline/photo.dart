@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:photoline/library.dart';
 
+import 'package:photoline_example/photoline/loader.dart';
+
 class PhotolinePhotoWidget extends StatefulWidget {
   const PhotolinePhotoWidget({super.key});
 
@@ -11,7 +13,7 @@ class PhotolinePhotoWidget extends StatefulWidget {
 }
 
 class _PhotolinePhotoWidgetState extends State<PhotolinePhotoWidget> {
-  final uris = <PhotolineUri>[];
+  final loaders = <PhotoLoaderWrap>[];
 
   Future<void> _response() async {
     for (final src in [
@@ -20,10 +22,7 @@ class _PhotolinePhotoWidgetState extends State<PhotolinePhotoWidget> {
       'https://not-exists.em',
       'https://venus.agency/photo/6b714e77fcde22180ae3a7c1d798b6299854cc846b8f0a683e0ac0240429c9ee/photo',
     ]) {
-      uris.add(PhotolineUri(
-        uri: Uri.parse(src),
-        color: Colors.deepPurple,
-      ));
+      loaders.add(PhotoLoaderWrap(src)..color = Colors.deepPurple);
     }
 
     if (mounted) setState(() {});
@@ -45,7 +44,7 @@ class _PhotolinePhotoWidgetState extends State<PhotolinePhotoWidget> {
       mainAxisSpacing: 10,
       crossAxisCount: 2,
       children: <Widget>[
-        for (final u in uris) PhotolinePhoto(uri: u, sigma: 30),
+        for (final l in loaders) PhotolinePhoto(loader: l, sigma: 30),
         Container(
           padding: const EdgeInsets.all(8),
           color: Colors.teal[200],

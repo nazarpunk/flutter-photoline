@@ -3,11 +3,11 @@ part of 'photo.dart';
 class _PhotolinePhotoPaint extends RenderProxyBox {
   _PhotolinePhotoPaint({
     required AnimationController animation,
-    required PhotolineUri uri,
+    required PhotolineLoader loader,
     required this.sigma,
   }) {
     _animation = animation;
-    _uri = uri;
+    _loader = loader;
   }
 
   late AnimationController _animation;
@@ -17,23 +17,19 @@ class _PhotolinePhotoPaint extends RenderProxyBox {
   final double sigma;
 
   set animation(AnimationController value) {
-    if (_animation == value) {
-      return;
-    }
+    if (_animation == value) return;
     _animation.removeListener(markNeedsPaint);
     _animation = value;
     _animation.addListener(markNeedsPaint);
   }
 
-  late PhotolineUri _uri;
+  late PhotolineLoader _loader;
 
-  PhotolineUri get uri => _uri;
+  PhotolineLoader get loader => _loader;
 
-  set uri(PhotolineUri value) {
-    if (_uri == value) {
-      return;
-    }
-    _uri = value;
+  set loader(PhotolineLoader value) {
+    if (_loader == value) return;
+    _loader = value;
     markNeedsPaint();
   }
 
@@ -61,7 +57,7 @@ class _PhotolinePhotoPaint extends RenderProxyBox {
 
     final imrect = Rect.fromLTWH(offset.dx, offset.dy, w, h);
 
-    uri.spawn();
+    _loader.spawn();
     canvas
       ..save()
       ..clipRect(imrect);
@@ -115,17 +111,18 @@ class _PhotolinePhotoPaint extends RenderProxyBox {
     }
 
     final velocity = _animation.velocity;
-    final double opacity = uri.opacity;
-    final double opacityback = 1 - opacity;
+    final double opacity = _loader.opacity;
 
-    if (uri.image != null) {
-      uri.opacity = velocity;
+    if (_loader.image != null && opacity < 1) {
+      _loader.opacity = math.min(1.0, opacity + velocity);
     }
 
+    final double opacityback = 1 - opacity;
+
     if (opacity < 1) {
-      if (uri.blur != null) {
+      if (_loader.blur != null) {
         img(
-          image: uri.blur!,
+          image: _loader.blur!,
           opacity: 1,
           filter: ui.ImageFilter.blur(
             sigmaX: sigma,
@@ -133,23 +130,29 @@ class _PhotolinePhotoPaint extends RenderProxyBox {
             tileMode: TileMode.mirror,
           ),
         );
-      } else {
-        if (uri.color != null) {
-          canvas.drawRect(
-            imrect,
-            Paint()
-              ..color = uri.color!.withValues(alpha: opacityback)
-              ..style = PaintingStyle.fill,
-          );
-        }
+      } else if (_loader.color != null) {
+        canvas.drawRect(
+          imrect,
+          Paint()
+            ..color = _loader.color!.withValues(alpha: opacityback)
+            ..style = PaintingStyle.fill,
+        );
       }
     }
 
-    if (uri.image != null) {
+    if (_loader.image != null) {
       img(
-        image: uri.image!,
+        image: _loader.image!,
         opacity: Curves.easeOut.transform(opacity),
+      );
+    }
 
+    if (_loader.stripe != null) {
+      canvas.drawRect(
+        Rect.fromLTWH(cdx, cdy, math.min(w, 10), h),
+        Paint()
+          ..color = _loader.stripe!
+          ..style = PaintingStyle.fill,
       );
     }
 

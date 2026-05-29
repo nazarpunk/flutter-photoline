@@ -4,7 +4,6 @@ library;
 export 'src/extension/list.dart';
 export 'src/holder/controller/drag.dart';
 export 'src/holder/holder.dart';
-export 'src/image/image.dart';
 export 'src/photo/photo.dart';
 export 'src/photoline/controller.dart';
 export 'src/photoline/loader.dart';

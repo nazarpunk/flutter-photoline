@@ -2,12 +2,12 @@ part of 'photo.dart';
 
 class _PhotolinePhotoRender extends SingleChildRenderObjectWidget {
   const _PhotolinePhotoRender({
-    required this.uri,
+    required this.loader,
     required this.sigma,
     required this.animation,
   });
 
-  final PhotolineUri uri;
+  final PhotolineLoader loader;
   final double sigma;
   final AnimationController animation;
 
@@ -15,7 +15,7 @@ class _PhotolinePhotoRender extends SingleChildRenderObjectWidget {
   _PhotolinePhotoPaint createRenderObject(BuildContext context) {
     return _PhotolinePhotoPaint(
       animation: animation,
-      uri: uri.cached,
+      loader: loader,
       sigma: sigma,
     );
   }
@@ -27,6 +27,6 @@ class _PhotolinePhotoRender extends SingleChildRenderObjectWidget {
   ) {
     renderObject
       ..animation = animation
-      .._uri = uri.cached;
+      .._loader = loader;
   }
 }

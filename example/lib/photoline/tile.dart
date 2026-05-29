@@ -42,7 +42,7 @@ class _PhotolineTileTestState extends State<PhotolineTileTest> with PhotolineTil
           if (loader?.image != null)
             Positioned.fill(
               child: ClipRect(
-                child: PhotolineImage(
+                child: PhotolinePhoto(
                   sigma: 10,
                   loader: loader,
                 ),

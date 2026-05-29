@@ -197,7 +197,7 @@ class PhotolineHolderDragController implements Drag {
     _overlayChild = ClipRRect(
       borderRadius: BorderRadius.circular(4),
       child: loader?.image != null
-          ? PhotolineImage(
+          ? PhotolinePhoto(
               loader: loader,
               sigma: 0,
             )
