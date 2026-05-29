@@ -3,8 +3,6 @@ import 'package:flutter/rendering.dart';
 import 'package:photoline/library.dart';
 import 'package:photoline/src/scroll/snap/snap/position.dart';
 
-State? _getState() => null;
-
 class ScrollSnapController extends ScrollController with ScrollRefreshMixin {
   ScrollSnapController({
     super.initialScrollOffset,
@@ -12,7 +10,6 @@ class ScrollSnapController extends ScrollController with ScrollRefreshMixin {
     super.debugLabel,
     super.onAttach,
     super.onDetach,
-    this.getState = _getState,
     this.snapLastMax = false,
     this.snapLastMin = false,
     this.headerHolder,
@@ -26,8 +23,6 @@ class ScrollSnapController extends ScrollController with ScrollRefreshMixin {
   }) {
     if (onReload != null) canRefresh = true;
   }
-
-  final State? Function() getState;
 
   @override
   void dispose() {

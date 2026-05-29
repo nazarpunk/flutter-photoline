@@ -57,6 +57,8 @@ class _PhotolinePhotoPaint extends RenderProxyBox {
     final cdx = offset.dx;
     final cdy = offset.dy;
 
+    if (w == 0 || h == 0) return;
+
     final imrect = Rect.fromLTWH(offset.dx, offset.dy, w, h);
 
     uri.spawn();

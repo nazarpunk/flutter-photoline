@@ -29,7 +29,6 @@ class _SnapExampleListState extends State<SnapExampleList> {
     onReload: () async {
       await Future.delayed(const Duration(seconds: 2));
     },
-    getState: () => this,
   );
 
   void rebuild() => setState(() {});

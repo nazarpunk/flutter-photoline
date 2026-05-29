@@ -23,10 +23,6 @@ class _ItemState extends State<_Item> with TickerProviderStateMixin {
 
   void _cb() {
     data.t = _a.value;
-    final st = widget.parent.getState();
-    if (st != null && st.mounted) {
-      st.setState(() {});
-    }
   }
 
   final _controller = ScrollController();

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:photoline/library.dart';
 import 'package:photoline/src/mixin/state/rebuild.dart';
@@ -79,7 +80,6 @@ class ScrollSnapState extends State<ScrollSnap>
         _stopSpin();
       }
     }
-    rebuild();
   }
 
   // The pull value from which the current collapse animation started.
@@ -114,7 +114,6 @@ class ScrollSnapState extends State<ScrollSnap>
     _collapseFrom = controller.refreshPull.value;
     _isClosing = true;
     unawaited(_closeController.forward(from: 0.0));
-    rebuild();
   }
 
   Future<void> _checkRefreshTrigger() async {
@@ -130,8 +129,6 @@ class ScrollSnapState extends State<ScrollSnap>
     } else {
       controller.refreshPull.value = trigger;
     }
-
-    rebuild();
 
     await controller.onReload!();
     if (!mounted) return;
@@ -211,7 +208,7 @@ class ScrollSnapState extends State<ScrollSnap>
     _spinController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
-    )..addListener(rebuild);
+    );
     _closeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 450),
@@ -270,7 +267,7 @@ class ScrollSnapState extends State<ScrollSnap>
               controller: controller,
               physics: _physics,
               viewportBuilder: (context, position) => ScrollSnapViewport(
-                cacheExtent: widget.cacheExtent,
+                scrollCacheExtent: ScrollCacheExtent.viewport(widget.cacheExtent),
                 offset: position,
                 children: widget.builder?.call(rebuild) ?? widget.slivers ?? [],
               ),
@@ -279,24 +276,29 @@ class ScrollSnapState extends State<ScrollSnap>
 
           if (!_hasRefresh) return scrollable;
 
-          final pull = controller.refreshPull.value;
-          final (angle, opacity) = _spinnerValues();
-
-          return ScrollRefreshLayout(
-            refreshPull: pull,
-            indicator: Align(
-              alignment: Alignment.topCenter,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 12),
-                child: SizedBox.square(
-                  dimension: 36,
-                  child: CustomPaint(
-                    painter: ScrollRefreshPainter(angle: angle, opacity: opacity),
+          return AnimatedBuilder(
+            animation: Listenable.merge([controller.refreshPull, _spinController]),
+            child: scrollable,
+            builder: (context, child) {
+              final pull = controller.refreshPull.value;
+              final (angle, opacity) = _spinnerValues();
+              return ScrollRefreshLayout(
+                refreshPull: pull,
+                indicator: Align(
+                  alignment: Alignment.topCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: SizedBox.square(
+                      dimension: 36,
+                      child: CustomPaint(
+                        painter: ScrollRefreshPainter(angle: angle, opacity: opacity),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-            scrollable: scrollable,
+                scrollable: child!,
+              );
+            },
           );
         },
       );

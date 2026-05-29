@@ -11,17 +11,15 @@ class ScrollSnapViewport extends MultiChildRenderObjectWidget implements Viewpor
   const ScrollSnapViewport({
     super.key,
     required this.offset,
-    this.cacheExtent,
+    this.scrollCacheExtent,
     super.children,
   });
 
   @override
   final ViewportOffset offset;
-  @override
-  final double? cacheExtent;
 
   @override
-  final CacheExtentStyle cacheExtentStyle = CacheExtentStyle.viewport;
+  final ScrollCacheExtent? scrollCacheExtent;
 
   @override
   RenderViewport createRenderObject(BuildContext context) {
@@ -35,8 +33,7 @@ class ScrollSnapViewport extends MultiChildRenderObjectWidget implements Viewpor
   void updateRenderObject(BuildContext context, RenderViewport renderObject) {
     renderObject
       ..offset = offset
-      ..cacheExtent = cacheExtent
-      ..cacheExtentStyle = cacheExtentStyle
+      ..scrollCacheExtent = scrollCacheExtent
       ..clipBehavior = clipBehavior;
   }
 
@@ -60,6 +57,14 @@ class ScrollSnapViewport extends MultiChildRenderObjectWidget implements Viewpor
 
   @override
   SliverPaintOrder get paintOrder => SliverPaintOrder.lastIsTop;
+
+  @Deprecated('Use scrollCacheExtent instead. This feature was deprecated after v3.41.0-0.0.pre.')
+  @override
+  double? get cacheExtent => scrollCacheExtent?.value;
+
+  @Deprecated('Use scrollCacheExtent instead. This feature was deprecated after v3.41.0-0.0.pre.')
+  @override
+  CacheExtentStyle get cacheExtentStyle => scrollCacheExtent?.style ?? CacheExtentStyle.pixel;
 }
 
 class _ViewportElement extends MultiChildRenderObjectElement with NotifiableElementMixin, ViewportElementMixin {

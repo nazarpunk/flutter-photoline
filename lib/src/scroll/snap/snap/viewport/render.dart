@@ -13,8 +13,46 @@ class RenderViewportPhotoline extends RenderBox with ContainerRenderObjectMixin<
     }
   }
 
+  ScrollCacheExtent _scrollCacheExtent = const ScrollCacheExtent.viewport(0.5);
+
   @override
-  double? cacheExtent = .5;
+  ScrollCacheExtent get scrollCacheExtent => _scrollCacheExtent;
+
+  @override
+  set scrollCacheExtent(ScrollCacheExtent? value) {
+    final effectiveValue = value ?? const ScrollCacheExtent.pixels(RenderAbstractViewport.defaultCacheExtent);
+    if (effectiveValue == _scrollCacheExtent) return;
+    _scrollCacheExtent = effectiveValue;
+    markNeedsLayout();
+  }
+
+  @Deprecated('Use scrollCacheExtent instead. This feature was deprecated after v3.41.0-0.0.pre.')
+  @override
+  double? get cacheExtent => _scrollCacheExtent.value;
+
+  @Deprecated('Use scrollCacheExtent instead. This feature was deprecated after v3.41.0-0.0.pre.')
+  @override
+  set cacheExtent(double? value) {
+    if (value == null) return;
+    _scrollCacheExtent = _scrollCacheExtent.style == CacheExtentStyle.viewport
+        ? ScrollCacheExtent.viewport(value)
+        : ScrollCacheExtent.pixels(value);
+    markNeedsLayout();
+  }
+
+  @Deprecated('Use scrollCacheExtent instead. This feature was deprecated after v3.41.0-0.0.pre.')
+  @override
+  CacheExtentStyle get cacheExtentStyle => _scrollCacheExtent.style;
+
+  @Deprecated('Use scrollCacheExtent instead. This feature was deprecated after v3.41.0-0.0.pre.')
+  @override
+  set cacheExtentStyle(CacheExtentStyle value) {
+    if (value == _scrollCacheExtent.style) return;
+    _scrollCacheExtent = value == CacheExtentStyle.viewport
+        ? ScrollCacheExtent.viewport(_scrollCacheExtent.value)
+        : ScrollCacheExtent.pixels(_scrollCacheExtent.value);
+    markNeedsLayout();
+  }
 
   @override
   void setupParentData(RenderObject child) {
@@ -194,7 +232,9 @@ class RenderViewportPhotoline extends RenderBox with ContainerRenderObjectMixin<
       mainAxisExtent,
     );
 
-    _calculatedCacheExtent = mainAxisExtent * (cacheExtent ?? 1);
+    _calculatedCacheExtent = scrollCacheExtent.style == CacheExtentStyle.viewport
+        ? mainAxisExtent * scrollCacheExtent.value
+        : scrollCacheExtent.value;
 
     final double fullCacheExtent = mainAxisExtent + 2 * _calculatedCacheExtent!;
     final double centerCacheOffset = centerOffset + _calculatedCacheExtent!;
@@ -885,6 +925,4 @@ class RenderViewportPhotoline extends RenderBox with ContainerRenderObjectMixin<
   @override
   SliverPaintOrder paintOrder = SliverPaintOrder.lastIsTop;
 
-  @override
-  CacheExtentStyle cacheExtentStyle = CacheExtentStyle.viewport;
 }

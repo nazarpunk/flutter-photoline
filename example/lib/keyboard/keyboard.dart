@@ -13,7 +13,7 @@ class SnapKeyboard extends StatefulWidget {
 class _SnapKeyboardState extends State<SnapKeyboard> {
   late final ScrollSnapController _controller = ScrollSnapController(
     onReload: () async {},
-    getState: () => this,
+    //getState: () => this,
   );
 
   void rebuild() => setState(() {});
