@@ -12,7 +12,9 @@ part 'render.dart';
 
 part 'paint.dart';
 
+@deprecated
 class PhotolineImage extends StatefulWidget {
+  @deprecated
   const PhotolineImage({
     super.key,
     required this.loader,

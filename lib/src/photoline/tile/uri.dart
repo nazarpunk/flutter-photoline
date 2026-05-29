@@ -29,6 +29,7 @@ class PhotolineUriNotifier extends ChangeNotifier {
   }
 }
 
+@deprecated
 class PhotolineUri {
   PhotolineUri({this.uri, this.blur, this.color, this.width = 0, this.height = 0, this.stripe, double? opacity}) {
     if (opacity != null) _opacity = opacity * _mo;
