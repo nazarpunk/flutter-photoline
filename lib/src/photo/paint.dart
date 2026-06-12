@@ -110,12 +110,8 @@ class _PhotolinePhotoPaint extends RenderProxyBox {
       );
     }
 
-    final velocity = _animation.velocity;
+    _loader.tickOpacity(_animation.velocity);
     final double opacity = _loader.opacity;
-
-    if (_loader.image != null && opacity < 1) {
-      _loader.opacity = math.min(1.0, opacity + velocity);
-    }
 
     final double opacityback = 1 - opacity;
 

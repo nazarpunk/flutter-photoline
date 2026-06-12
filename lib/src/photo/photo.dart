@@ -28,7 +28,7 @@ class PhotolinePhoto extends StatefulWidget {
 class _PhotolinePhotoState extends State<PhotolinePhoto> with SingleTickerProviderStateMixin, StateRebuildMixin {
   late final _animationRepaint = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 1000),
+    duration: PhotolineLoader.animationDuration,
   );
 
   @override

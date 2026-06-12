@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -25,10 +26,11 @@ final Queue<_PhotolineLoaderQueueItem> _decodeQueue = Queue();
 int _decodeCount = 0;
 
 class _PhotolineLoaderQueueItem {
-  _PhotolineLoaderQueueItem(this.uri, this.data);
+  _PhotolineLoaderQueueItem(this.uri, this.data, this.headers);
 
   final String uri;
   final _PhotolineLoaderData data;
+  final Map<String, String>? headers;
 }
 
 class PhotolineLoaderNotifier extends ChangeNotifier {
@@ -77,6 +79,8 @@ abstract class PhotolineLoader {
 
   String? get uri;
 
+  Map<String, String>? get headers => null;
+
   ui.Image? blur;
 
   int get width;
@@ -104,6 +108,21 @@ abstract class PhotolineLoader {
 
   bool get imageLoaded => _data.image != null;
 
+  /// Duration of the repaint animation controller used by photo widgets.
+  static Duration animationDuration = const Duration(milliseconds: 1000);
+
+  /// Opacity increment per animation velocity unit (velocity ≈ 1.0/s at default duration).
+  /// Default 0.01 gives ~100 frames ≈ 1.67 s fade-in at 60 fps.
+  static double opacitySpeed = 0.01;
+
+  /// Advances opacity toward 1.0 each paint frame. Override in subclass for custom easing.
+  void tickOpacity(double velocity) {
+    if (image == null) return;
+    final current = opacity;
+    if (current >= 1) return;
+    opacity = math.min(1.0, current + velocity * opacitySpeed);
+  }
+
   /// Called by Photoline render to signal that loading should start.
   /// Automatically handles deduplication by URI.
   void spawn() {
@@ -121,7 +140,7 @@ abstract class PhotolineLoader {
     final data = existing ?? _PhotolineLoaderData()
       ..queued = true;
     _map[u] = data;
-    _downloadQueue.add(_PhotolineLoaderQueueItem(u, data));
+    _downloadQueue.add(_PhotolineLoaderQueueItem(u, data, headers));
     _processDownloadQueue();
   }
 
@@ -142,7 +161,7 @@ abstract class PhotolineLoader {
     }
 
     try {
-      data.bytes = await _getBytes(item.uri);
+      data.bytes = await _getBytes(item.uri, item.headers);
     } catch (e) {
       if (kDebugMode) {
         print('⚠️PhotolineLoader download(${item.uri}): $e');
@@ -205,12 +224,12 @@ abstract class PhotolineLoader {
   }
 }
 
-Future<Uint8List?> _getBytes(String uri) async {
+Future<Uint8List?> _getBytes(String uri, Map<String, String>? headers) async {
   http.Response? response;
 
   try {
     response = await http
-        .get(Uri.parse(uri))
+        .get(Uri.parse(uri), headers: headers)
         .timeout(
           const Duration(seconds: 10),
           onTimeout: () => http.Response('Error', 408),
